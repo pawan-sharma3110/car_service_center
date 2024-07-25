@@ -1,8 +1,13 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type User struct {
+	ID        uuid.UUID `json:"id"`
 	FullName  string    `json:"full_name"`
 	Email     string    `json:"email"`
 	PhoneNo   string    `json:"phone_no"`

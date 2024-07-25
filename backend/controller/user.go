@@ -11,7 +11,7 @@ import (
 
 func InsertUser(db *sql.DB, w http.ResponseWriter, user models.User) error {
 	query := `CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     full_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     phone_no VARCHAR(20) UNIQUE NOT NULL,
@@ -45,9 +45,9 @@ func InsertUser(db *sql.DB, w http.ResponseWriter, user models.User) error {
 
 	// Save the user to the database
 	_, err = db.Exec(`
-			INSERT INTO users (full_name, email, phone_no, password, role, created_at) 
-			VALUES ($1, $2, $3, $4, $5, $6)`,
-		user.FullName, user.Email, user.PhoneNo, user.Password, user.Role, user.CreatedAt)
+			INSERT INTO users (id,full_name, email, phone_no, password, role, created_at) 
+			VALUES ($1, $2, $3, $4, $5, $6,$7)`,
+		user.ID, user.FullName, user.Email, user.PhoneNo, user.Password, user.Role, user.CreatedAt)
 	if err != nil {
 		http.Error(w, "Error saving user", http.StatusInternalServerError)
 		return err
