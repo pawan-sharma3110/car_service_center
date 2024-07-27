@@ -35,11 +35,11 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	phoneNo := r.Form.Get("phone_no")
 	password := r.Form.Get("password")
 	role := r.Form.Get("role")
-	print(fullName)
-	print(email)
+
+	id := uuid.New()
 	// Create a new user
 	newUser := models.User{
-		ID:        uuid.New(),
+		ID:        id,
 		FullName:  fullName,
 		Email:     email,
 		PhoneNo:   phoneNo,
@@ -51,11 +51,11 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	// Save the user in the database
 	err = controller.InsertUser(db, w, newUser)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Respond with success
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newUser)
+	json.NewEncoder(w).Encode(map[string]uuid.UUID{"userId": id})
 }
