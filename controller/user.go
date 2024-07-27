@@ -26,7 +26,7 @@ func InsertUser(db *sql.DB, w http.ResponseWriter, user models.User) error {
 	if err != nil {
 		return fmt.Errorf("error creating users table: %w", err)
 	}
-	err = checkexstis(db, user)
+	err = checkExists(db, user.Email, user.PhoneNo)
 	if err != nil {
 		return err
 	}
@@ -46,27 +46,29 @@ func InsertUser(db *sql.DB, w http.ResponseWriter, user models.User) error {
 		return fmt.Errorf("falid to insert user in database : %w", err)
 	}
 
-	log.Printf("User registered successfully: id=%s, email=%s, phone_no=%s", user.ID, user.Email, user.PhoneNo)
 	return nil
 }
 
-func checkexstis(db *sql.DB, user models.User) error {
-	// Check if the user already exists
+func checkExists(db *sql.DB, email string, phoneNo string) error {
+	// Check if the email already exists
 	var id uuid.UUID
-	err := db.QueryRow("SELECT id FROM users WHERE email = $1", user.Email).Scan(&id)
-	if err != nil {
-		return fmt.Errorf("error checking user existence: %w", err)
+	err := db.QueryRow("SELECT id FROM users WHERE email = $1", email).Scan(&id)
+	if err != nil && err != sql.ErrNoRows {
+		return fmt.Errorf("error checking email existence: %w", err)
 	}
-	if id != uuid.Nil {
-		return fmt.Errorf("provided email already register with this user Id: %v", id)
+	if err == nil {
+		return fmt.Errorf("provided email already registered with this user ID: %v", id)
 	}
-	err = db.QueryRow("SELECT id FROM users WHERE phone_no = $2", user.PhoneNo).Scan(&id)
-	if err != nil {
-		return fmt.Errorf("error checking user existence: %w", err)
+
+	// Check if the phone number already exists
+	err = db.QueryRow("SELECT id FROM users WHERE phone_no = $1", phoneNo).Scan(&id)
+	if err != nil && err != sql.ErrNoRows {
+		return fmt.Errorf("error checking phone number existence: %w", err)
 	}
-	if id != uuid.Nil {
-		return fmt.Errorf("provided Mobile Number already register with this user Id: %v", id)
+	if err == nil {
+		return fmt.Errorf("provided mobile number already registered with this user ID: %v", id)
 	}
+
 	return nil
 }
 
