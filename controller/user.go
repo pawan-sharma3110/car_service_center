@@ -3,10 +3,11 @@ package controller
 import (
 	"car_service/models"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
-	"time"
 
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -23,35 +24,18 @@ func InsertUser(db *sql.DB, w http.ResponseWriter, user models.User) error {
 	)`
 	_, err := db.Exec(query)
 	if err != nil {
-		log.Printf("Error creating users table: %v", err)
-		http.Error(w, "Error creating users table", http.StatusInternalServerError)
-		return err
+		return fmt.Errorf("error creating users table: %w", err)
 	}
-
-	// Check if the user already exists
-	var count int
-	err = db.QueryRow("SELECT COUNT(*) FROM users WHERE email = $1 OR phone_no = $2", user.Email, user.PhoneNo).Scan(&count)
+	err = checkexstis(db, user)
 	if err != nil {
-		log.Printf("Error checking user existence: %v", err)
-		http.Error(w, "Error checking user existence", http.StatusInternalServerError)
 		return err
 	}
-
-	if count > 0 {
-		log.Printf("Email or phone number already exists: email=%s, phone_no=%s", user.Email, user.PhoneNo)
-		http.Error(w, "Email or phone number already exists", http.StatusConflict)
-		return err
-	}
-
 	// Hash the password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+
+	user.Password, err = converHash(user.Password)
 	if err != nil {
-		log.Printf("Error hashing password: %v", err)
-		http.Error(w, "Error hashing password", http.StatusInternalServerError)
 		return err
 	}
-	user.Password = string(hashedPassword)
-	user.CreatedAt = time.Now()
 
 	// Save the user to the database
 	_, err = db.Exec(`
@@ -59,11 +43,38 @@ func InsertUser(db *sql.DB, w http.ResponseWriter, user models.User) error {
 		VALUES ($1, $2, $3, $4, $5, $6, $7)`,
 		user.ID, user.FullName, user.Email, user.PhoneNo, user.Password, user.Role, user.CreatedAt)
 	if err != nil {
-		log.Printf("Error saving user: %v", err)
-		http.Error(w, "Error saving user", http.StatusInternalServerError)
-		return err
+		return fmt.Errorf("falid to insert user in database : %w", err)
 	}
 
 	log.Printf("User registered successfully: id=%s, email=%s, phone_no=%s", user.ID, user.Email, user.PhoneNo)
 	return nil
+}
+
+func checkexstis(db *sql.DB, user models.User) error {
+	// Check if the user already exists
+	var id uuid.UUID
+	err := db.QueryRow("SELECT id FROM users WHERE email = $1", user.Email).Scan(&id)
+	if err != nil {
+		return fmt.Errorf("error checking user existence: %w", err)
+	}
+	if id != uuid.Nil {
+		return fmt.Errorf("provided email already register with this user Id: %v", id)
+	}
+	err = db.QueryRow("SELECT id FROM users WHERE phone_no = $2", user.PhoneNo).Scan(&id)
+	if err != nil {
+		return fmt.Errorf("error checking user existence: %w", err)
+	}
+	if id != uuid.Nil {
+		return fmt.Errorf("provided Mobile Number already register with this user Id: %v", id)
+	}
+	return nil
+}
+
+func converHash(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Printf("Error hashing password: %v", err)
+		return "", fmt.Errorf("failed to convert password in hash %w", err)
+	}
+	return string(hashedPassword), nil
 }

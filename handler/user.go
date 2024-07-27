@@ -2,7 +2,7 @@ package handler
 
 import (
 	"car_service/controller"
-	"car_service/db"
+	"car_service/database"
 	"car_service/models"
 	"encoding/json"
 	"net/http"
@@ -12,11 +12,12 @@ import (
 )
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	database, err := db.DbIn()
+	db, err := database.DbIn()
 	if err != nil {
-		http.Error(w, "s", http.StatusBadRequest)
+		http.Error(w, "unable to connect database", http.StatusBadRequest)
 		return
 	}
+	defer db.Close()
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
@@ -48,9 +49,9 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Save the user in the database
-	err = controller.InsertUser(database, w, newUser)
+	err = controller.InsertUser(db, w, newUser)
 	if err != nil {
-		http.Error(w, "Error saving user", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
