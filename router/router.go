@@ -18,5 +18,5 @@ import (
 func AllRoutes() {
 	fileServer := http.FileServer(http.Dir("./frontend"))
 	http.Handle("/", fileServer)
-	http.HandleFunc("/user/register", handler.RegisterUser)
+	http.HandleFunc("/user/register", handler.RegisterHandler)
 }

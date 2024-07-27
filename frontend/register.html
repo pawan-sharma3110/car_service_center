@@ -111,38 +111,38 @@
             </div>
         </div>
     </div>
-<script>
-//     document.getElementById('registerForm').addEventListener('submit', function (event) {
-//     event.preventDefault(); // Prevent the form from submitting the traditional way
+<!-- <script>
+   document.getElementById('registerForm').addEventListener('submit', function (event) {
+     event.preventDefault(); // Prevent the form from submitting the traditional way
 
-//     const formData = new FormData(this);
+     const formData = new FormData(this);
 
-//     fetch('/user/register', {
-//         method: 'POST',
-//         body: JSON.stringify({
-//             full_name: formData.get('full_name'),
-//             email: formData.get('email'),
-//             phone_no: formData.get('phone_no'),
-//             password: formData.get('password'),
-//             role: formData.get('role'),
-//             created_at: new Date().toISOString()
-//         }),
-//         headers: {
-//             'Content-Type': 'application/json'
-//         }
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         document.getElementById('message').textContent = data.message || 'Registration successful!';
-//         document.getElementById('registerForm').reset();
-//     })
-//     .catch(error => {
-//         console.error('Error:', error);
-//         document.getElementById('message').textContent = 'An error occurred. Please try again.';
-//     });
-// });
+     fetch('/user/register', {
+        method: 'POST',
+        body: JSON.stringify({
+            full_name: formData.get('full_name'),
+            email: formData.get('email'),
+            phone_no: formData.get('phone_no'),
+            password: formData.get('password'),
+            role: formData.get('role'),
+            created_at: new Date().toISOString()
+        }),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('message').textContent = data.message || 'Registration successful!';
+        document.getElementById('registerForm').reset();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('message').textContent = 'An error occurred. Please try again.';
+    });
+});
 
-</script>
+</script> -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
