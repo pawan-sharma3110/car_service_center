@@ -1,10 +1,5 @@
 package router
 
-import (
-	"car_service/handler"
-	"net/http"
-)
-
 // func Routes() *mux.Router {
 // 	r := mux.NewRouter()
 // 	fileServer := http.FileServer(http.Dir("./frontend"))
@@ -16,7 +11,5 @@ import (
 // }
 
 func AllRoutes() {
-	fileServer := http.FileServer(http.Dir("./frontend"))
-	http.Handle("/", fileServer)
-	http.HandleFunc("/user/register", handler.RegisterHandler)
+
 }
