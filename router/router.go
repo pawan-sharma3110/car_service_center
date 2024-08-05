@@ -1,15 +1,12 @@
 package router
 
-// func Routes() *mux.Router {
-// 	r := mux.NewRouter()
-// 	fileServer := http.FileServer(http.Dir("./frontend"))
-// 	r.Handle("/", fileServer)
-// 	// http.HandleFunc("/login", handler.Login)
-// 	r.HandleFunc("/user/register", handler.RegisterUser).Methods("POST")
-
-// 	return r
-// }
+import (
+	"car_service/handler"
+	"net/http"
+)
 
 func AllRoutes() {
-
+	fileServer := http.FileServer(http.Dir("./static"))
+	http.Handle("/", fileServer)
+	http.HandleFunc("/user/register", handler.RegisterHandler)
 }
