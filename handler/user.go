@@ -5,6 +5,7 @@ import (
 	"car_service/database"
 	"car_service/models"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -47,7 +48,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		Role:      role,
 		CreatedAt: time.Now(),
 	}
-
+fmt.Println(newUser)
 	// Save the user in the database
 	err = controller.InsertUser(db, w, newUser)
 	if err != nil {

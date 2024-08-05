@@ -57,7 +57,7 @@ func checkExists(db *sql.DB, email string, phoneNo string) error {
 		return fmt.Errorf("error checking email existence: %w", err)
 	}
 	if err == nil {
-		return fmt.Errorf("provided email already registered with this user ID: %v", id)
+		return fmt.Errorf("provided email already registered with user ID: %v", id)
 	}
 
 	// Check if the phone number already exists
@@ -66,7 +66,7 @@ func checkExists(db *sql.DB, email string, phoneNo string) error {
 		return fmt.Errorf("error checking phone number existence: %w", err)
 	}
 	if err == nil {
-		return fmt.Errorf("provided mobile number already registered with this user ID: %v", id)
+		return fmt.Errorf("provided phone number already registered with user ID: %v", id)
 	}
 
 	return nil
