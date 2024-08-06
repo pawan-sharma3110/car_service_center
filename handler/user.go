@@ -4,6 +4,7 @@ import (
 	"car_service/controller"
 	"car_service/database"
 	"car_service/models"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -12,20 +13,19 @@ import (
 	"github.com/google/uuid"
 )
 
+var db *sql.DB = database.DbIn()
+
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	db, err := database.DbIn()
-	if err != nil {
-		http.Error(w, "unable to connect database", http.StatusBadRequest)
-		return
-	}
+
 	defer db.Close()
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Parse the form values
-	err = r.ParseForm()
+	// Parse form values
+	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Error parsing form", http.StatusBadRequest)
 		return
@@ -37,8 +37,23 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	password := r.Form.Get("password")
 	role := r.Form.Get("role")
 
+	
+	fmt.Println("Form values:")
+	fmt.Println("Full Name:", r.Form.Get("full_name"))
+	fmt.Println("Email:", r.Form.Get("email"))
+	fmt.Println("Phone No:", r.Form.Get("phone_no"))
+	fmt.Println("Password:", r.Form.Get("password"))
+	fmt.Println("Role:", r.Form.Get("role"))
+
+	if fullName == "" || email == "" || phoneNo == "" || password == "" || role == "" {
+		http.Error(w, "Missing required fields", http.StatusBadRequest)
+		return
+	}
+
+	// Generate a new UUID for the user
 	id := uuid.New()
-	// Create a new user
+
+	// Create a new user struct
 	newUser := models.User{
 		ID:        id,
 		FullName:  fullName,
@@ -48,15 +63,29 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		Role:      role,
 		CreatedAt: time.Now(),
 	}
-fmt.Println(newUser)
-	// Save the user in the database
-	err = controller.InsertUser(db, w, newUser)
+
+	// Check if email or phone number already exists
+	err = controller.CheckExists(db, newUser.Email, newUser.PhoneNo)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	// Hash the password
+	newUser.Password, err = controller.HashPassword(newUser.Password)
+	if err != nil {
+		http.Error(w, "Error hashing password", http.StatusInternalServerError)
+		return
+	}
+
+	// Insert the new user into the database
+	err = controller.InsertUser(db, newUser)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	// Respond with success
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]uuid.UUID{"userId": id})
+	json.NewEncoder(w).Encode(map[string]uuid.UUID{"userId": newUser.ID})
 }
