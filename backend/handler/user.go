@@ -37,7 +37,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	password := r.Form.Get("password")
 	role := r.Form.Get("role")
 
-	
 	fmt.Println("Form values:")
 	fmt.Println("Full Name:", r.Form.Get("full_name"))
 	fmt.Println("Email:", r.Form.Get("email"))
@@ -49,7 +48,12 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing required fields", http.StatusBadRequest)
 		return
 	}
-
+	// Check if email or phone number already exists
+	err = controller.CheckExists(db, email, phoneNo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	// Generate a new UUID for the user
 	id := uuid.New()
 
@@ -64,13 +68,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: time.Now(),
 	}
 
-	// Check if email or phone number already exists
-	err = controller.CheckExists(db, newUser.Email, newUser.PhoneNo)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	// Hash the password
 	newUser.Password, err = controller.HashPassword(newUser.Password)
 	if err != nil {
@@ -79,7 +76,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Insert the new user into the database
-	err = controller.InsertUser(db, newUser)
+	err = newUser.InsertUser(db)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

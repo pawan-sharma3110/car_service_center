@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"car_service/models"
 	"database/sql"
 	"fmt"
 	"log"
@@ -22,16 +21,6 @@ func HashPassword(password string) (string, error) {
 }
 
 // insertUser inserts a new user into the database
-func InsertUser(db *sql.DB, user models.User) error {
-	_, err := db.Exec(`
-		INSERT INTO users (id, full_name, email, phone_no, password, role, created_at) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-		user.ID, user.FullName, user.Email, user.PhoneNo, user.Password, user.Role, user.CreatedAt)
-	if err != nil {
-		return fmt.Errorf("failed to insert user into database: %w", err)
-	}
-	return nil
-}
 
 // checkExists checks if the email or phone number already exists in the database
 func CheckExists(db *sql.DB, email string, phoneNo string) error {
