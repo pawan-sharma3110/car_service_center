@@ -9,4 +9,6 @@ func AllRoutes() {
 	fileServer := http.FileServer(http.Dir("../static"))
 	http.Handle("/", fileServer)
 	http.HandleFunc("/user/register", handler.RegisterHandler)
+	http.HandleFunc("/user/login", handler.Login)
+
 }

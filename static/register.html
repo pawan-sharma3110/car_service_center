@@ -92,7 +92,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="phoneNo">Phone Number</label>
-                                <input type="tel" class="form-control" id="phoneNo" name="phoneno" required>
+                                <input type="tel" class="form-control" id="phoneNo" name="phoneNo" required>
                             </div>
                             <div class="form-group">
                                 <label for="password">Password</label>
@@ -131,7 +131,8 @@
                 const response = await fetch('http://localhost:8080/user/register', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                         'Cache-Control': 'no-cache'
                     },
                     body: JSON.stringify(data)
                 });
@@ -140,13 +141,16 @@
                     alert('User registered successfully!');
                     this.reset();
                 } else {
-                    alert('Registration failed.');
+                    alert(`Registration failed`);
+                    this.reset();
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('An error occurred.');
+                alert('An error occurred: ' + error.message);
+                this.reset();
             }
         });
+
     </script>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>

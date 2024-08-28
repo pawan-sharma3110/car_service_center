@@ -3,24 +3,11 @@ package controller
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
-// hashPassword hashes the user's password
 
-func HashPassword(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		log.Printf("Error hashing password: %v", err)
-		return "", fmt.Errorf("failed to hash password: %w", err)
-	}
-	return string(hashedPassword), nil
-}
-
-// insertUser inserts a new user into the database
 
 // checkExists checks if the email or phone number already exists in the database
 func CheckExists(db *sql.DB, email string, phoneNo string) error {
