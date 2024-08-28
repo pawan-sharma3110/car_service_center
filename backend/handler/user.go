@@ -97,7 +97,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing required fields", http.StatusBadRequest)
 		return
 	}
-	err = user.ValidateUser(user.Email, user.Password, db)
+	_, err = user.ValidateUser(user.Email, user.Password, db)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	token, err := utils.GernateJwt(user.Email, user.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -105,5 +110,5 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	// Respond with success
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"massage": "login successfuly"})
+	json.NewEncoder(w).Encode(map[string]string{"token": token})
 }

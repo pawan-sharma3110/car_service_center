@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	
+
 	"time"
 
 	"github.com/google/uuid"
@@ -35,17 +35,19 @@ func (u User) InsertUser(db *sql.DB) error {
 }
 
 // Validae user provided email and password
-func (u User) ValidateUser(email string, password string, db *sql.DB) error {
+func (u User) ValidateUser(email string, password string, db *sql.DB) (id uuid.UUID, err error) {
 	fmt.Println(email)
 	var hashedPassword string
-	query := `SELECT password FROM users WHERE email = $1`
-	err:= db.QueryRow(query, u.Email).Scan(&hashedPassword)
+	query := `SELECT password,id FROM users WHERE email = $1`
+	err = db.QueryRow(query, u.Email).Scan(&hashedPassword, &u.ID)
 	if err != nil {
-		return fmt.Errorf("User not register with provided email: %w", err)
+		return uuid.Nil, fmt.Errorf("User not register with provided email: %w", err)
 	}
 	fmt.Println(u.Email)
+	fmt.Println(u.ID)
+
 	if existis := utils.UnhashPassword(password, hashedPassword); !existis {
-		return errors.New("password Not match")
+		return uuid.Nil, errors.New("password Not match")
 	}
-	return nil
+	return u.ID, nil
 }
