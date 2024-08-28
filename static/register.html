@@ -6,71 +6,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Registration</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-   
+
 </head>
 <style>
     body {
-    background-color: #f8f9fa;
-}
+        background-color: #f8f9fa;
+    }
 
-.card {
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
 
-.card-header {
-    background-color: #007bffd3;
-    color: #fff;
-    border-bottom: none;
-    border-radius: 10px 10px 0 0;
-}
+    .card-header {
+        background-color: #007bffd3;
+        color: #fff;
+        border-bottom: none;
+        border-radius: 10px 10px 0 0;
+    }
 
-.card-header h3 {
-    margin: 0;
-}
+    .card-header h3 {
+        margin: 0;
+    }
 
-.btn-primary {
-    background-color: #007bffd3;
-    border-color: #007bffd3;
-}
+    .btn-primary {
+        background-color: #007bffd3;
+        border-color: #007bffd3;
+    }
 
-.btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #004085;
-}
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
 
-#message {
-    font-size: 1.1rem;
-}
-
+    #message {
+        font-size: 1.1rem;
+    }
 </style>
-<body>    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-   <a class="navbar-brand" href="./index.html">Washing Hub</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">About</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Products</a>
-            </li>
-        </ul>
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="btn btn-outline-primary mr-2" href="./login.html">Login</a>
-            </li>
-            <li class="nav-item">
-                <a class="btn btn-outline-success" href="./register.html">Register</a>
-            </li>
-        </ul>
-    </div>
-</nav>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="./index.html">Washing Hub</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Products</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="btn btn-outline-primary mr-2" href="./login.html">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-outline-success" href="./register.html">Register</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
     <div class="container">
         <div class="row justify-content-center mt-5">
             <div class="col-md-6">
@@ -79,10 +81,10 @@
                         <h3 class="text-center">User Registration</h3>
                     </div>
                     <div class="card-body">
-                        <form id="registerForm" action="/user/register" method="post">
+                        <form id="registrationForm" action="/user/register" method="post">
                             <div class="form-group">
                                 <label for="fullName">Full Name</label>
-                                <input type="text" class="form-control" id="fullName" name="full_name" required>
+                                <input type="text" class="form-control" id="fullName" name="fullName" required>
                             </div>
                             <div class="form-group">
                                 <label for="email">Email</label>
@@ -90,11 +92,12 @@
                             </div>
                             <div class="form-group">
                                 <label for="phoneNo">Phone Number</label>
-                                <input type="tel" class="form-control" id="phoneNo" name="phone_no" required>
+                                <input type="tel" class="form-control" id="phoneNo" name="phoneno" required>
                             </div>
                             <div class="form-group">
                                 <label for="password">Password</label>
-                                <input type="password" class="form-control" id="password" name="password" required autocomplete="new-password">
+                                <input type="password" class="form-control" id="password" name="password" required
+                                    autocomplete="new-password">
                             </div>
                             <div class="form-group">
                                 <label for="role">Role</label>
@@ -112,41 +115,44 @@
         </div>
     </div>
     <script>
-        document.getElementById('registerForm').addEventListener('submit', function (event) {
-            event.preventDefault(); // Prevent the form from submitting the traditional way
-    
+        document.getElementById('registrationForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
             const formData = new FormData(this);
-    
-            fetch('/user/register', {  // Updated path to relative URL
-                method: 'POST',
-                body: JSON.stringify({
-                    full_name: formData.get('full_name'),
-                    email: formData.get('email'),
-                    phone_no: formData.get('phone_no'),
-                    password: formData.get('password'),
-                    role: formData.get('role'),
-                    created_at: new Date().toISOString()
-                }),
-                headers: {
-                    'Content-Type': 'application/json'
+            const data = {
+                full_name: formData.get('fullName'),
+                email: formData.get('email'),
+                phone_no: formData.get('phoneNo'),
+                password: formData.get('password'),
+                role: formData.get('role')
+            };
+
+            try {
+                const response = await fetch('http://localhost:8080/user/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('User registered successfully!');
+                    this.reset();
+                } else {
+                    alert('Registration failed.');
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('message').textContent = data.message || 'Registration successful!';
-                document.getElementById('registerForm').reset();
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('message').textContent = 'An error occurred. Please try again.';
-            });
+                alert('An error occurred.');
+            }
         });
     </script>
-    
+
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  
+
 </body>
 
 </html>

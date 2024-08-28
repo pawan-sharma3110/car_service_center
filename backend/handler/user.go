@@ -6,7 +6,6 @@ import (
 	"car_service/models"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -24,32 +23,38 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse form values
-	err := r.ParseForm()
+	// err := r.ParseForm()
+	// if err != nil {
+	// 	http.Error(w, "Error parsing form", http.StatusBadRequest)
+	// 	return
+	// }
+
+	// fullName := r.Form.Get("full_name")
+	// email := r.Form.Get("email")
+	// phoneNo := r.Form.Get("phone_no")
+	// password := r.Form.Get("password")
+	// role := r.Form.Get("role")
+
+	// fmt.Println("Form values:")
+	// fmt.Println("Full Name:", fullName)
+	// fmt.Println("Email:", email)
+	// fmt.Println("Phone No:", phoneNo)
+	// fmt.Println("Password:", password)
+	// fmt.Println("Role:", role)
+	var user models.User
+	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		http.Error(w, "Error parsing form", http.StatusBadRequest)
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 
-	fullName := r.Form.Get("full_name")
-	email := r.Form.Get("email")
-	phoneNo := r.Form.Get("phone_no")
-	password := r.Form.Get("password")
-	role := r.Form.Get("role")
-
-	fmt.Println("Form values:")
-	fmt.Println("Full Name:", fullName)
-	fmt.Println("Email:", email)
-	fmt.Println("Phone No:", phoneNo)
-	fmt.Println("Password:", password)
-	fmt.Println("Role:", role)
-
-	if fullName == "" || email == "" || phoneNo == "" || password == "" || role == "" {
-		http.Error(w, "Missing required fields", http.StatusBadRequest)
-		return
-	}
+	// if fullName == "" || email == "" || phoneNo == "" || password == "" || role == "" {
+	// 	http.Error(w, "Missing required fields", http.StatusBadRequest)
+	// 	return
+	// }
 
 	// Check if email or phone number already exists
-	err = controller.CheckExists(db, email, phoneNo)
+	err = controller.CheckExists(db, user.Email, user.PhoneNo)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -61,11 +66,11 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	// Create a new user struct
 	newUser := models.User{
 		ID:        id,
-		FullName:  fullName,
-		Email:     email,
-		PhoneNo:   phoneNo,
-		Password:  password,
-		Role:      role,
+		FullName:  user.FullName,
+		Email:     user.Email,
+		PhoneNo:   user.PhoneNo,
+		Password:  user.Password,
+		Role:      user.Role,
 		CreatedAt: time.Now(),
 	}
 
