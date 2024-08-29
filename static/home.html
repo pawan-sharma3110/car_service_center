@@ -1,126 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Car Service & Washing Center Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-
+    <title>Car Service & Washing Center</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+ <link rel="stylesheet" href="./css/home.css">
+    
 </head>
+
 <body>
-    <!-- Navigation Bar -->
+    
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Car Service Center</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Services</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Bookings</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Logout</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
+       <a class="navbar-brand" href="./index.html">Washing Hub</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Service</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Appointment</a>
+                </li>
+            </ul>
+            <!-- <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="btn btn-outline-primary mr-2" href="./login.html">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-outline-success" href="./register.html">Register</a>
+                </li>
+            </ul>
+        </div> -->
     </nav>
 
-    <!-- Main Content -->
-    <div class="container my-4">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3">
-                <div class="list-group">
-                    <a href="#" class="list-group-item list-group-item-action active">Dashboard</a>
-                    <a href="#" class="list-group-item list-group-item-action">Manage Services</a>
-                    <a href="#" class="list-group-item list-group-item-action">Bookings</a>
-                    <a href="#" class="list-group-item list-group-item-action">Profile</a>
-                </div>
+    <section class="hero">
+        <div class="container">
+            <h1>Welcome to Our Car Service & Washing Center</h1>
+            <p>Your car deserves the best care and maintenance.</p>
+            <a href="#services" class="btn btn-primary">Our Services</a>
+        </div>
+    </section>
+
+    <section id="services" class="services">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>Our Services</h2>
+                <p>We offer a wide range of car services and washing options.</p>
             </div>
-
-            <!-- Main Dashboard Area -->
-            <div class="col-md-9">
-                <h2>Welcome to Your Dashboard</h2>
-                <div class="row">
-                    <!-- Service Management -->
-                    <div class="col-lg-6">
-                        <div class="card mb-4">
-                            <div class="card-header bg-primary text-white">
-                                Service Management
-                            </div>
-                            <div class="card-body">
-                                <p>Manage the car services offered, update pricing, and more.</p>
-                                <a href="#" class="btn btn-primary">Manage Services</a>
-                            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="./media/3.jpg" height="233px"card-img-top" alt="Service 1">
+                        <div class="card-body">
+                            <h5 class="card-title">Car Washing</h5>
+                            <p class="card-text">Professional car washing services to keep your car sparkling clean.</p>
                         </div>
                     </div>
-
-                    <!-- Booking System -->
-                    <div class="col-lg-6">
-                        <div class="card mb-4">
-                            <div class="card-header bg-success text-white">
-                                Booking System
-                            </div>
-                            <div class="card-body">
-                                <p>View and manage customer bookings, schedule services, and more.</p>
-                                <a href="#" class="btn btn-success">Manage Bookings</a>
-                            </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="./media/beautiful-car-washing-service_23-2149212221.avif" class="card-img-top" alt="Service 2">
+                        <div class="card-body">
+                            <h5 class="card-title">Car Detailing</h5>
+                            <p class="card-text">Comprehensive car detailing to restore your car's original shine.</p>
                         </div>
                     </div>
-
-                    <!-- User Profile -->
-                    <div class="col-lg-6">
-                        <div class="card mb-4">
-                            <div class="card-header bg-info text-white">
-                                User Profile
-                            </div>
-                            <div class="card-body">
-                                <p>Update your profile information and settings.</p>
-                                <a href="#" class="btn btn-info">Edit Profile</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Logout -->
-                    <div class="col-lg-6">
-                        <div class="card mb-4">
-                            <div class="card-header bg-danger text-white">
-                                Logout
-                            </div>
-                            <div class="card-body">
-                                <p>End your session and log out of the dashboard.</p>
-                                <a href="#" class="btn btn-danger">Logout</a>
-                            </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="./media/oil.JPG" class="card-img-top" alt="Service 3">
+                        <div class="card-body">
+                            <h5 class="card-title">Oil Change</h5>
+                            <p class="card-text">Quick and efficient oil change services to keep your engine running smoothly.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Bootstrap JavaScript Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.querySelector('.btn-danger').addEventListener('click', function() {
-    if (confirm('Are you sure you want to log out?')) {
-        // Add your logout logic here
-        window.location.href = '/login'; // Redirect to login page
-    }
-});
+    <section id="about" class="about">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <img src="./media/4.jpg" alt="About Us">
+                </div>
+                <div class="col-md-6">
+                    <h2>About Us</h2>
+                    <p>We are a team of experienced professionals dedicated to providing the best car services and washing solutions. Our goal is to ensure your car remains in top condition and looks as good as new.</p>
+                    <p>With years of experience and a commitment to quality, we offer a range of services designed to meet all your car care needs.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    </script>
+    <section id="testimonials" class="testimonials">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>Testimonials</h2>
+                <p>See what our satisfied customers have to say.</p>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="testimonial">
+                        <p>"Excellent service! My car looks brand new after the detailing. Highly recommend!"</p>
+                        <h5>- John Doe</h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="testimonial">
+                        <p>"Fast and efficient oil change. Great customer service and friendly staff."</p>
+                        <h5>- Jane Smith</h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="testimonial">
+                        <p>"Best car washing service in town. My car has never looked so clean."</p>
+                        <h5>- Michael Brown</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>Contact Us</h2>
+                <p>Get in touch with us for any inquiries or to book a service.</p>
+            </div>
+            <div class="row">
+                <div class="col-md-6 offset-md-3">
+                    <form>
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" required placeholder="Your Email">
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea class="form-control" id="message" rows="5" required placeholder="Any inquiries or to book a service"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- <footer>
+        <div class="container">
+            <p>&copy; 2024 Car Service Center. All Rights Reserved.</p>
+        </div>
+    </footer> -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <!-- Footer Logo and Description -->
+                <div class="col-md-4 mb-3">
+                    <h5 class="text-uppercase">Car Service Center</h5>
+                    <p>Providing top-notch car servicing and washing services with a commitment to excellence.</p>
+                </div>
+                <!-- Quick Links -->
+                <div class="col-md-4 mb-3">
+                    <h5 class="text-uppercase">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="./index.html" class="text-white">Home</a></li>
+                        <li><a href="./login.html" class="text-white">Services</a></li>
+                        <li><a href="#contact" class="text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <!-- Social Media Icons -->
+                <div class="col-md-4 mb-3">
+                    <h5 class="text-uppercase">Follow Us</h5>
+                    <div>
+                        <a href="#" class="text-white me-2"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="border-light">
+            <p class="mb-0">&copy; 2024 Car Service Center. All Rights Reserved.</p>
+        </div>
+    </footer>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
+
 </html>
