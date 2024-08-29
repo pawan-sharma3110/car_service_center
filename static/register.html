@@ -136,12 +136,14 @@
                     },
                     body: JSON.stringify(data)
                 });
-
+                const messageElement = document.getElementById('message');
                 if (response.ok) {
-                    alert('User registered successfully!');
+                    const result = await response.json();
+                    messageElement.innerHTML = `<div class="alert alert-success">Register successful! Your ID: ${result.token}</div>`;
                     this.reset();
                 } else {
-                    alert(`Registration failed`);
+                    const errorText = await response.text();
+                    messageElement.innerHTML = `<div class="alert alert-danger">Register failed: ${errorText}</div>`;
                     this.reset();
                 }
             } catch (error) {

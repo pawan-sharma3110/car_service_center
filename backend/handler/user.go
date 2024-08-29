@@ -18,21 +18,19 @@ var db *sql.DB = database.DbIn()
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Ensure the request is a POST request
-	// if r.Method != "POST" {
-	// 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-	// 	return
-	// }
+	if r.Method != "POST" {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
 
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 
 	if user.FullName == "" || user.Email == "" || user.PhoneNo == "" || user.Password == "" || user.Role == "" {
-		w.Header().Set("Content-Type", "application/json")
 		http.Error(w, "Missing required fields", http.StatusBadRequest)
 		return
 	}
@@ -40,7 +38,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	// Check if email or phone number already exists
 	err = controller.CheckExists(db, user.Email, user.PhoneNo)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -62,7 +59,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	// Hash the password
 	newUser.Password, err = utils.HashPassword(newUser.Password)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
 		http.Error(w, "Error hashing password", http.StatusInternalServerError)
 		return
 	}
@@ -70,7 +66,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	// Insert the new user into the database
 	err = newUser.InsertUser(db)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

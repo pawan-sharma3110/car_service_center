@@ -41,7 +41,7 @@ func (u User) ValidateUser(email string, password string, db *sql.DB) (id uuid.U
 	query := `SELECT password,id FROM users WHERE email = $1`
 	err = db.QueryRow(query, u.Email).Scan(&hashedPassword, &u.ID)
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("User not register with provided email: %w", err)
+		return uuid.Nil, fmt.Errorf("invalid email: %v", u.Email)
 	}
 	fmt.Println(u.Email)
 	fmt.Println(u.ID)
