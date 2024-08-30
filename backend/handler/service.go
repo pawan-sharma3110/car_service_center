@@ -101,3 +101,40 @@ func AllServiceDelete(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, " All service deleted successfully")
 }
+func UpdadeService(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "PATCH" {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+	id := r.PathValue("id")
+	if id == "" {
+		http.Error(w, "Missing id parameter", http.StatusBadRequest)
+		return
+	}
+
+	sID, err := uuid.Parse(id)
+	if err != nil {
+		http.Error(w, "Invalid service ID", http.StatusBadRequest)
+		return
+	}
+	var service models.Service
+	err = json.NewDecoder(r.Body).Decode(&service)
+	if err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	updated := models.Service{
+		ServiceID:   sID,
+		Name:        service.Name,
+		Description: service.Description,
+		Cost:        service.Cost,
+	}
+	err = updated.Update(db)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "Service updated successfully")
+}

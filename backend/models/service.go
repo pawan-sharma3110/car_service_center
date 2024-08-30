@@ -88,4 +88,29 @@ func DeleteAll(db *sql.DB) (err error) {
 		return fmt.Errorf("Service not found or maybe already deleted")
 	}
 	return nil
+
+}
+
+func (s Service) Update(db *sql.DB) (err error) {
+	query := `UPDATE services 
+    SET service_id = $1, 
+    name = $2, 
+    cost = $3, 
+    description = $4 
+    WHERE service_id = $5`
+
+	row, err := db.Exec(query, s.ServiceID, s.Name, s.Cost, s.Description, s.ServiceID)
+	if err != nil {
+		return fmt.Errorf("failed to update service: %w", err)
+	}
+	rowsAffected, err := row.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to check rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("Service not found with id: %v", s.ServiceID)
+	}
+	return nil
+
 }
