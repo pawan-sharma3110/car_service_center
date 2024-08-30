@@ -23,7 +23,12 @@ func DbIn() (db *sql.DB) {
 	if err != nil {
 		log.Fatalf("error pinging database: %v", err)
 	}
-
+	// Table Create Function
+	createUserTable(db)
+	createServiceTable(db)
+	return db
+}
+func createUserTable(db *sql.DB) error {
 	query := `CREATE TABLE IF NOT EXISTS users (
 		id UUID PRIMARY KEY,
 		full_name VARCHAR(255) NOT NULL,
@@ -33,9 +38,26 @@ func DbIn() (db *sql.DB) {
 		role VARCHAR(50) NOT NULL,
 		created_at TIMESTAMP WITH TIME ZONE NOT NULL
 	)`
-	_, err = db.Exec(query)
+	_, err := db.Exec(query)
 	if err != nil {
 		log.Fatal(err)
+		return err
 	}
-	return db
+	return nil
+}
+
+func createServiceTable(db *sql.DB) error {
+	query := `CREATE TABLE IF NOT EXISTS services (
+			service_id UUID PRIMARY KEY,
+			name VARCHAR(100) NOT NULL,
+			cost NUMERIC(10, 2) NOT NULL,
+			description TEXT,
+			created_at TIMESTAMP WITH TIME ZONE NOT NULL
+	)`
+	_, err := db.Exec(query)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	return nil
 }
