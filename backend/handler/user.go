@@ -92,12 +92,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing required fields", http.StatusBadRequest)
 		return
 	}
-	_, err = user.ValidateUser(user.Email, user.Password, db)
+	id, role, err := user.ValidateUser(user.Email, user.Password, db)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	token, err := utils.GernateJwt(user.Email, user.ID)
+	token, err := utils.GernateJwt(user.Email, id, *role)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

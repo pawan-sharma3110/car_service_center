@@ -35,19 +35,19 @@ func (u User) InsertUser(db *sql.DB) error {
 }
 
 // Validae user provided email and password
-func (u User) ValidateUser(email string, password string, db *sql.DB) (id uuid.UUID, err error) {
+func (u User) ValidateUser(email string, password string, db *sql.DB) (id uuid.UUID, role *string, err error) {
 	fmt.Println(email)
 	var hashedPassword string
-	query := `SELECT password,id FROM users WHERE email = $1`
-	err = db.QueryRow(query, u.Email).Scan(&hashedPassword, &u.ID)
+	query := `SELECT password,id,role FROM users WHERE email = $1`
+	err = db.QueryRow(query, u.Email).Scan(&hashedPassword, &u.ID, &role)
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("invalid email: %v", u.Email)
+		return uuid.Nil, nil, fmt.Errorf("invalid email: %v", u.Email)
 	}
 	fmt.Println(u.Email)
 	fmt.Println(u.ID)
 
 	if existis := utils.UnhashPassword(password, hashedPassword); !existis {
-		return uuid.Nil, errors.New("password Not match")
+		return uuid.Nil, nil, errors.New("password Not match")
 	}
-	return u.ID, nil
+	return u.ID, role, nil
 }

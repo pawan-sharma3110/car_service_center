@@ -31,10 +31,11 @@ func UnhashPassword(plainPassword string, hashPassword string) bool {
 
 //gernate jwt
 
-func GernateJwt(email string, id uuid.UUID) (string, error) {
+func GernateJwt(email string, id uuid.UUID, role string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":    id,
 		"email": email,
+		"role":  role,
 		"exp":   time.Now().Add(time.Minute * 15).Unix(),
 	})
 	return token.SignedString([]byte(jwt_Key))
