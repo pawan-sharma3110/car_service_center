@@ -43,3 +43,47 @@ func (a Appointment) InsertAppoitment(db *sql.DB) error {
 	}
 	return nil
 }
+func AllAppointment(db *sql.DB) (*[]Appointment, error) {
+	// Query to fetch all appointments
+	query := `SELECT id, user_id, services, date, status, total_cost, created_on FROM appointments`
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch appointments %w", err)
+	}
+	defer rows.Close()
+
+	var appointments []Appointment
+
+	for rows.Next() {
+		var appointment Appointment
+		var servicesJson string
+
+		// Scan the appointment details
+		err = rows.Scan(
+			&appointment.Id,
+			&appointment.UserId,
+			&servicesJson, // This stores services as JSON string from DB
+			&appointment.Date,
+			&appointment.Status,
+			&appointment.TotalCost,
+			&appointment.CreatedOn,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan appointments %w", err)
+		}
+
+		// Parse services from JSON into Go struct
+		err = json.Unmarshal([]byte(servicesJson), &appointment.Services)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse services %w", err)
+		}
+		// Append appointment to the list
+		appointments = append(appointments, appointment)
+	}
+
+	// Check for errors from iterating over rows
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred during iteration %w", err)
+	}
+	return &appointments, nil
+}

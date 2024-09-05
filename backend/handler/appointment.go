@@ -52,3 +52,18 @@ func CreateAppointment(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Appointment created successfully"})
 }
+func GetAllAppointmentsHandler(w http.ResponseWriter, r *http.Request) {
+	// Ensure the method is GET
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	appointments, err := models.AllAppointment(db)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	// Send the appointments as JSON response
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(appointments)
+}
