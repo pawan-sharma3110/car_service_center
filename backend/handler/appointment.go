@@ -30,7 +30,6 @@ func CreateAppointment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// "Invalid request payload"
 	// Assign a new UUID for the appointment and current time for created_on
 	appointment.Id = uuid.New()
 	appointment.CreatedOn = time.Now()
