@@ -10,6 +10,7 @@ func AllRoutes() {
 	http.Handle("/", fileServer)
 	http.HandleFunc("/user/register", handler.RegisterHandler)
 	http.HandleFunc("/user/login", handler.Login)
+	http.HandleFunc("/user/appointments/create", handler.CreateAppointment)
 
 	// Admin Services
 

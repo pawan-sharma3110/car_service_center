@@ -1,7 +1,6 @@
 package main
 
 import (
-	"car_service/database"
 	"car_service/router"
 	"fmt"
 
@@ -10,7 +9,6 @@ import (
 )
 
 func main() {
-	database.CreateAppoitmentsTable(database.DbIn())
 	router.AllRoutes()
 
 	fmt.Println("Starting server at port 8080")

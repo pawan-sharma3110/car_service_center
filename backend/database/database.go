@@ -24,21 +24,14 @@ func DbIn() (db *sql.DB) {
 		log.Fatalf("error pinging database: %v", err)
 	}
 	// Table Create Function
-	err = createUserTable(db)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = createServiceTable(db)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = CreateAppoitmentsTable(db)
-	if err != nil {
-		log.Fatal(err)
-	}
+	createUserTable(db)
+
+	createServiceTable(db)
+
+	createAppoitmentsTable(db)
 	return db
 }
-func createUserTable(db *sql.DB) error {
+func createUserTable(db *sql.DB) {
 	query := `CREATE TABLE IF NOT EXISTS users (
 		id UUID PRIMARY KEY,
 		full_name VARCHAR(255) NOT NULL,
@@ -51,12 +44,12 @@ func createUserTable(db *sql.DB) error {
 	_, err := db.Exec(query)
 	if err != nil {
 		log.Fatal(err)
-		return err
+
 	}
-	return nil
+
 }
 
-func createServiceTable(db *sql.DB) error {
+func createServiceTable(db *sql.DB) {
 	query := `CREATE TABLE IF NOT EXISTS services (
 			service_id UUID PRIMARY KEY,
 			name VARCHAR(100) NOT NULL,
@@ -67,11 +60,11 @@ func createServiceTable(db *sql.DB) error {
 	_, err := db.Exec(query)
 	if err != nil {
 		log.Fatal(err)
-		return err
+
 	}
-	return nil
+
 }
-func CreateAppoitmentsTable(db *sql.DB) error {
+func createAppoitmentsTable(db *sql.DB) {
 	query := `CREATE TABLE IF NOT EXISTS appointments  (
 			id UUID PRIMARY KEY,                         
 			user_id UUID REFERENCES users(id) ON DELETE CASCADE,  
@@ -84,7 +77,7 @@ func CreateAppoitmentsTable(db *sql.DB) error {
 	_, err := db.Exec(query)
 	if err != nil {
 		log.Fatal(err)
-		return err
+
 	}
-	return nil
+
 }
