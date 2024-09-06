@@ -97,13 +97,19 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	// Generate JWT with the role and other claims
 	token, err := utils.GernateJwt(user.Email, id, *role)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	// Include the role in the response as well as the token
 	w.Header().Set("Content-Type", "application/json")
-	// Respond with success
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"token": token})
+	json.NewEncoder(w).Encode(map[string]string{
+		"token": token,
+		"role":  *role, // Send role back to the client
+	})
 }

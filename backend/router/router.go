@@ -13,8 +13,8 @@ func AllRoutes() {
 	http.HandleFunc("/user/appointments/create", handler.CreateAppointment)
 
 	// Admin Services
-	http.HandleFunc("/user/register", handler.RegisterHandler)
-	http.HandleFunc("/user/login", handler.Login)
+	// http.HandleFunc("/user/register", handler.RegisterHandler)
+	// http.HandleFunc("/user/login", handler.Login)
 	http.HandleFunc("/service/create", handler.CreateService)
 	http.HandleFunc("/service/get/all", handler.GetAllService)
 	http.HandleFunc("/service/deletebyid/{id}", handler.DeleteById)

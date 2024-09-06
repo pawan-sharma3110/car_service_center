@@ -70,40 +70,54 @@
 
     <script>
         document.getElementById('loginForm').addEventListener('submit', async function (event) {
-            event.preventDefault();
+    event.preventDefault();
 
-            const formData = new FormData(this);
-            const data = {
-                email: formData.get('email'),
-                password: formData.get('password')
-            };
+    const formData = new FormData(this);
+    const data = {
+        email: formData.get('email'),
+        password: formData.get('password')
+    };
 
-            try {
-                const response = await fetch('http://localhost:8080/user/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Cache-Control': 'no-cache'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                const messageElement = document.getElementById('message');
-
-                if (response.ok) {
-                    const result = await response.json();
-                    messageElement.innerHTML = `<div class="alert alert-success">Login successful!</div>`;
-                    this.reset();
-                } else {
-                    const errorText = await response.text();
-                    messageElement.innerHTML = `<div class="alert alert-danger">Login failed: ${errorText}</div>`;
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred: ' + error.message);
-                this.reset();
-            }
+    try {
+        const response = await fetch('http://localhost:8080/user/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache'
+            },
+            body: JSON.stringify(data)
         });
+
+        const messageElement = document.getElementById('message');
+
+        if (response.ok) {
+            const result = await response.json();
+            const token = result.token;
+            const role = result.role;
+
+            messageElement.innerHTML = `<div class="alert alert-success">Login successful!</div>`;
+            this.reset();
+
+            // Store the JWT token in localStorage or a cookie
+            localStorage.setItem('jwtToken', token);
+
+            // Redirect based on the role
+            if (role === 'admin') {
+                window.location.href = './admin_dash.html'; // Replace with your admin page
+            } else if (role === 'user') {
+                window.location.href = './home.html'; // Replace with your user page
+            }
+        } else {
+            const errorText = await response.text();
+            messageElement.innerHTML = `<div class="alert alert-danger">Login failed: ${errorText}</div>`;
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred: ' + error.message);
+        this.reset();
+    }
+});
+
     </script>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>

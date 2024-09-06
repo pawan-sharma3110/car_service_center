@@ -5,7 +5,9 @@ body {
 .navbar {
     background-color: #343a40;
 }
-
+.my-nav{
+    position: -webkit-sticky;
+}
 .navbar-brand {
     font-size: 1.5rem;
     font-weight: bold;
