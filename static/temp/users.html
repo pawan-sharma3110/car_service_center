@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Manage Users</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/admin_dash.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #sidebar-wrapper {
+            min-height: 100vh;
+        }
+
+        .navbar {
+            margin-bottom: 20px;
+        }
+
+        .table {
+            margin-top: 20px;
+        }
+
+        #user-form {
+            margin-bottom: 20px;
+        }
+
+        .modal-body {
+            margin: 10px;
+        }
+
+        #wrapper.toggled #sidebar-wrapper {
+            margin-left: -250px;
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-dark border-right" id="sidebar-wrapper">
+            <div class="sidebar-heading text-white">Admin Dashboard</div>
+            <div class="list-group list-group-flush">
+                <a href="#appointments" class="list-group-item list-group-item-action bg-dark">Appointments</a>
+                <a href="#services" class="list-group-item list-group-item-action bg-dark">Services</a>
+                <a href="#users" class="list-group-item list-group-item-action bg-dark">Users</a>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <button class="btn btn-primary" id="menu-toggle">
+                    <img src="../media/menu-bar.png" alt="toggle button" width="20px">
+                </button>
+            </nav>
+
+            <div class="container-fluid">
+                <!-- Users Section -->
+                <div id="users">
+                    <h2>Manage Users</h2>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#userModal">Register New User</button>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-table">
+                            <!-- User data will be populated dynamically using JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal (Registration) -->
+    <div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="userModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userModalLabel">Register New User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="user-form">
+                        <div class="form-group">
+                            <label for="user-name">Full Name</label>
+                            <input type="text" class="form-control" id="user-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="user-email">Email</label>
+                            <input type="email" class="form-control" id="user-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="user-role">Role</label>
+                            <select class="form-control" id="user-role" required>
+                                <option value="admin">Admin</option>
+                                <option value="user">User</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register User</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Toggle Sidebar
+            $("#menu-toggle").click(function (e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
+            });
+
+            // Fetch all users
+            function fetchUsers() {
+                $.getJSON("/user/get/all", function (data) {
+                    var userRows = '';
+                    $.each(data, function (key, user) {
+                        userRows += `
+                            <tr>
+                                <td>${user.id}</td>
+                                <td>${user.name}</td>
+                                <td>${user.email}</td>
+                                <td>${user.role}</td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm delete-user" data-id="${user.id}">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    $('#user-table').html(userRows);
+                }).fail(function () {
+                    alert("Failed to load users.");
+                });
+            }
+
+            // Load users on page load
+            fetchUsers();
+
+            // Handle form submission for new user registration
+            $('#user-form').on('submit', function (e) {
+                e.preventDefault();
+                var userData = {
+                    name: $('#user-name').val(),
+                    email: $('#user-email').val(),
+                    role: $('#user-role').val(),
+                };
+
+                $.ajax({
+                    url: '/user/register',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(userData),
+                    success: function () {
+                        $('#userModal').modal('hide');
+                        fetchUsers();
+                    },
+                    error: function () {
+                        alert("Failed to register user.");
+                    }
+                });
+            });
+
+            // Handle user delete
+            $('#user-table').on('click', '.delete-user', function () {
+                var userId = $(this).data('id');
+                if (confirm("Are you sure you want to delete this user?")) {
+                    $.ajax({
+                        url: '/user/delete/' + userId,
+                        method: 'DELETE',
+                        success: function () {
+                            alert("User deleted successfully.");
+                            fetchUsers();  // Reload the user list after deletion
+                        },
+                        error: function () {
+                            alert("Failed to delete user.");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
