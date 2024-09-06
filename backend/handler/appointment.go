@@ -3,6 +3,7 @@ package handler
 import (
 	"car_service/models"
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -45,6 +46,7 @@ func CreateAppointment(w http.ResponseWriter, r *http.Request) {
 	err = appointment.InsertAppoitment(db)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Respond with success message
@@ -53,15 +55,17 @@ func CreateAppointment(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "Appointment created successfully"})
 }
 func GetAllAppointmentsHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Request method:", r.Method)
 	// Ensure the method is GET
-	if r.Method != "GET" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 
 	appointments, err := models.AllAppointment(db)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	// Send the appointments as JSON response
 	w.Header().Set("Content-Type", "application/json")
