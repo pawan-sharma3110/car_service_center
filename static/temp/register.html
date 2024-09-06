@@ -108,6 +108,7 @@
                     const result = await response.json();
                     messageElement.innerHTML = `<div class="alert alert-success">Register successful! Your ID: ${result.token}</div>`;
                     this.reset();
+                    window.location.href = '.login.html';
                 } else {
                     const errorText = await response.text();
                     messageElement.innerHTML = `<div class="alert alert-danger">Register failed: ${errorText}</div>`;
