@@ -23,18 +23,25 @@ func CreateService(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
+
+	// Validate required fields
 	if service.Name == "" || service.Cost == 0 || service.Description == "" {
 		http.Error(w, "Missing required fields", http.StatusBadRequest)
 		return
 	}
 
+	// Set additional fields before saving
 	service.ServiceID = uuid.New()
 	service.CreatedAt = time.Now()
+
+	// Save service to the database (replace with your actual db interaction)
 	err = service.InsertService(db)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// Respond with the created service ID
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]uuid.UUID{"service_id": service.ServiceID})
 }
@@ -57,7 +64,7 @@ func GetAllService(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string][]models.Service{"services": services})
+	json.NewEncoder(w).Encode(services)
 }
 func DeleteById(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "DELETE" {
