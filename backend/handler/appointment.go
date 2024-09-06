@@ -3,7 +3,6 @@ package handler
 import (
 	"car_service/models"
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
@@ -54,8 +53,8 @@ func CreateAppointment(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Appointment created successfully"})
 }
+
 func GetAllAppointmentsHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Request method:", r.Method)
 	// Ensure the method is GET
 	if r.Method != http.MethodGet {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -70,4 +69,45 @@ func GetAllAppointmentsHandler(w http.ResponseWriter, r *http.Request) {
 	// Send the appointments as JSON response
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(appointments)
+}
+
+// Appointment Status Update for admin
+func AppointmentStatusUpdate(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "PATCH" {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+	id := r.PathValue("id")
+
+	if id == "" {
+		http.Error(w, "Missing id parameter", http.StatusBadRequest)
+		return
+	}
+	var appointment models.Appointment
+	var err error
+	appointment.Id, err = uuid.Parse(id)
+	if err != nil {
+		http.Error(w, "Invalid service ID", http.StatusBadRequest)
+		return
+	}
+
+	// Parse the request body
+
+	err = json.NewDecoder(r.Body).Decode(&appointment)
+	if err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	// Ensure status and accepted_date are provided
+	if appointment.Status == "" || appointment.Date.IsZero() {
+		http.Error(w, "Missing status or accepted date", http.StatusBadRequest)
+		return
+	}
+	err = appointment.UpdateStatus(db)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Appointment updated successfully"))
 }

@@ -87,3 +87,26 @@ func AllAppointment(db *sql.DB) (*[]Appointment, error) {
 	}
 	return &appointments, nil
 }
+
+func (a Appointment) UpdateStatus(db *sql.DB) error {
+
+	// Prepare the SQL query to update the appointment status and accepted date
+	query := `UPDATE appointments SET status = $1, date = $2 WHERE id = $3`
+	result, err := db.Exec(query, a.Status, a.Date, a.Id)
+	if err != nil {
+
+		return fmt.Errorf("failed to update appointment %w", err)
+	}
+
+	// Check if any row was affected
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+
+		return fmt.Errorf("error checking update result %w", err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("no appointment found with the given ID %w", err)
+	}
+
+	return nil
+}
