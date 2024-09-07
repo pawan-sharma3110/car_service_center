@@ -17,6 +17,7 @@ func AllRoutes() {
 	http.HandleFunc("/service/create", handler.CreateService)
 	http.HandleFunc("/service/search", handler.SearchServicesHandler)
 	http.HandleFunc("/service/get/all", handler.GetAllService)
+	http.HandleFunc("/service/get", handler.GetServiceByIDHandler)
 	http.HandleFunc("/service/delete/{id}", handler.DeleteById)
 	http.HandleFunc("/service/delete/all", handler.AllServiceDelete)
 	http.HandleFunc("/service/update/{id}", handler.UpdadeService)

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/google/uuid"
@@ -113,4 +114,21 @@ func (s Service) Update(db *sql.DB) (err error) {
 	}
 	return nil
 
+}
+
+func GetServiceByID(db *sql.DB, serviceID uuid.UUID, w http.ResponseWriter) (*Service) {
+	var service Service
+
+	query := `SELECT service_id, name, cost, description, created_at FROM services WHERE service_id = $1`
+	err := db.QueryRow(query, serviceID).Scan(&service.ServiceID, &service.Name, &service.Cost, &service.Description, &service.CreatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Service not found", http.StatusNotFound)
+			return nil
+		} else {
+			http.Error(w, fmt.Sprintf("Error retrieving service: %v", err), http.StatusInternalServerError)
+			return nil
+		}
+	}
+	return &service
 }

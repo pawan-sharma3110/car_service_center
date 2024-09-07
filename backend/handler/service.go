@@ -46,6 +46,27 @@ func CreateService(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]uuid.UUID{"service_id": service.ServiceID})
 }
+func GetServiceByIDHandler(w http.ResponseWriter, r *http.Request) {
+	// Extract the service_id from the URL query parameter
+	serviceIDStr := r.URL.Query().Get("id")
+	if serviceIDStr == "" {
+		http.Error(w, "Missing service ID", http.StatusBadRequest)
+		return
+	}
+
+	// Parse the UUID from the string
+	serviceID, err := uuid.Parse(serviceIDStr)
+	if err != nil {
+		http.Error(w, "Invalid UUID format", http.StatusBadRequest)
+		return
+	}
+
+	// Query the database for the service by its ID
+	service := models.GetServiceByID(db, serviceID, w)
+	// Return the service as JSON
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(service)
+}
 
 func GetAllService(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
