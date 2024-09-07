@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -144,4 +145,48 @@ func UpdadeService(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "Service updated successfully")
+}
+
+func SearchServicesHandler(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query().Get("q")
+	if query == "" {
+		http.Error(w, "Query parameter 'q' is required", http.StatusBadRequest)
+		return
+	}
+
+	searchQuery := "%" + strings.TrimSpace(query) + "%"
+	rows, err := db.Query(`
+        SELECT service_id, name, cost, description
+        FROM services
+        WHERE name ILIKE $1 OR cost::text ILIKE $1 OR service_id::text ILIKE $1
+        `, searchQuery)
+	if err != nil {
+		http.Error(w, "Failed to query the database", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	// services := []struct {
+	//     ServiceID   string  `json:"service_id"`
+	//     Name        string  `json:"name"`
+	//     Cost        float32 `json:"cost"`
+	//     Description string  `json:"description"`
+	// }{}
+	var services []models.Service
+	for rows.Next() {
+		var s models.Service
+		if err := rows.Scan(&s.ServiceID, &s.Name, &s.Cost, &s.Description); err != nil {
+			http.Error(w, "Failed to scan row", http.StatusInternalServerError)
+			return
+		}
+		services = append(services, s)
+	}
+
+	if len(services) == 0 {
+		http.Error(w, "No services found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(services)
 }
