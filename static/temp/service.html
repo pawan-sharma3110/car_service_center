@@ -22,8 +22,8 @@
             <div class="sidebar-heading text-white">Admin Dashboard</div>
             <div class="list-group list-group-flush">
                 <a href="#appointments" class="list-group-item list-group-item-action bg-dark">Appointments</a>
-                <a href="#services" class="list-group-item list-group-item-action bg-dark">Services</a>
-                <a href="#users" class="list-group-item list-group-item-action bg-dark">Users</a>
+                <a href="./service.html" class="list-group-item list-group-item-action bg-dark">Services</a>
+                <a href="./users.html" class="list-group-item list-group-item-action bg-dark">Users</a>
             </div>
         </div>
 
@@ -95,132 +95,137 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script>
-      $(document).ready(function () {
-    $("#menu-toggle").click(function (e) {
-        e.preventDefault();
-        $("#wrapper").toggleClass("toggled");
-    });
-
-    function fetchServices(query = '') {
-        let url = '/service/get/all';
-        if (query) {
-            url = `/service/search?q=${query}`;
-        }
-        $.getJSON(url, function (data) {
-            var serviceRows = '';
-
-            if (data.length === 0) {
-                serviceRows = `<tr><td colspan="6" class="text-center">No services available</td></tr>`;
-            } else {
-                $.each(data, function (key, service) {
-                    serviceRows += `
-                        <tr>
-                            <td>${key + 1}</td>
-                            <td>${service.service_id || '-'}</td>
-                            <td>${service.name || 'No Name'}</td>
-                            <td>${service.cost || '0.00'}</td>
-                            <td>${service.description || 'No Description'}</td>
-                            <td>
-                                <button class="btn btn-warning btn-sm edit-service" data-id="${service.service_id}" data-toggle="modal" data-target="#serviceModal">Edit</button>
-                                <button class="btn btn-danger btn-sm delete-service" data-id="${service.service_id}">Delete</button>
-                            </td>
-                        </tr>`;
-                });
-            }
-
-            $('#service-table').html(serviceRows);
-        }).fail(function () {
-            alert("Failed to load services.");
-        });
-    }
-
-    fetchServices();
-
-    $('#search-input').on('input', function () {
-        const query = $(this).val();
-        fetchServices(query);
-    });
-});
-
-
-
-
-
-            fetchServices();
-
-            $('#service-form').on('submit', function (e) {
-                e.preventDefault();
-                var serviceId = $('#service-id').val();
-                var serviceData = {
-                    name: $('#service-name').val(),
-                    cost: parseFloat($('#service-cost').val()),
-                    description: $('#service-description').val()
-                };
-
-                var ajaxUrl = serviceId ? '/service/update/' + serviceId : '/service/create';
-                var methodType = serviceId ? 'PUT' : 'POST';
-
-                $.ajax({
-                    url: ajaxUrl,
-                    method: methodType,
-                    contentType: 'application/json',
-                    data: JSON.stringify(serviceData),
-                    success: function () {
-                        $('#serviceModal').modal('hide');
-                        fetchServices();
-                    },
-                    error: function () {
-                        alert("Failed to save service.");
-                    }
-                });
-            });
-
-            $('#service-table').on('click', '.edit-service', function () {
-                var serviceId = $(this).data('id');
-
-                $.getJSON('/service/get/' + serviceId, function (data) {
-                    $('#service-id').val(data.service_id);
-                    $('#service-name').val(data.name);
-                    $('#service-cost').val(data.cost);
-                    $('#service-description').val(data.description);
-                    $('#serviceModalLabel').text('Edit Service');
-                }).fail(function () {
-                    alert("Failed to load service details.");
-                });
-            });
-
-            $('#service-table').on('click', '.delete-service', function () {
-                var serviceId = $(this).data('id');
-                if (confirm("Are you sure you want to delete this service?")) {
-                    $.ajax({
-                        url: '/service/delete/' + serviceId,
-                        method: 'DELETE',
-                        success: function () {
-                            fetchServices();
-                        },
-                        error: function () {
-                            alert("Failed to delete service.");
-                        }
-                    });
-                }
-            });
-
-            $('#delete-all').on('click', function () {
-                if (confirm("Are you sure you want to delete all services?")) {
-                    $.ajax({
-                        url: '/service/delete/all',
-                        method: 'DELETE',
-                        success: function () {
-                            fetchServices();
-                        },
-                        error: function () {
-                            alert("Failed to delete all services.");
-                        }
-                    });
-                }
-            });
-    
-    </script>
+        $(document).ready(function () {
+          $("#menu-toggle").click(function (e) {
+              e.preventDefault();
+              $("#wrapper").toggleClass("toggled");
+          });
+      
+          // Function to fetch all services
+          function fetchServices(query = '') {
+              let url = '/service/get/all';
+              if (query) {
+                  url = `/service/search?q=${query}`;
+              }
+              $.getJSON(url, function (data) {
+                  var serviceRows = '';
+      
+                  if (data.length === 0) {
+                      serviceRows = `<tr><td colspan="6" class="text-center">No services available</td></tr>`;
+                  } else {
+                      $.each(data, function (key, service) {
+                          serviceRows += `
+                              <tr>
+                                  <td>${key + 1}</td>
+                                  <td>${service.service_id || '-'}</td>
+                                  <td>${service.name || 'No Name'}</td>
+                                  <td>${service.cost || '0.00'}</td>
+                                  <td>${service.description || 'No Description'}</td>
+                                  <td>
+                                      <button class="btn btn-warning btn-sm edit-service" data-id="${service.service_id}" data-toggle="modal" data-target="#serviceModal">Edit</button>
+                                      <button class="btn btn-danger btn-sm delete-service" data-id="${service.service_id}">Delete</button>
+                                  </td>
+                              </tr>`;
+                      });
+                  }
+      
+                  $('#service-table').html(serviceRows);
+              }).fail(function () {
+                  alert("Failed to load services.");
+              });
+          }
+      
+          // Load services initially
+          fetchServices();
+      
+          // Add/Edit service modal logic
+          $('#serviceModal').on('show.bs.modal', function (event) {
+              var button = $(event.relatedTarget); // Button that triggered the modal
+              var serviceId = button.data('id');   // Extract info from data-* attributes
+      
+              // If we are editing, fetch the service details
+              if (serviceId) {
+                  $.getJSON('/service/get?id=' + serviceId, function (service) {
+                      $('#service-id').val(service.service_id);
+                      $('#service-name').val(service.name);
+                      $('#service-cost').val(service.cost);
+                      $('#service-description').val(service.description);
+                  }).fail(function () {
+                      alert("Failed to load service details.");
+                  });
+              } else {
+                  // Clear the form for adding a new service
+                  $('#service-id').val('');
+                  $('#service-name').val('');
+                  $('#service-cost').val('');
+                  $('#service-description').val('');
+              }
+          });
+      
+          // Submit the form for creating or editing a service
+          $('#service-form').on('submit', function (e) {
+              e.preventDefault();
+              var serviceId = $('#service-id').val();
+              var serviceData = {
+                  name: $('#service-name').val(),
+                  cost: parseFloat($('#service-cost').val()),
+                  description: $('#service-description').val()
+              };
+      
+              var ajaxUrl = serviceId ? '/service/update/' + serviceId : '/service/create';
+              var methodType = serviceId ? 'PATCH' : 'POST';  // Use PATCH for update, POST for create
+      
+              $.ajax({
+                  url: ajaxUrl,
+                  method: methodType,
+                  contentType: 'application/json',
+                  data: JSON.stringify(serviceData),
+                  success: function () {
+                      $('#serviceModal').modal('hide');
+                      fetchServices(); // Refresh the list of services after saving
+                  },
+                  error: function () {
+                      alert("Failed to save the service.");
+                  }
+              });
+          });
+      
+          // Handle deleting a service
+          $(document).on('click', '.delete-service', function () {
+              var serviceId = $(this).data('id');
+              if (confirm("Are you sure you want to delete this service?")) {
+                  $.ajax({
+                      url: '/service/delete/' + serviceId,
+                      method: 'DELETE',
+                      success: function () {
+                          fetchServices(); // Refresh the service list after deletion
+                      },
+                      error: function () {
+                          alert("Failed to delete the service.");
+                      }
+                  });
+              }
+          });
+      
+          // Delete all services
+          $('#delete-all').click(function () {
+              if (confirm("Are you sure you want to delete all services?")) {
+                  $.ajax({
+                      url: '/service/delete/all',
+                      method: 'DELETE',
+                      success: function () {
+                          fetchServices(); // Refresh the service list after deletion
+                      },
+                      error: function () {
+                          alert("Failed to delete all services.");
+                      }
+                  });
+              }
+          });
+      });
+      </script>
+      
+   
 </body>
 
 </html>
