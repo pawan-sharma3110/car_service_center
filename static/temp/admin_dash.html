@@ -9,17 +9,17 @@
     <link rel="stylesheet" href="../css/admin_dash.css">
     <style>
         /* Ensure sidebar toggle */
-    
     </style>
 </head>
 
 <body>
     <!-- <nav class="navbar navbar-expand-lg navbar-light bg-light"> -->
-        <a class="navbar-brand" href="./index.html">Washing Hub</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-       
+    <a class="navbar-brand" href="./index.html">Washing Hub</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
 
     <div class="d-flex" id="wrapper">
         <!-- Sidebar -->
@@ -35,7 +35,8 @@
         <!-- Page Content -->
         <div id="page-content-wrapper">
             <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-                <button class="btn btn-primary" id="menu-toggle"><img src="../media/menu-bar.png" alt="toggle button"  width="20px"></button>
+                <button class="btn btn-primary" id="menu-toggle"><img src="../media/menu-bar.png" alt="toggle button"
+                        width="20px"></button>
             </nav>
 
             <div class="container-fluid">
@@ -59,148 +60,69 @@
                         </tbody>
                     </table>
                 </div>
+                <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+                <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+                <script>
+                    $(document).ready(function () {
+                        // Toggle Sidebar
+                        $("#menu-toggle").click(function (e) {
+                            e.preventDefault();
+                            $("#wrapper").toggleClass("toggled");
+                        });
 
-                <!-- Services Section -->
-                <div id="services">
-                    <h2 class="mt-4">Manage Services</h2>
-                    <button class="btn btn-success" data-toggle="modal" data-target="#serviceModal">Add New Service</button>
-                    <table class="table table-striped mt-3">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Cost</th>
-                                <th>Description</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="service-table">
-                            <!-- Data will be populated dynamically with JS -->
-                        </tbody>
-                    </table>
-                </div>
+                        // Fetch all appointments
+                        function fetchAppointments() {
+                            $.getJSON("/appointments", function (data) {
+                                var appointmentRows = '';
+                                $.each(data, function (key, appointment) {
+                                    appointmentRows += `
+                                            <tr>
+                                                <td>${appointment.id}</td>
+                                                <td>${appointment.user_id}</td>
+                                                <td>${appointment.services.map(s => s.name).join(', ')}</td>
+                                                <td>${new Date(appointment.date).toLocaleString()}</td>
+                                                <td>${appointment.status}</td>
+                                                <td>${appointment.total_cost}</td>
+                                                <td>
+                                                    <button class="btn btn-primary btn-sm update-status" data-id="${appointment.id}">Update</button>
+                                                </td>
+                                            </tr>
+                                        `;
+                                });
+                                $('#appointment-table').html(appointmentRows);
+                            });
+                        }
 
-                <!-- Users Section -->
-                <div id="users">
-                    <h2 class="mt-4">Manage Users</h2>
-                    <!-- Additional table or user details here -->
-                </div>
-            </div>
-        </div>
-    </div>
+                        // Fetch all services
+                        function fetchServices() {
+                            $.getJSON("/service/get/all", function (data) {
+                                var serviceRows = '';
+                                $.each(data, function (key, service) {
+                                    serviceRows += `
+                                            <tr>
+                                                <td>${service.service_id}</td>
+                                                <td>${service.name}</td>
+                                                <td>${service.cost}</td>
+                                                <td>${service.description}</td>
+                                                <td>
+                                                    <button class="btn btn-warning btn-sm edit-service" data-id="${service.service_id}">Edit</button>
+                                                    <button class="btn btn-danger btn-sm delete-service" data-id="${service.service_id}">Delete</button>
+                                                </td>
+                                            </tr>
+                                        `;
+                                });
+                                $('#service-table').html(serviceRows);
+                            });
+                        }
 
-    <!-- Service Modal -->
-    <div class="modal fade" id="serviceModal" tabindex="-1" role="dialog" aria-labelledby="serviceModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="serviceModalLabel">Add New Service</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="service-form">
-                        <div class="form-group">
-                            <label for="service-name">Service Name</label>
-                            <input type="text" class="form-control" id="service-name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="service-cost">Cost</label>
-                            <input type="number" class="form-control" id="service-cost" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="service-description">Description</label>
-                            <textarea class="form-control" id="service-description" rows="3" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Save Service</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            // Toggle Sidebar
-            $("#menu-toggle").click(function (e) {
-                e.preventDefault();
-                $("#wrapper").toggleClass("toggled");
-            });
-
-            // Fetch all appointments
-            function fetchAppointments() {
-                $.getJSON("/appointments", function (data) {
-                    var appointmentRows = '';
-                    $.each(data, function (key, appointment) {
-                        appointmentRows += `
-                            <tr>
-                                <td>${appointment.id}</td>
-                                <td>${appointment.user_id}</td>
-                                <td>${appointment.services.map(s => s.name).join(', ')}</td>
-                                <td>${new Date(appointment.date).toLocaleString()}</td>
-                                <td>${appointment.status}</td>
-                                <td>${appointment.total_cost}</td>
-                                <td>
-                                    <button class="btn btn-primary btn-sm update-status" data-id="${appointment.id}">Update</button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    $('#appointment-table').html(appointmentRows);
-                });
-            }
-
-            // Fetch all services
-            function fetchServices() {
-                $.getJSON("/service/get/all", function (data) {
-                    var serviceRows = '';
-                    $.each(data, function (key, service) {
-                        serviceRows += `
-                            <tr>
-                                <td>${service.service_id}</td>
-                                <td>${service.name}</td>
-                                <td>${service.cost}</td>
-                                <td>${service.description}</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm edit-service" data-id="${service.service_id}">Edit</button>
-                                    <button class="btn btn-danger btn-sm delete-service" data-id="${service.service_id}">Delete</button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    $('#service-table').html(serviceRows);
-                });
-            }
-
-            // Load data on page load
-            fetchAppointments();
-            fetchServices();
-
-            // Handle form submission for new service
-            $('#service-form').on('submit', function (e) {
-                e.preventDefault();
-                var serviceData = {
-                    name: $('#service-name').val(),
-                    cost: $('#service-cost').val(),
-                    description: $('#service-description').val()
-                };
-
-                $.ajax({
-                    url: '/service/create',
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(serviceData),
-                    success: function (response) {
-                        $('#serviceModal').modal('hide');
+                        // Load data on page load
+                        fetchAppointments();
                         fetchServices();
-                    }
-                });
-            });
-        });
-    </script>
+
+
+                    });
+                </script>
+
 </body>
 
 </html>

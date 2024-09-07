@@ -21,6 +21,6 @@ func AllRoutes() {
 	http.HandleFunc("/service/delete/{id}", handler.DeleteById)
 	http.HandleFunc("/service/delete/all", handler.AllServiceDelete)
 	http.HandleFunc("/service/update/{id}", handler.UpdadeService)
-	http.HandleFunc("/appointments", handler.GetAllAppointmentsHandler)
+	http.HandleFunc("/admin/appointments", handler.GetAllAppointmentsHandler)
 	http.HandleFunc("/admin/appointment/{id}", handler.AppointmentStatusUpdate)
 }
