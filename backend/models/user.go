@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 
 	"time"
 
@@ -17,6 +18,15 @@ type User struct {
 	Email     string    `json:"email"`
 	PhoneNo   string    `json:"phone_no"`
 	Password  string    `json:"password"`
+	Role      string    `json:"role"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type UserResponse struct {
+	ID        uuid.UUID `json:"id"`
+	FullName  string    `json:"full_name"`
+	Email     string    `json:"email"`
+	PhoneNo   string    `json:"phone_no"`
 	Role      string    `json:"role"`
 	CreatedAt time.Time `json:"created_at"`
 }
@@ -50,4 +60,30 @@ func (u User) ValidateUser(email string, password string, db *sql.DB) (id uuid.U
 		return uuid.Nil, nil, errors.New("password Not match")
 	}
 	return u.ID, role, nil
+}
+func AllUsers(db *sql.DB) (users []UserResponse, err error) {
+	query := `SELECT id, full_name, email, phone_no,role, created_at FROM users`
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// var users []User
+
+	for rows.Next() {
+		var user UserResponse
+		err := rows.Scan(&user.ID, &user.FullName, &user.Email, &user.PhoneNo, &user.Role, &user.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Printf("Error while iterating through rows: %v", err)
+		return nil, err
+	}
+
+	return users, nil
 }

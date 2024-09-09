@@ -113,3 +113,20 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		"role":  *role, // Send role back to the client
 	})
 }
+func GetAllUser(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+	// var users models.UserResponse
+	users, err := models.AllUsers(db)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(users); err != nil {
+		http.Error(w, "Failed to encode users", http.StatusInternalServerError)
+		return
+	}
+}
