@@ -75,6 +75,7 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
+                            <th>#</th> <!-- Add this column for serial number -->
                             <th>ID</th>
                             <th>Full Name</th>
                             <th>Email</th>
@@ -153,9 +154,13 @@
             function fetchUsers() {
                 $.getJSON("/users", function (data) {
                     var userRows = '';
+                    if (data.length === 0) {
+                        userRows = `<tr><td colspan="6" class="text-center">No services available</td></tr>`;
+                  } else {
                     $.each(data, function (key, user) {
                         userRows += `
                             <tr>
+                                 <td>${key + 1}</td>
                                 <td>${user.id}</td>
                                 <td>${user.full_name}</td>
                                 <td>${user.email}</td>
@@ -167,6 +172,7 @@
                             </tr>
                         `;
                     });
+                }
                     $('#user-table').html(userRows);
                 });
             }
