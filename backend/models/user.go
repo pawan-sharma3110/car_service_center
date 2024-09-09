@@ -87,3 +87,18 @@ func AllUsers(db *sql.DB) (users []UserResponse, err error) {
 
 	return users, nil
 }
+func DeleteUser(id uuid.UUID, db *sql.DB) error {
+	query := `DELETE FROM users WHERE id=$1`
+	row, err := db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := row.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to check rows affected: %w", err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("User not found or maybe already deleted")
+	}
+	return nil
+}

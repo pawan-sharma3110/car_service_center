@@ -7,6 +7,7 @@ import (
 	"car_service/utils"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -129,4 +130,29 @@ func GetAllUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to encode users", http.StatusInternalServerError)
 		return
 	}
+}
+func DeleteUserById(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "DELETE" {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+	id := r.PathValue("id")
+
+	if id == "" {
+		http.Error(w, "Missing id parameter", http.StatusBadRequest)
+		return
+	}
+
+	userId, err := uuid.Parse(id)
+	if err != nil {
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		return
+	}
+	err = models.DeleteUser(userId, db)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "User with ID %s deleted successfully", userId)
 }

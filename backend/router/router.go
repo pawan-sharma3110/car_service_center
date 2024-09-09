@@ -14,6 +14,7 @@ func AllRoutes() {
 
 	// Admin Services
 	http.HandleFunc("/users", handler.GetAllUser)
+	http.HandleFunc("/user/delete/{id}", handler.DeleteUserById)
 	http.HandleFunc("/service/create", handler.CreateService)
 	http.HandleFunc("/service/search", handler.SearchServicesHandler)
 	http.HandleFunc("/service/get/all", handler.GetAllService)
