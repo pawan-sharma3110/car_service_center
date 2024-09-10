@@ -108,33 +108,48 @@ func GetAppointments(w http.ResponseWriter, r *http.Request) {
 
 // Appointment Status Update for admin
 
-func UpdateAppointment(w http.ResponseWriter, r *http.Request) {
+// Ensure the Appointment struct matches the JSON structure
+type AppointmentPayload struct {
+	Date   string `json:"date"`
+	Status string `json:"status"`
+}
 
+func UpdateAppointment(w http.ResponseWriter, r *http.Request) {
 	// Extract appointment ID from URL path
-	appointmentID := r.PathValue("id")
+	if r.Method != "PATCH" {
+		http.Error(w, `{"error": "Method not allowed"}`, http.StatusMethodNotAllowed)
+		return
+	}
+	appointmentID := r.URL.Query().Get("id") // or use gorilla mux if needed
 	if appointmentID == "" {
 		http.Error(w, "Missing id parameter", http.StatusBadRequest)
 		return
 	}
-	print(appointmentID)
-	var appt models.Appointment
-	err := json.NewDecoder(r.Body).Decode(&appt)
+	id, err := uuid.Parse(appointmentID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, `{"error": "Invalid JSON data"}`, http.StatusBadRequest)
 		return
 	}
 
-	query := `
-        UPDATE appointments 
-        SET date = $1, status = $2
-        WHERE appointment_id = $3`
-	_, err = db.Exec(query, appt.Date, appt.Status, appointmentID)
+	// Decode the incoming request
+	var appt AppointmentPayload
+	err = json.NewDecoder(r.Body).Decode(&appt)
+	if err != nil {
+		http.Error(w, "Invalid JSON data", http.StatusBadRequest)
+		return
+	}
+
+	// Update the appointment in the database
+	query := `UPDATE appointments SET date = $1, status = $2 WHERE appointment_id = $3`
+	_, err = db.Exec(query, appt.Date, appt.Status, id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Appointment updated successfully"))
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"massage": "Appointment updated successfully"})
 }
 
 // Delete appointment by ID
@@ -147,4 +162,30 @@ func DeleteAppointment(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Appointment deleted successfully"))
+}
+func AppointmentByID(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	id := r.PathValue("id")
+	appointmentID, err := uuid.Parse(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	var res AppointmentPayload
+	query := `(
+	SELECT date,status FROM appointments WHERE appointment_id = $1
+	)`
+	err = db.QueryRow(query, appointmentID).Scan(&res.Date, &res.Status)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]any{
+		"date": res.Date, "status": res.Status,
+	})
 }
