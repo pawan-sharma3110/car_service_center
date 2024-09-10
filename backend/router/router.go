@@ -10,7 +10,6 @@ func AllRoutes() {
 	http.Handle("/", fileServer)
 	http.HandleFunc("/user/register", handler.RegisterHandler)
 	http.HandleFunc("/user/login", handler.Login)
-	http.HandleFunc("/user/appointments/create", handler.CreateAppointment)
 
 	// Admin Services
 	http.HandleFunc("/users", handler.GetAllUser)
@@ -22,6 +21,7 @@ func AllRoutes() {
 	http.HandleFunc("/service/delete/{id}", handler.DeleteById)
 	http.HandleFunc("/service/delete/all", handler.AllServiceDelete)
 	http.HandleFunc("/service/update/{id}", handler.UpdadeService)
-	http.HandleFunc("/admin/appointments", handler.GetAllAppointmentsHandler)
-	http.HandleFunc("/admin/appointment/{id}", handler.AppointmentStatusUpdate)
+	http.HandleFunc("/appointment", handler.CreateAppointment)
+	http.HandleFunc("/appointments", handler.GetAppointments)
+	http.HandleFunc("/admin/appointment/{id}", handler.UpdateAppointment)
 }

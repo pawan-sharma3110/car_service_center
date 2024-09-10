@@ -33,13 +33,13 @@ func DbIn() (db *sql.DB) {
 }
 func createUserTable(db *sql.DB) {
 	query := `CREATE TABLE IF NOT EXISTS users (
-		id UUID PRIMARY KEY,
-		full_name VARCHAR(255) NOT NULL,
-		email VARCHAR(255) UNIQUE NOT NULL,
-		phone_no VARCHAR(20) UNIQUE NOT NULL,
-		password VARCHAR(255) NOT NULL,
-		role VARCHAR(50) NOT NULL,
-		created_at TIMESTAMP WITH TIME ZONE NOT NULL
+	 user_id UUID PRIMARY KEY,
+    full_name VARCHAR(100),
+    phone_no VARCHAR(15),
+    email VARCHAR(100),
+    password VARCHAR(255),
+	role VARCHAR(15),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	)`
 	_, err := db.Exec(query)
 	if err != nil {
@@ -51,12 +51,12 @@ func createUserTable(db *sql.DB) {
 
 func createServiceTable(db *sql.DB) {
 	query := `CREATE TABLE IF NOT EXISTS services (
-			service_id UUID PRIMARY KEY,
-			name VARCHAR(100) NOT NULL,
-			cost NUMERIC(10, 2) NOT NULL,
-			description TEXT,
-			created_at TIMESTAMP WITH TIME ZONE NOT NULL
-	)`
+			  service_id UUID PRIMARY KEY,
+				name VARCHAR(100),
+				cost FLOAT,
+				description TEXT,
+				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	        )`
 	_, err := db.Exec(query)
 	if err != nil {
 		log.Fatal(err)
@@ -66,13 +66,13 @@ func createServiceTable(db *sql.DB) {
 }
 func createAppoitmentsTable(db *sql.DB) {
 	query := `CREATE TABLE IF NOT EXISTS appointments  (
-			id UUID PRIMARY KEY,                         
-			user_id UUID REFERENCES users(id) ON DELETE CASCADE,  
-			services JSONB NOT NULL,                    
-			date TIMESTAMP NOT NULL,                    
-			status VARCHAR(50) NOT NULL,                 
-			total_cost DECIMAL(10, 2) NOT NULL,          
-			created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+	    appointment_id UUID PRIMARY KEY,
+		user_id UUID REFERENCES users(user_id),
+		services JSONB,  -- Store services as a JSON array
+		date TIMESTAMP,  -- Store date in local time without timezone
+		status VARCHAR(20) DEFAULT 'Unscheduled',
+		total_cost FLOAT,
+		created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	)`
 	_, err := db.Exec(query)
 	if err != nil {

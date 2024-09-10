@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -29,8 +30,6 @@ func UnhashPassword(plainPassword string, hashPassword string) bool {
 	return err == nil
 }
 
-
-
 //gernate jwt
 
 func GernateJwt(email string, id uuid.UUID, role string) (string, error) {
@@ -41,4 +40,11 @@ func GernateJwt(email string, id uuid.UUID, role string) (string, error) {
 		"exp":   time.Now().Add(time.Minute * 15).Unix(),
 	})
 	return token.SignedString([]byte(jwt_Key))
+}
+
+func FormatDate(date sql.NullTime) interface{} {
+	if date.Valid {
+		return date.Time.Format(time.RFC3339) // Format date as RFC3339 string
+	}
+	return nil
 }

@@ -7,14 +7,12 @@ import (
 	"github.com/google/uuid"
 )
 
-
-
 // checkExists checks if the email or phone number already exists in the database
 func CheckExists(db *sql.DB, email string, phoneNo string) error {
 	var id uuid.UUID
 
 	// Check email existence
-	err := db.QueryRow("SELECT id FROM users WHERE email = $1", email).Scan(&id)
+	err := db.QueryRow("SELECT user_id FROM users WHERE email = $1", email).Scan(&id)
 	if err != nil && err != sql.ErrNoRows {
 		return fmt.Errorf("error checking email existence: %w", err)
 	}
@@ -23,7 +21,7 @@ func CheckExists(db *sql.DB, email string, phoneNo string) error {
 	}
 
 	// Check phone number existence
-	err = db.QueryRow("SELECT id FROM users WHERE phone_no = $1", phoneNo).Scan(&id)
+	err = db.QueryRow("SELECT user_id FROM users WHERE phone_no = $1", phoneNo).Scan(&id)
 	if err != nil && err != sql.ErrNoRows {
 		return fmt.Errorf("error checking phone number existence: %w", err)
 	}

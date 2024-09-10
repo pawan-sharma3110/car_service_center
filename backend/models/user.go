@@ -35,7 +35,7 @@ type UserResponse struct {
 
 func (u User) InsertUser(db *sql.DB) error {
 	_, err := db.Exec(`
-		INSERT INTO users (id, full_name, email, phone_no, password, role, created_at) 
+		INSERT INTO users (user_id, full_name, email, phone_no, password, role, created_at) 
 		VALUES ($1, $2, $3, $4, $5, $6, $7)`,
 		u.ID, u.FullName, u.Email, u.PhoneNo, u.Password, u.Role, u.CreatedAt)
 	if err != nil {
@@ -46,12 +46,12 @@ func (u User) InsertUser(db *sql.DB) error {
 
 // Validae user provided email and password
 func (u User) ValidateUser(email string, password string, db *sql.DB) (id uuid.UUID, role *string, err error) {
-	fmt.Println(email)
+
 	var hashedPassword string
-	query := `SELECT password,id,role FROM users WHERE email = $1`
+	query := `SELECT password,user_id,role FROM users WHERE email = $1`
 	err = db.QueryRow(query, u.Email).Scan(&hashedPassword, &u.ID, &role)
 	if err != nil {
-		return uuid.Nil, nil, fmt.Errorf("invalid email: %v", u.Email)
+		return uuid.Nil, nil, fmt.Errorf(err.Error(), u.Email)
 	}
 	fmt.Println(u.Email)
 	fmt.Println(u.ID)
@@ -62,7 +62,7 @@ func (u User) ValidateUser(email string, password string, db *sql.DB) (id uuid.U
 	return u.ID, role, nil
 }
 func AllUsers(db *sql.DB) (users []UserResponse, err error) {
-	query := `SELECT id, full_name, email, phone_no,role, created_at FROM users`
+	query := `SELECT user_id, full_name, email, phone_no,role, created_at FROM users`
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func AllUsers(db *sql.DB) (users []UserResponse, err error) {
 	return users, nil
 }
 func DeleteUser(id uuid.UUID, db *sql.DB) error {
-	query := `DELETE FROM users WHERE id=$1`
+	query := `DELETE FROM users WHERE user_id=$1`
 	row, err := db.Exec(query, id)
 	if err != nil {
 		return err
