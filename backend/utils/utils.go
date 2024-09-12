@@ -44,59 +44,7 @@ func GernateJwt(email string, id uuid.UUID, role string) (string, error) {
 	return token.SignedString([]byte(jwtKey))
 }
 
-func RoleBasedAuth(next http.HandlerFunc, allowedRoles ...string) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Extract JWT from the Authorization header
-		tokenString := r.Header.Get("Authorization")
-		if tokenString == "" {
-			http.Error(w, "Missing token", http.StatusUnauthorized)
-			return
-		}
 
-		// Bearer token handling (remove "Bearer " prefix)
-		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
-
-		// Parse the JWT token
-		claims := &jwt.MapClaims{}
-		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			// Ensure the signing method is correct
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-			}
-			return jwtKey, nil
-		})
-
-		// Check for token parsing errors or invalid token
-		if err != nil || !token.Valid {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
-			return
-		}
-
-		// Extract role from the token claims
-		userRole, ok := (*claims)["role"].(string)
-		if !ok {
-			http.Error(w, "Invalid token claims", http.StatusUnauthorized)
-			return
-		}
-
-		// Check if the user's role matches any of the allowed roles
-		allowed := false
-		for _, role := range allowedRoles {
-			if userRole == role {
-				allowed = true
-				break
-			}
-		}
-
-		if !allowed {
-			http.Error(w, "Forbidden: insufficient permissions", http.StatusForbidden)
-			return
-		}
-
-		// If role is allowed, pass control to the next handler
-		next.ServeHTTP(w, r)
-	})
-}
 
 func FormatDate(date sql.NullTime) interface{} {
 	if date.Valid {
