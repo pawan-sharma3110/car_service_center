@@ -93,27 +93,47 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing required fields", http.StatusBadRequest)
 		return
 	}
+
 	id, role, err := user.ValidateUser(user.Email, user.Password, db)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
-	// Generate JWT with the role and other claims
-	token, err := utils.GernateJwt(user.Email, id, *role)
+	// Generate JWT
+	token, err := utils.GenerateJwt(user.Email, id, *role)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
 		return
 	}
 
-	// Include the role in the response as well as the token
+	// Set the token and user_id as cookies
+	http.SetCookie(w, &http.Cookie{
+		Name:  "token",
+		Value: token,
+		// HttpOnly: true, // Keep HttpOnly for security
+		Path:     "/",
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:  "user_id",
+		Value: id.String(),
+		// HttpOnly: true,
+		Path:     "/",
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	// Send success response including the token in the body
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{
-		"token": token,
-		"role":  *role, // Send role back to the client
+		"message": "Login successful",
+		"token":   token, // Add token to the response
+		"role":    *role,
 	})
 }
+
 func GetAllUser(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)

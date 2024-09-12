@@ -93,7 +93,8 @@
     </div>
 
     <!-- User Registration Modal -->
-    <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -114,18 +115,19 @@
                         </div>
                         <div class="form-group">
                             <label for="phoneNo">Phone No</label>
-                            <input type="text" class="form-control" id="phoneNo" placeholder="Enter phone number" maxlength="10">
+                            <input type="text" class="form-control" id="phoneNo" placeholder="Enter phone number"
+                                maxlength="10">
                         </div>
                         <div class="form-group">
                             <label for="password">Password</label>
-                            <input type="password" class="form-control" id="password" placeholder="Enter password" minlength="
-                            6" maxlength="10">
+                            <input type="password" class="form-control" id="password" placeholder="Enter password"
+                                minlength="6" maxlength="10">
                         </div>
                         <div class="form-group">
                             <label for="role">Role</label>
                             <select class="form-control" id="role">
                                 <option value="user">User</option>
-                                <option value="admin">Admin</option>
+                                <option value="admin">Admin</option> -->
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Register</button>
@@ -151,81 +153,116 @@
                 $("#registerModal").modal('show');
             });
 
-            // Fetch and display users on page load
-            function fetchUsers() {
-                $.getJSON("/users", function (data) {
-                    var userRows = '';
-                    if (data.length === 0) {
-                        userRows = `<tr><td colspan="6" class="text-center">No services available</td></tr>`;
-                  } else {
-                    $.each(data, function (key, user) {
-                        userRows += `
-                            <tr>
-                                 <td>${key + 1}</td>
-                                <td>${user.id}</td>
-                                <td>${user.full_name}</td>
-                                <td>${user.email}</td>
-                                <td>${user.phone_no}</td>
-                                <td>${user.role}</td>
-                                <td>
-                                    <button class="btn btn-danger btn-sm delete-user" data-id="${user.id}">Delete</button>
-                                </td>
-                            </tr>
-                        `;
-                    });
+            function getToken() {
+                const name = "token=";
+                const decodedCookie = decodeURIComponent(document.cookie);
+                const cookies = decodedCookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    let cookie = cookies[i];
+                    while (cookie.charAt(0) === ' ') {
+                        cookie = cookie.substring(1);
+                    }
+                    if (cookie.indexOf(name) === 0) {
+                        return cookie.substring(name.length, cookie.length);
+                    }
                 }
-                    $('#user-table').html(userRows);
+                return null;
+            }
+
+            async function fetchUsers() {
+                const token = getToken();
+
+                if (!token) {
+                    console.error('Token is not available.');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('http://localhost:8080/users', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const users = await response.json();
+                        populateTable(users);
+                    } else {
+                        console.error('Failed to fetch users:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+
+            function populateTable(users) {
+                const userTableBody = document.getElementById('user-table');
+                userTableBody.innerHTML = ''; // Clear any existing rows
+
+                users.forEach((user, index) => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${user.id}</td>
+            <td>${user.full_name}</td>
+            <td>${user.email}</td>
+            <td>${user.phone_no}</td>
+            <td>${user.role}</td>
+            <td>
+                <!--  <button class="btn btn-warning btn-sm" onclick="editUser('${user.id}')">Edit</button> -->
+                <button class="btn btn-danger btn-sm" id="delete-btn-${user.id}">Delete</button>
+            </td>
+        `;
+
+                    userTableBody.appendChild(row);
+
+                    // Attach the delete event to each delete button
+                    document.getElementById(`delete-btn-${user.id}`).addEventListener('click', () => {
+                        deleteUser(user.id);
+                    });
                 });
+            }
+
+            // Function to delete a user
+            async function deleteUser(userId) {
+                const token = getToken();
+
+                if (!token) {
+                    console.error('Token is not available.');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`http://localhost:8080/user/delete/${userId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        }
+                    });
+
+                    if (response.ok) {
+                        alert('User deleted successfully!');
+                        fetchUsers(); // Refresh the table after deletion
+                    } else {
+                        console.error('Failed to delete user:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
             }
 
             // Call fetchUsers on page load
             fetchUsers();
 
-            // Handle user registration form submission
-            $("#registerForm").submit(function (e) {
-                e.preventDefault();
-
-                var newUser = {
-                    full_name: $("#fullName").val(),
-                    email: $("#email").val(),
-                    phone_no: $("#phoneNo").val(),
-                    password: $("#password").val(),
-                    role: $("#role").val()
-                };
-
-                $.ajax({
-                    url: "/user/register",
-                    method: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify(newUser),
-                    success: function () {
-                        $("#registerModal").modal('hide');
-                        fetchUsers();
-                    },
-                    error: function () {
-                        alert("Error registering user.");
-                    }
-                });
-            });
-
-            // Delete user
-            $(document).on('click', '.delete-user', function () {
-                var userId = $(this).data('id');
-                $.ajax({
-                    url: `/user/delete/${userId}`,
-                    method: "DELETE",
-                    success: function () {
-                        fetchUsers();
-                    },
-                    error: function () {
-                        alert("Error deleting user.");
-                    }
-                });
-            });
         });
     </script>
+
 </body>
 
 </html>
-
-
