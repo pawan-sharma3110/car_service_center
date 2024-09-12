@@ -2,6 +2,7 @@ package router
 
 import (
 	"car_service/handler"
+	"car_service/utils"
 	"net/http"
 )
 
@@ -12,7 +13,7 @@ func AllRoutes() {
 	http.HandleFunc("/user/login", handler.Login)
 
 	// Admin Services
-	http.HandleFunc("/users", handler.GetAllUser)
+	http.HandleFunc("/users", utils.RoleBasedAuth(handler.GetAllUser, "admin"))
 	http.HandleFunc("/user/delete/{id}", handler.DeleteUserById)
 	http.HandleFunc("/service/create", handler.CreateService)
 	http.HandleFunc("/service/search", handler.SearchServicesHandler)
