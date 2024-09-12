@@ -1,5 +1,14 @@
 package middleware
 
+import (
+	"car_service/utils"
+	"fmt"
+	"net/http"
+	"strings"
+
+	"github.com/golang-jwt/jwt/v5"
+)
+
 func RoleBasedAuth(next http.HandlerFunc, allowedRoles ...string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
@@ -15,7 +24,7 @@ func RoleBasedAuth(next http.HandlerFunc, allowedRoles ...string) http.HandlerFu
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
-			return []byte(jwtKey), nil
+			return []byte(utils.JwtKey), nil
 		})
 
 		if err != nil || !token.Valid {

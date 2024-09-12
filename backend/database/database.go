@@ -9,8 +9,7 @@ import (
 
 func DbIn() (db *sql.DB) {
 	// Connection string
-	conStr := "host=localhost port=5432 user=postgres password=Pawan@2003 dbname=car_service sslmode=disable"
-
+	conStr := `host=localhost port=5432  user=postgres password=Pawan@2003 dbname=car_service sslmode=disable`
 	// Open the database
 	db, err := sql.Open("postgres", conStr)
 	if err != nil {
@@ -18,10 +17,11 @@ func DbIn() (db *sql.DB) {
 		return nil
 	}
 
-	// Test the connection
+	// // Test the connection
 	err = db.Ping()
 	if err != nil {
 		log.Fatalf("error pinging database: %v", err)
+		return nil
 	}
 	// Table Create Function
 	createUserTable(db)
