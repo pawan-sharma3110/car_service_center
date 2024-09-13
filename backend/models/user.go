@@ -6,22 +6,31 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 
 	"time"
 
 	"github.com/google/uuid"
 )
 
-type User struct {
-	ID        uuid.UUID `json:"id"`
-	FullName  string    `json:"full_name"`
-	Email     string    `json:"email"`
-	PhoneNo   string    `json:"phone_no"`
-	Password  string    `json:"password"`
-	Role      string    `json:"role"`
-	CreatedAt time.Time `json:"created_at"`
+type Address struct {
+	Street  string `json:"street"`
+	City    string `json:"city"`
+	State   string `json:"state"`
+	ZipCode string `json:"zip_code"`
 }
 
+type User struct {
+	ID             uuid.UUID `json:"id"`
+	FullName       string    `json:"full_name"`
+	Email          string    `json:"email"`
+	PhoneNo        string    `json:"phone_no"`
+	Password       string    `json:"password"`
+	Role           string    `json:"role"`
+	CreatedAt      time.Time `json:"created_at"`
+	ProfilePicture string    `json:"profile_picture"` // New field for profile picture
+	Address        Address   `json:"address"`         // New custom Address type
+}
 type UserResponse struct {
 	ID        uuid.UUID `json:"id"`
 	FullName  string    `json:"full_name"`
@@ -101,4 +110,16 @@ func DeleteUser(id uuid.UUID, db *sql.DB) error {
 		return fmt.Errorf("User not found or maybe already deleted")
 	}
 	return nil
+}
+func UpdateProfile(db *sql.DB, w http.ResponseWriter, fullName string, email string, phoneNo string, add []byte, pic []byte, userId uuid.UUID) {
+	query := `
+	UPDATE users
+	SET full_name = $1, email = $2, phone_no = $3, address = $4, profile_picture = COALESCE(NULLIF($5, ''), profile_picture)
+	WHERE user_id = $6
+`
+	_, err := db.Exec(query, fullName, email, phoneNo, add, pic, userId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

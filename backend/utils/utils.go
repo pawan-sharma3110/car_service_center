@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/http"
 
 	"time"
 
@@ -48,4 +49,20 @@ func FormatDate(date sql.NullTime) interface{} {
 		return date.Time.Format(time.RFC3339) // Format date as RFC3339 string
 	}
 	return nil
+}
+
+func GetUserID(w http.ResponseWriter,r*http.Request) uuid.UUID {
+	id := r.PathValue("id")
+
+	if id == "" {
+		http.Error(w, "Missing id parameter", http.StatusBadRequest)
+		return uuid.Nil
+	}
+
+	userId, err := uuid.Parse(id)
+	if err != nil {
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		return uuid.Nil
+	}
+	return userId
 }

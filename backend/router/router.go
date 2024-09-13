@@ -11,14 +11,13 @@ func AllRoutes() {
 	http.Handle("/", fileServer)
 	http.HandleFunc("/user/register", handler.RegisterHandler)
 	http.HandleFunc("/user/login", handler.Login)
+	http.HandleFunc("/user/update-profile/{id}", middleware.RoleBasedAuth(handler.UpdateProfileHandler, "admin", "user"))
 	http.HandleFunc("/user/logout", handler.LogoutHandler)
 	http.HandleFunc("/service/search", handler.SearchServicesHandler)
 	http.HandleFunc("/service/get/all", handler.GetAllService)
 	http.HandleFunc("/appointment", handler.CreateAppointment)
-	
-	
-	// Admin Services
 
+	// Admin Services
 
 	http.HandleFunc("/users", middleware.RoleBasedAuth(handler.GetAllUser, "admin"))
 	http.HandleFunc("/user/delete/{id}", middleware.RoleBasedAuth(handler.DeleteUserById, "admin"))
@@ -29,5 +28,5 @@ func AllRoutes() {
 	http.HandleFunc("/service/update/{id}", middleware.RoleBasedAuth(handler.UpdadeService, "admin"))
 	http.HandleFunc("/appointment/{id}", middleware.RoleBasedAuth(handler.AppointmentByID, "admin"))
 	http.HandleFunc("/appointments", middleware.RoleBasedAuth(handler.GetAppointments, "admin"))
-	http.HandleFunc("/admin/appointment/{id}", middleware.RoleBasedAuth(handler.UpdateAppointment,"admin"))
+	http.HandleFunc("/admin/appointment/{id}", middleware.RoleBasedAuth(handler.UpdateAppointment, "admin"))
 }

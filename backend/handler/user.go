@@ -8,7 +8,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/google/uuid"
@@ -180,23 +183,65 @@ func DeleteUserById(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
-	id := r.PathValue("id")
 
-	if id == "" {
-		http.Error(w, "Missing id parameter", http.StatusBadRequest)
-		return
-	}
-
-	userId, err := uuid.Parse(id)
-	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
-		return
-	}
-	err = models.DeleteUser(userId, db)
+	userId := utils.GetUserID(w, r)
+	err := models.DeleteUser(userId, db)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "User with ID %s deleted successfully", userId)
+}
+
+func UpdateProfileHandler(w http.ResponseWriter, r *http.Request) {
+
+	userId := utils.GetUserID(w, r)
+
+	// Parse the multipart form to handle file uploads
+	r.ParseMultipartForm(3 << 20) // Limit file size to 3MB
+
+	// Get user profile data from the form
+	fullName := r.FormValue("full_name")
+	email := r.FormValue("email")
+	phoneNo := r.FormValue("phone_no")
+	address := models.Address{
+		Street:  r.FormValue("street"),
+		City:    r.FormValue("city"),
+		State:   r.FormValue("state"),
+		ZipCode: r.FormValue("zip_code"),
+	}
+	add, err := json.Marshal(address)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// Process the profile picture file if uploaded
+	file, handler, err := r.FormFile("profile_picture")
+	var profilePicturePath string
+	if err == nil && handler != nil {
+		defer file.Close()
+
+		// Save file to the server
+		fileExt := filepath.Ext(handler.Filename)
+		if fileExt != ".jpg" && fileExt != ".jpeg" && fileExt != ".png" {
+			http.Error(w, "Only JPG, JPEG, and PNG files are allowed", http.StatusBadRequest)
+			return
+		}
+
+		profilePicturePath = fmt.Sprintf("./%s%s", userId.String(), fileExt)
+		out, err := os.Create(profilePicturePath)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer out.Close()
+		io.Copy(out, file)
+	}
+
+	// Update user profile in the database
+models.UpdateProfile(db,w , fullName , email , phoneNo , add , []byte(profilePicturePath) , userId)
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Profile updated successfully"})
 }
