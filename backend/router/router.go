@@ -8,6 +8,8 @@ import (
 
 func AllRoutes() {
 	fileServer := http.FileServer(http.Dir("../static"))
+	http.Handle("/uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads"))))
+
 	http.Handle("/", fileServer)
 	http.HandleFunc("/user/register", handler.RegisterHandler)
 	http.HandleFunc("/user/login", handler.Login)

@@ -3,9 +3,9 @@ package models
 import (
 	"car_service/utils"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
 	"time"
@@ -32,12 +32,14 @@ type User struct {
 	Address        Address   `json:"address"`         // New custom Address type
 }
 type UserResponse struct {
-	ID        uuid.UUID `json:"id"`
-	FullName  string    `json:"full_name"`
-	Email     string    `json:"email"`
-	PhoneNo   string    `json:"phone_no"`
-	Role      string    `json:"role"`
-	CreatedAt time.Time `json:"created_at"`
+	ID         uuid.UUID `json:"id"`
+	ProfilePic string    `json:"profile_"`
+	FullName   string    `json:"full_name"`
+	Email      string    `json:"email"`
+	PhoneNo    string    `json:"phone_no"`
+	Role       string    `json:"role"`
+	Address    Address   `json:"address"`
+	CreatedAt  time.Time `json:"created_at"`
 }
 
 // insertUser inserts a new user into the database
@@ -71,31 +73,53 @@ func (u User) ValidateUser(email string, password string, db *sql.DB) (id uuid.U
 	return u.ID, role, nil
 }
 func AllUsers(db *sql.DB) (users []UserResponse, err error) {
-	query := `SELECT user_id, full_name, email, phone_no,role, created_at FROM users`
+	query := `SELECT user_id, profile_picture, full_name, email, phone_no, role, address, created_at FROM users`
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	// var users []User
-
 	for rows.Next() {
 		var user UserResponse
-		err := rows.Scan(&user.ID, &user.FullName, &user.Email, &user.PhoneNo, &user.Role, &user.CreatedAt)
+		var profilePic sql.NullString // Handle NULL for profile picture
+		var address sql.NullString    // Handle NULL for address
+
+		// Scan the values
+		err := rows.Scan(&user.ID, &profilePic, &user.FullName, &user.Email, &user.PhoneNo, &user.Role, &address, &user.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
+
+		// Handle profile picture path
+		if profilePic.Valid {
+			user.ProfilePic = fmt.Sprintf("/uploads/%s", profilePic.String)
+		} else {
+			user.ProfilePic = "" // Handle NULL case
+		}
+
+		// Handle address
+		if address.Valid {
+			var parsedAddress Address
+			err := json.Unmarshal([]byte(address.String), &parsedAddress) // Assuming JSON format for address
+			if err != nil {
+				return nil, err
+			}
+			user.Address = parsedAddress
+		} else {
+			user.Address = Address{} // Default empty address
+		}
+
 		users = append(users, user)
 	}
 
 	if err = rows.Err(); err != nil {
-		log.Printf("Error while iterating through rows: %v", err)
 		return nil, err
 	}
 
 	return users, nil
 }
+
 func DeleteUser(id uuid.UUID, db *sql.DB) error {
 	query := `DELETE FROM users WHERE user_id=$1`
 	row, err := db.Exec(query, id)
@@ -111,15 +135,18 @@ func DeleteUser(id uuid.UUID, db *sql.DB) error {
 	}
 	return nil
 }
-func UpdateProfile(db *sql.DB, w http.ResponseWriter, fullName string, email string, phoneNo string, add []byte, pic []byte, userId uuid.UUID) {
+func UpdateProfile(db *sql.DB, w http.ResponseWriter, fullName, email, phoneNo string, address []byte, profilePicture []byte, userId uuid.UUID) error {
+	// Update user profile in the database
 	query := `
-	UPDATE users
-	SET full_name = $1, email = $2, phone_no = $3, address = $4, profile_picture = COALESCE(NULLIF($5, ''), profile_picture)
-	WHERE user_id = $6
-`
-	_, err := db.Exec(query, fullName, email, phoneNo, add, pic, userId)
+		UPDATE users
+		SET full_name = $1, email = $2, phone_no = $3, address = $4, profile_picture = COALESCE($5, profile_picture)
+		WHERE user_id = $6
+	`
+
+	_, err := db.Exec(query, fullName, email, phoneNo, address, profilePicture, userId)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
+
+	return nil
 }

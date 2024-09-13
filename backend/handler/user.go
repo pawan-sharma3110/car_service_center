@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -195,7 +194,6 @@ func DeleteUserById(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateProfileHandler(w http.ResponseWriter, r *http.Request) {
-
 	userId := utils.GetUserID(w, r)
 
 	// Parse the multipart form to handle file uploads
@@ -211,37 +209,43 @@ func UpdateProfileHandler(w http.ResponseWriter, r *http.Request) {
 		State:   r.FormValue("state"),
 		ZipCode: r.FormValue("zip_code"),
 	}
+
+	// Convert address to JSON for storage in DB
 	add, err := json.Marshal(address)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	// Process the profile picture file if uploaded
+	var profilePicture []byte
 	file, handler, err := r.FormFile("profile_picture")
-	var profilePicturePath string
 	if err == nil && handler != nil {
 		defer file.Close()
 
-		// Save file to the server
+		// Check the file extension
 		fileExt := filepath.Ext(handler.Filename)
 		if fileExt != ".jpg" && fileExt != ".jpeg" && fileExt != ".png" {
 			http.Error(w, "Only JPG, JPEG, and PNG files are allowed", http.StatusBadRequest)
 			return
 		}
 
-		profilePicturePath = fmt.Sprintf("./%s%s", userId.String(), fileExt)
-		out, err := os.Create(profilePicturePath)
+		// Read the file into a byte slice (to store it as binary in the database)
+		profilePicture, err = io.ReadAll(file)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Error reading image file", http.StatusInternalServerError)
 			return
 		}
-		defer out.Close()
-		io.Copy(out, file)
 	}
 
 	// Update user profile in the database
-models.UpdateProfile(db,w , fullName , email , phoneNo , add , []byte(profilePicturePath) , userId)
+	err = models.UpdateProfile(db, w, fullName, email, phoneNo, add, profilePicture, userId)
+	if err != nil {
+		http.Error(w, "Failed to update profile", http.StatusInternalServerError)
+		return
+	}
 
+	// Respond with success message
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Profile updated successfully"})
 }
