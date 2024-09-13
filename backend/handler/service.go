@@ -168,6 +168,7 @@ func UpdadeService(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Service updated successfully")
 }
 
+// ToDo
 func SearchServicesHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query().Get("q")
 	if query == "" {

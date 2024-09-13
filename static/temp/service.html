@@ -100,58 +100,77 @@
               e.preventDefault();
               $("#wrapper").toggleClass("toggled");
           });
-      
+
+          // Your token - replace this with the actual token retrieval logic
+          const authToken = 'YOUR_AUTH_TOKEN';
+
           // Function to fetch all services
           function fetchServices(query = '') {
               let url = '/service/get/all';
               if (query) {
                   url = `/service/search?q=${query}`;
               }
-              $.getJSON(url, function (data) {
-                  var serviceRows = '';
-      
-                  if (data.length === 0) {
-                      serviceRows = `<tr><td colspan="6" class="text-center">No services available</td></tr>`;
-                  } else {
-                      $.each(data, function (key, service) {
-                          serviceRows += `
-                              <tr>
-                                  <td>${key + 1}</td>
-                                  <td>${service.service_id || '-'}</td>
-                                  <td>${service.name || 'No Name'}</td>
-                                  <td>${service.cost || '0.00'}</td>
-                                  <td>${service.description || 'No Description'}</td>
-                                  <td>
-                                      <button class="btn btn-warning btn-sm edit-service" data-id="${service.service_id}" data-toggle="modal" data-target="#serviceModal">Edit</button>
-                                      <button class="btn btn-danger btn-sm delete-service" data-id="${service.service_id}">Delete</button>
-                                  </td>
-                              </tr>`;
-                      });
+              $.ajax({
+                  url: url,
+                  method: 'GET',
+                  headers: {
+                      'Authorization': `Bearer ${authToken}`
+                  },
+                  success: function (data) {
+                      var serviceRows = '';
+
+                      if (data.length === 0) {
+                          serviceRows = `<tr><td colspan="6" class="text-center">No services available</td></tr>`;
+                      } else {
+                          $.each(data, function (key, service) {
+                              serviceRows += `
+                                  <tr>
+                                      <td>${key + 1}</td>
+                                      <td>${service.service_id || '-'}</td>
+                                      <td>${service.name || 'No Name'}</td>
+                                      <td>${service.cost || '0.00'}</td>
+                                      <td>${service.description || 'No Description'}</td>
+                                      <td>
+                                          <button class="btn btn-warning btn-sm edit-service" data-id="${service.service_id}" data-toggle="modal" data-target="#serviceModal">Edit</button>
+                                          <button class="btn btn-danger btn-sm delete-service" data-id="${service.service_id}">Delete</button>
+                                      </td>
+                                  </tr>`;
+                          });
+                      }
+
+                      $('#service-table').html(serviceRows);
+                  },
+                  error: function () {
+                      alert("Failed to load services.");
                   }
-      
-                  $('#service-table').html(serviceRows);
-              }).fail(function () {
-                  alert("Failed to load services.");
               });
           }
-      
+
           // Load services initially
           fetchServices();
-      
+
           // Add/Edit service modal logic
           $('#serviceModal').on('show.bs.modal', function (event) {
               var button = $(event.relatedTarget); // Button that triggered the modal
               var serviceId = button.data('id');   // Extract info from data-* attributes
-      
+
               // If we are editing, fetch the service details
               if (serviceId) {
-                  $.getJSON('/service/get?id=' + serviceId, function (service) {
-                      $('#service-id').val(service.service_id);
-                      $('#service-name').val(service.name);
-                      $('#service-cost').val(service.cost);
-                      $('#service-description').val(service.description);
-                  }).fail(function () {
-                      alert("Failed to load service details.");
+                  $.ajax({
+                      url: '/service/get?id=' + serviceId,
+                      method: 'GET',
+                      headers: {
+                          'Authorization': `Bearer ${authToken}`
+                      },
+                      success: function (service) {
+                          $('#service-id').val(service.service_id);
+                          $('#service-name').val(service.name);
+                          $('#service-cost').val(service.cost);
+                          $('#service-description').val(service.description);
+                      },
+                      error: function () {
+                          alert("Failed to load service details.");
+                      }
                   });
               } else {
                   // Clear the form for adding a new service
@@ -161,7 +180,7 @@
                   $('#service-description').val('');
               }
           });
-      
+
           // Submit the form for creating or editing a service
           $('#service-form').on('submit', function (e) {
               e.preventDefault();
@@ -171,13 +190,16 @@
                   cost: parseFloat($('#service-cost').val()),
                   description: $('#service-description').val()
               };
-      
+
               var ajaxUrl = serviceId ? '/service/update/' + serviceId : '/service/create';
               var methodType = serviceId ? 'PATCH' : 'POST';  // Use PATCH for update, POST for create
-      
+
               $.ajax({
                   url: ajaxUrl,
                   method: methodType,
+                  headers: {
+                      'Authorization': `Bearer ${authToken}`
+                  },
                   contentType: 'application/json',
                   data: JSON.stringify(serviceData),
                   success: function () {
@@ -189,7 +211,7 @@
                   }
               });
           });
-      
+
           // Handle deleting a service
           $(document).on('click', '.delete-service', function () {
               var serviceId = $(this).data('id');
@@ -197,6 +219,9 @@
                   $.ajax({
                       url: '/service/delete/' + serviceId,
                       method: 'DELETE',
+                      headers: {
+                          'Authorization': `Bearer ${authToken}`
+                      },
                       success: function () {
                           fetchServices(); // Refresh the service list after deletion
                       },
@@ -206,13 +231,16 @@
                   });
               }
           });
-      
+
           // Delete all services
           $('#delete-all').click(function () {
               if (confirm("Are you sure you want to delete all services?")) {
                   $.ajax({
                       url: '/service/delete/all',
                       method: 'DELETE',
+                      headers: {
+                          'Authorization': `Bearer ${authToken}`
+                      },
                       success: function () {
                           fetchServices(); // Refresh the service list after deletion
                       },
@@ -223,9 +251,7 @@
               }
           });
       });
-      </script>
-      
-   
+    </script>
 </body>
 
 </html>
