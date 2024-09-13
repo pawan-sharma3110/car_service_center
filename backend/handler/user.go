@@ -134,6 +134,30 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:    "token",
+		Value:   "",
+		Expires: time.Now().Add(-24 * time.Hour),
+		Path:    "/",
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name:    "user_id",
+		Value:   "",
+		Expires: time.Now().Add(-24 * time.Hour),
+		Path:    "/",
+	})
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Logged out successfully"))
+}
+
 func GetAllUser(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)

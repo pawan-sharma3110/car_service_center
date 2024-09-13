@@ -11,6 +11,7 @@ func AllRoutes() {
 	http.Handle("/", fileServer)
 	http.HandleFunc("/user/register", handler.RegisterHandler)
 	http.HandleFunc("/user/login", handler.Login)
+	http.HandleFunc("/user/logout", handler.LogoutHandler)
 	http.HandleFunc("/service/search", handler.SearchServicesHandler)
 	http.HandleFunc("/service/get/all", handler.GetAllService)
 	http.HandleFunc("/appointment", handler.CreateAppointment)

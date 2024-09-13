@@ -49,3 +49,47 @@
 .list-group-item {
     color: white;
 }
+
+
+/* Profile  CSS */
+
+
+
+        /* Ensure this CSS is included after any Bootstrap CSS for specificity */
+        .profile-dropdown {
+            position: relative;
+            display: inline-block;
+            margin-left: 78px;
+            margin-top: 500px;
+        }
+        
+        .profile-dropdown .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: #343a40; /* Match your sidebar background color */
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        
+        .profile-dropdown:hover .dropdown-menu {
+            display: block;
+            cursor: pointer;
+        }
+        
+        .dropdown-menu a {
+            color: #fff; /* Adjust text color as needed */
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            cursor: pointer;
+        }
+        
+        .dropdown-menu a:hover {
+            background-color: #4e88c2; /* Adjust hover color as needed */
+        }
+        
+
+

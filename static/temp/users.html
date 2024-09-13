@@ -59,7 +59,18 @@
                 <a href="./service.html" class="list-group-item list-group-item-action bg-dark">Services</a>
                 <a href="./users.html" class="list-group-item list-group-item-action bg-dark">Users</a>
             </div>
+            <!-- Profile Dropdown -->
+            <div class="profile-dropdown">
+                <img src="../media/user-sign-icon2.jpg" alt="Profile Icon" width="50"
+                    class="rounded-circle profile-icon">
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="./profile.html">Update Profile</a>
+                    <a class="dropdown-item" href="#" id="logoutButton">Logout</a>
+                </div>
+            </div>
         </div>
+
+
 
         <!-- Page Content -->
         <div id="page-content-wrapper">
@@ -140,8 +151,7 @@
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    <script>
-        $(document).ready(function () {
+    <script>$(document).ready(function () {
             // Toggle Sidebar
             $("#menu-toggle").click(function (e) {
                 e.preventDefault();
@@ -153,6 +163,7 @@
                 $("#registerModal").modal('show');
             });
 
+            // Fetch token from cookies
             function getToken() {
                 const name = "token=";
                 const decodedCookie = decodeURIComponent(document.cookie);
@@ -169,6 +180,7 @@
                 return null;
             }
 
+            // Fetch users on page load
             async function fetchUsers() {
                 const token = getToken();
 
@@ -198,6 +210,7 @@
                 }
             }
 
+            // Populate table with user data
             function populateTable(users) {
                 const userTableBody = document.getElementById('user-table');
                 userTableBody.innerHTML = ''; // Clear any existing rows
@@ -206,17 +219,16 @@
                     const row = document.createElement('tr');
 
                     row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${user.id}</td>
-            <td>${user.full_name}</td>
-            <td>${user.email}</td>
-            <td>${user.phone_no}</td>
-            <td>${user.role}</td>
-            <td>
-                <!--  <button class="btn btn-warning btn-sm" onclick="editUser('${user.id}')">Edit</button> -->
-                <button class="btn btn-danger btn-sm" id="delete-btn-${user.id}">Delete</button>
-            </td>
-        `;
+                    <td>${index + 1}</td>
+                    <td>${user.id}</td>
+                    <td>${user.full_name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.phone_no}</td>
+                    <td>${user.role}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" id="delete-btn-${user.id}">Delete</button>
+                    </td>
+                `;
 
                     userTableBody.appendChild(row);
 
@@ -257,9 +269,32 @@
                 }
             }
 
+            // Logout functionality
+            $('#logoutButton').click(function (e) {
+                e.preventDefault(); // Prevent default link behavior
+
+                fetch('http://localhost:8080/user/logout', { // Ensure the endpoint matches your backend route
+                    method: 'POST', // Use POST, GET, or DELETE based on your backend API
+                    credentials: 'include', // Ensure cookies are included for authentication
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            // If logout is successful, redirect to login page or homepage
+                            window.location.href = '../index.html'; // Adjust the redirect path as needed
+                        } else {
+                            alert('Logout failed. Please try again.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error during logout:', error);
+                    });
+            });
+
             // Call fetchUsers on page load
             fetchUsers();
-
         });
     </script>
 
