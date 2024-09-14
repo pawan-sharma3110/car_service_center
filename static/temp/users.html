@@ -85,15 +85,15 @@
                 <h2 class="mt-4">Manage Users</h2>
                 <table class="table table-striped">
                     <thead>
-                        <tr>
-                            <th>#</th> <!-- Add this column for serial number -->
-                            <th>ID</th>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                            <th>Phone No</th>
-                            <th>Role</th>
-                            <th>Actions</th>
-                        </tr>
+                        <th>#</th>
+                        <th>ID</th>
+                        <th>Profile Picture</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Address</th>
+                        <th>Actions</th>
                     </thead>
                     <tbody id="user-table">
                         <!-- Data will be populated dynamically with JS -->
@@ -210,34 +210,45 @@
                 }
             }
 
-            // Populate table with user data
+            // Populate table with user data, including profile picture and address
             function populateTable(users) {
-                const userTableBody = document.getElementById('user-table');
-                userTableBody.innerHTML = ''; // Clear any existing rows
+    const userTableBody = document.getElementById('user-table');
+    userTableBody.innerHTML = ''; // Clear any existing rows
 
-                users.forEach((user, index) => {
-                    const row = document.createElement('tr');
+    users.forEach((user, index) => {
+        // Check if profile picture is empty or not provided
+        const profilePicture = (user.profile_ && user.profile_ !== '') ? `http://localhost:8080${user.profile_}` : '../media/profile_icon.png';
+        
+        // Construct the full address
+        const address = user.address ?
+            `${user.address.street || ''}, ${user.address.city || ''}, ${user.address.state || ''}, ${user.address.zip_code || ''}` :
+            'Address not available';
 
-                    row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${user.id}</td>
-                    <td>${user.full_name}</td>
-                    <td>${user.email}</td>
-                    <td>${user.phone_no}</td>
-                    <td>${user.role}</td>
-                    <td>
-                        <button class="btn btn-danger btn-sm" id="delete-btn-${user.id}">Delete</button>
-                    </td>
-                `;
+        const row = document.createElement('tr');
 
-                    userTableBody.appendChild(row);
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${user.id}</td>
+            <td><img src="${profilePicture}" alt="Profile" width="50" class="rounded-circle profile-icon"></td>
+            <td>${user.full_name}</td>
+            <td>${user.email}</td>
+            <td>${user.phone_no}</td>
+            <td>${user.role}</td>
+            <td>${address}</td>
+            <td>
+                <button class="btn btn-danger btn-sm" id="delete-btn-${user.id}">Delete</button>
+            </td>
+        `;
 
-                    // Attach the delete event to each delete button
-                    document.getElementById(`delete-btn-${user.id}`).addEventListener('click', () => {
-                        deleteUser(user.id);
-                    });
-                });
-            }
+        userTableBody.appendChild(row);
+
+        // Attach the delete event to each delete button
+        document.getElementById(`delete-btn-${user.id}`).addEventListener('click', () => {
+            deleteUser(user.id);
+        });
+    });
+}
+
 
             // Function to delete a user
             async function deleteUser(userId) {
