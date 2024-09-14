@@ -90,7 +90,7 @@ func AllUsers(db *sql.DB) (users []UserResponse, err error) {
 			return nil, err
 		}
 
-		// Handle profile picture path
+		// Generate the profile picture URL
 		if profilePic.Valid {
 			user.ProfilePic = fmt.Sprintf("/profile-picture?user_id=%s", user.ID)
 		} else {
@@ -118,6 +118,7 @@ func AllUsers(db *sql.DB) (users []UserResponse, err error) {
 
 	return users, nil
 }
+
 
 func DeleteUser(id uuid.UUID, db *sql.DB) error {
 	query := `DELETE FROM users WHERE user_id=$1`

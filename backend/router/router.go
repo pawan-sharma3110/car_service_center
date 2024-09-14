@@ -23,6 +23,7 @@ func AllRoutes() {
 	// Admin Services
 
 	http.HandleFunc("/users", middleware.RoleBasedAuth(handler.GetAllUser, "admin"))
+	http.HandleFunc("/profile-picture/{id}", middleware.RoleBasedAuth(handler.GetProfilePicture, "admin"))
 	http.HandleFunc("/user/delete/{id}", middleware.RoleBasedAuth(handler.DeleteUserById, "admin"))
 	http.HandleFunc("/service/create", middleware.RoleBasedAuth(handler.CreateService, "admin"))
 	http.HandleFunc("/service/get", middleware.RoleBasedAuth(handler.GetServiceByIDHandler, "admin"))
