@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"path/filepath"
 	"time"
 
 	"github.com/google/uuid"
@@ -177,6 +176,27 @@ func GetAllUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+func GetProfilePicture(w http.ResponseWriter, r *http.Request) {
+	// Extract user ID from URL parameters
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
+		http.Error(w, "User ID is required", http.StatusBadRequest)
+		return
+	}
+
+	// Query the database for the profile picture
+	var profilePicture []byte
+	err := db.QueryRow(`SELECT profile_picture FROM users WHERE user_id = $1`, userID).Scan(&profilePicture)
+	if err != nil {
+		http.Error(w, "Error retrieving profile picture", http.StatusInternalServerError)
+		return
+	}
+
+	// Set the appropriate content type (assuming you're storing common image types)
+	w.Header().Set("Content-Type", "image/jpeg")
+	w.Write(profilePicture) // Write the binary image data to the response
+}
+
 func DeleteUserById(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "DELETE" {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -193,59 +213,77 @@ func DeleteUserById(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "User with ID %s deleted successfully", userId)
 }
 
-func UpdateProfileHandler(w http.ResponseWriter, r *http.Request) {
-	userId := utils.GetUserID(w, r)
+func UpdateUserProfile(w http.ResponseWriter, r *http.Request) {
+	// Extract the user ID (assuming a utility function)
+	userID := utils.GetUserID(w, r)
 
-	// Parse the multipart form to handle file uploads
-	r.ParseMultipartForm(3 << 20) // Limit file size to 3MB
+	// Parse multipart form data for both file and other form fields
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		http.Error(w, "Error parsing form data", http.StatusInternalServerError)
+		return
+	}
 
-	// Get user profile data from the form
+	// Read the profile picture (binary data)
+	var profilePicture []byte
+	file, _, err := r.FormFile("profile_picture")
+	if err == nil {
+		defer file.Close()
+		profilePicture, _ = io.ReadAll(file)
+	} else {
+		fmt.Println("No profile picture provided")
+		profilePicture = nil // Ensure it's set to nil if no file is provided
+	}
+
+	// Extract other form fields from the multipart form
 	fullName := r.FormValue("full_name")
 	email := r.FormValue("email")
 	phoneNo := r.FormValue("phone_no")
-	address := models.Address{
-		Street:  r.FormValue("street"),
-		City:    r.FormValue("city"),
-		State:   r.FormValue("state"),
-		ZipCode: r.FormValue("zip_code"),
+	password := r.FormValue("password")
+	role := r.FormValue("role")
+
+	// Extract Address JSON string from form data
+	addressStr := r.FormValue("address")
+	var addressJSON *string // Using a pointer to handle NULL cases
+	if addressStr != "" {
+		var address map[string]interface{}
+		if err := json.Unmarshal([]byte(addressStr), &address); err != nil {
+			http.Error(w, "Invalid address format", http.StatusBadRequest)
+			return
+		}
+		// Marshal back to JSON string
+		addressBytes, err := json.Marshal(address)
+		if err != nil {
+			http.Error(w, "Error marshalling address", http.StatusInternalServerError)
+			return
+		}
+		addressJSONStr := string(addressBytes)
+		addressJSON = &addressJSONStr
+	} else {
+		addressJSON = nil
 	}
 
-	// Convert address to JSON for storage in DB
-	add, err := json.Marshal(address)
+
+	// Prepare SQL query for updating the user with partial updates
+	query := `
+		UPDATE users
+		SET full_name = COALESCE(NULLIF($2, ''), full_name),
+		    email = COALESCE(NULLIF($3, ''), email),
+		    phone_no = COALESCE(NULLIF($4, ''), phone_no),
+		    password = COALESCE(NULLIF($5, ''), password),
+		    profile_picture = COALESCE($6::BYTEA, profile_picture),
+		    address = COALESCE($7::jsonb, address),
+		    role = COALESCE(NULLIF($8, ''), role)
+		WHERE user_id = $1
+	`
+
+	// Execute the query
+	_, err = db.Exec(query, userID, fullName, email, phoneNo, password, profilePicture, addressJSON, role)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Process the profile picture file if uploaded
-	var profilePicture []byte
-	file, handler, err := r.FormFile("profile_picture")
-	if err == nil && handler != nil {
-		defer file.Close()
-
-		// Check the file extension
-		fileExt := filepath.Ext(handler.Filename)
-		if fileExt != ".jpg" && fileExt != ".jpeg" && fileExt != ".png" {
-			http.Error(w, "Only JPG, JPEG, and PNG files are allowed", http.StatusBadRequest)
-			return
-		}
-
-		// Read the file into a byte slice (to store it as binary in the database)
-		profilePicture, err = io.ReadAll(file)
-		if err != nil {
-			http.Error(w, "Error reading image file", http.StatusInternalServerError)
-			return
-		}
-	}
-
-	// Update user profile in the database
-	err = models.UpdateProfile(db, w, fullName, email, phoneNo, add, profilePicture, userId)
-	if err != nil {
-		http.Error(w, "Failed to update profile", http.StatusInternalServerError)
-		return
-	}
-
-	// Respond with success message
+	// Send a success response
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Profile updated successfully"})
+	w.Write([]byte("User profile updated successfully"))
 }

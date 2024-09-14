@@ -8,12 +8,13 @@ import (
 
 func AllRoutes() {
 	fileServer := http.FileServer(http.Dir("../static"))
-	http.Handle("/uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads"))))
 
 	http.Handle("/", fileServer)
 	http.HandleFunc("/user/register", handler.RegisterHandler)
 	http.HandleFunc("/user/login", handler.Login)
-	http.HandleFunc("/user/update-profile/{id}", middleware.RoleBasedAuth(handler.UpdateProfileHandler, "admin", "user"))
+	http.HandleFunc("/profile-picture", middleware.RoleBasedAuth(handler.GetProfilePicture, "admin"))
+
+	http.HandleFunc("/user/update-profile/{id}", middleware.RoleBasedAuth(handler.UpdateUserProfile, "admin", "user"))
 	http.HandleFunc("/user/logout", handler.LogoutHandler)
 	http.HandleFunc("/service/search", handler.SearchServicesHandler)
 	http.HandleFunc("/service/get/all", handler.GetAllService)

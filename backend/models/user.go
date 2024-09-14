@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 
 	"time"
 
@@ -28,7 +27,7 @@ type User struct {
 	Password       string    `json:"password"`
 	Role           string    `json:"role"`
 	CreatedAt      time.Time `json:"created_at"`
-	ProfilePicture string    `json:"profile_picture"` // New field for profile picture
+	ProfilePicture []byte   `json:"profile_picture"` // New field for profile picture
 	Address        Address   `json:"address"`         // New custom Address type
 }
 type UserResponse struct {
@@ -93,9 +92,9 @@ func AllUsers(db *sql.DB) (users []UserResponse, err error) {
 
 		// Handle profile picture path
 		if profilePic.Valid {
-			user.ProfilePic = fmt.Sprintf("/uploads/%s", profilePic.String)
+			user.ProfilePic = fmt.Sprintf("/profile-picture?user_id=%s", user.ID)
 		} else {
-			user.ProfilePic = "" // Handle NULL case
+			user.ProfilePic = "" // Handle case where there's no profile picture
 		}
 
 		// Handle address
@@ -135,8 +134,7 @@ func DeleteUser(id uuid.UUID, db *sql.DB) error {
 	}
 	return nil
 }
-func UpdateProfile(db *sql.DB, w http.ResponseWriter, fullName, email, phoneNo string, address []byte, profilePicture []byte, userId uuid.UUID) error {
-	// Update user profile in the database
+func UpdateProfile(db *sql.DB, fullName, email, phoneNo string, address []byte, profilePicture []byte, userId uuid.UUID) error {
 	query := `
 		UPDATE users
 		SET full_name = $1, email = $2, phone_no = $3, address = $4, profile_picture = COALESCE($5, profile_picture)
