@@ -129,7 +129,7 @@ func DeleteUser(id uuid.UUID, db *sql.DB) error {
 	query := `DELETE FROM users WHERE user_id=$1`
 	row, err := db.Exec(query, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("user register a appointment,Delete appoinment first")
 	}
 	rowsAffected, err := row.RowsAffected()
 	if err != nil {
