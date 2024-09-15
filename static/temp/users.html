@@ -147,6 +147,68 @@
             </div>
         </div>
     </div>
+    <!-- Update User Modal -->
+    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateModalLabel">Update User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateForm" enctype="multipart/form-data">
+                        <input type="hidden" id="updateUserId"> <!-- Hidden field for User ID -->
+                        <div class="form-group">
+                            <label for="updateFullName">Full Name</label>
+                            <input type="text" class="form-control" id="updateFullName">
+                        </div>
+                        <div class="form-group">
+                            <label for="updateEmail">Email</label>
+                            <input type="email" class="form-control" id="updateEmail">
+                        </div>
+                        <div class="form-group">
+                            <label for="updatePhoneNo">Phone No</label>
+                            <input type="text" class="form-control" id="updatePhoneNo" maxlength="10">
+                        </div>
+                        <div class="form-group">
+                            <label for="updateRole">Role</label>
+                            <select class="form-control" id="updateRole">
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="updateStreet">Street</label>
+                            <input type="text" class="form-control" id="updateStreet">
+                        </div>
+                        <div class="form-group">
+                            <label for="updateCity">City</label>
+                            <input type="text" class="form-control" id="updateCity">
+                        </div>
+                        <div class="form-group">
+                            <label for="updateState">State</label>
+                            <input type="text" class="form-control" id="updateState">
+                        </div>
+                        <div class="form-group">
+                            <label for="updateZipCode">Zip Code</label>
+                            <input type="text" class="form-control" id="updateZipCode">
+                        </div>
+                        <div class="form-group">
+                            <label for="updateProfileImage">Profile Image (max 3MB)</label>
+                            <input type="file" class="form-control-file" id="updateProfilePicture"
+                                name="profile_picture">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -210,45 +272,112 @@
                 }
             }
 
-            // Populate table with user data, including profile picture and address
+            // Populate table with user data
             function populateTable(users) {
-    const userTableBody = document.getElementById('user-table');
-    userTableBody.innerHTML = ''; // Clear any existing rows
+                const userTableBody = document.getElementById('user-table');
+                userTableBody.innerHTML = ''; // Clear any existing rows
 
-    users.forEach((user, index) => {
-        // Check if profile picture is empty or not provided
-        const profilePicture = (user.profile_ && user.profile_ !== '') ? `http://localhost:8080${user.profile_}` : '../media/profile_icon.png';
-        
-        // Construct the full address
-        const address = user.address ?
-            `${user.address.street || ''}, ${user.address.city || ''}, ${user.address.state || ''}, ${user.address.zip_code || ''}` :
-            'Address not available';
+                users.forEach((user, index) => {
+                    const profilePicture = (user.profile_ && user.profile_ !== '') ? `http://localhost:8080${user.profile_}` : '../media/profile_icon.png';
+                    const address = user.address ?
+                        `${user.address.street || ''}, ${user.address.city || ''}, ${user.address.state || ''}, ${user.address.zip_code || ''}` :
+                        'Address not available';
 
-        const row = document.createElement('tr');
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${user.id}</td>
+                <td><img src="${profilePicture}" alt="Profile" width="50" class="rounded-circle profile-icon"></td>
+                <td>${user.full_name}</td>
+                <td>${user.email}</td>
+                <td>${user.phone_no}</td>
+                <td>${user.role}</td>
+                <td>${address}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" id="update-btn-${user.id}">Update</button>
+                    <button class="btn btn-danger btn-sm" id="delete-btn-${user.id}">Delete</button>
+                </td>
+            `;
 
-        row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${user.id}</td>
-            <td><img src="${profilePicture}" alt="Profile" width="50" class="rounded-circle profile-icon"></td>
-            <td>${user.full_name}</td>
-            <td>${user.email}</td>
-            <td>${user.phone_no}</td>
-            <td>${user.role}</td>
-            <td>${address}</td>
-            <td>
-                <button class="btn btn-danger btn-sm" id="delete-btn-${user.id}">Delete</button>
-            </td>
-        `;
+                    userTableBody.appendChild(row);
 
-        userTableBody.appendChild(row);
+                    // Attach the update event to each update button
+                    document.getElementById(`update-btn-${user.id}`).addEventListener('click', () => {
+                        openUpdateModal(user);
+                    });
 
-        // Attach the delete event to each delete button
-        document.getElementById(`delete-btn-${user.id}`).addEventListener('click', () => {
-            deleteUser(user.id);
-        });
-    });
-}
+                    // Attach the delete event to each delete button
+                    document.getElementById(`delete-btn-${user.id}`).addEventListener('click', () => {
+                        deleteUser(user.id);
+                    });
+                });
+            }
 
+            // Function to open the update modal with prefilled user data
+            function openUpdateModal(user) {
+                // Prefill the form fields with user data
+                document.getElementById('updateUserId').value = user.id;
+                document.getElementById('updateFullName').value = user.full_name;
+                document.getElementById('updateEmail').value = user.email;
+                document.getElementById('updatePhoneNo').value = user.phone_no;
+                document.getElementById('updateRole').value = user.role;
+                document.getElementById('updateStreet').value = user.address ? user.address.street : '';
+                document.getElementById('updateCity').value = user.address ? user.address.city : '';
+                document.getElementById('updateState').value = user.address ? user.address.state : '';
+                document.getElementById('updateZipCode').value = user.address ? user.address.zip_code : '';
+
+                // Show the update modal
+                $('#updateModal').modal('show');
+            }
+
+            document.getElementById('updateForm').addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const token = getToken();
+                const userId = document.getElementById('updateUserId').value;
+
+                // Prepare FormData object
+                const formData = new FormData();
+                formData.append('full_name', document.getElementById('updateFullName').value);
+                formData.append('email', document.getElementById('updateEmail').value);
+                formData.append('phone_no', document.getElementById('updatePhoneNo').value);
+                formData.append('role', document.getElementById('updateRole').value);
+
+                // Convert address to JSON string and add to FormData
+                const address = {
+                    street: document.getElementById('updateStreet').value,
+                    city: document.getElementById('updateCity').value,
+                    state: document.getElementById('updateState').value,
+                    zip_code: document.getElementById('updateZipCode').value
+                };
+                formData.append('address', JSON.stringify(address));
+
+                // Add profile picture if available
+                const profilePicture = document.getElementById('updateProfilePicture').files[0];
+                if (profilePicture) {
+                    formData.append('profile_picture', profilePicture);
+                }
+
+                try {
+                    const response = await fetch(`http://localhost:8080/user/update-profile/${userId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                            // 'Content-Type': 'multipart/form-data' // No need to set Content-Type manually
+                        },
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        $('#updateModal').modal('hide');
+                        fetchUsers(); // Refresh the table after update
+                    } else {
+                        console.error('Failed to update user:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            });
 
             // Function to delete a user
             async function deleteUser(userId) {

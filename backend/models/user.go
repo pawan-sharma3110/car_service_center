@@ -27,7 +27,7 @@ type User struct {
 	Password       string    `json:"password"`
 	Role           string    `json:"role"`
 	CreatedAt      time.Time `json:"created_at"`
-	ProfilePicture []byte   `json:"profile_picture"` // New field for profile picture
+	ProfilePicture []byte    `json:"profile_picture"` // New field for profile picture
 	Address        Address   `json:"address"`         // New custom Address type
 }
 type UserResponse struct {
@@ -99,11 +99,17 @@ func AllUsers(db *sql.DB) (users []UserResponse, err error) {
 
 		// Handle address
 		if address.Valid {
+			fmt.Printf("Raw address JSON for user %s: %s\n", user.ID, address.String) // Debug print
+
 			var parsedAddress Address
 			err := json.Unmarshal([]byte(address.String), &parsedAddress) // Assuming JSON format for address
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to parse address for user %s: %v", user.ID, err)
 			}
+
+			// Debugging parsed data
+			fmt.Printf("Parsed address for user %s: %+v\n", user.ID, parsedAddress)
+
 			user.Address = parsedAddress
 		} else {
 			user.Address = Address{} // Default empty address
@@ -118,7 +124,6 @@ func AllUsers(db *sql.DB) (users []UserResponse, err error) {
 
 	return users, nil
 }
-
 
 func DeleteUser(id uuid.UUID, db *sql.DB) error {
 	query := `DELETE FROM users WHERE user_id=$1`

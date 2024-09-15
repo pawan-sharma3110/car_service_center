@@ -214,76 +214,79 @@ func DeleteUserById(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateUserProfile(w http.ResponseWriter, r *http.Request) {
-	// Extract the user ID (assuming a utility function)
-	userID := utils.GetUserID(w, r)
+    // Extract the user ID
+    userID := utils.GetUserID(w, r)
 
-	// Parse multipart form data for both file and other form fields
-	if err := r.ParseMultipartForm(10 << 20); err != nil {
-		http.Error(w, "Error parsing form data", http.StatusInternalServerError)
-		return
-	}
+    // Parse multipart form data
+    if err := r.ParseMultipartForm(10 << 20); err != nil {
+        http.Error(w, "Error parsing form data", http.StatusInternalServerError)
+        return
+    }
 
-	// Read the profile picture (binary data)
-	var profilePicture []byte
-	file, _, err := r.FormFile("profile_picture")
-	if err == nil {
-		defer file.Close()
-		profilePicture, _ = io.ReadAll(file)
-	} else {
-		fmt.Println("No profile picture provided")
-		profilePicture = nil // Ensure it's set to nil if no file is provided
-	}
+    // Read profile picture
+    var profilePicture []byte
+    hasProfilePicture := false
+    file, _, err := r.FormFile("profile_picture")
+    if err == nil {
+        defer file.Close()
+        profilePicture, _ = io.ReadAll(file)
+        hasProfilePicture = true
+    }
 
-	// Extract other form fields from the multipart form
-	fullName := r.FormValue("full_name")
-	email := r.FormValue("email")
-	phoneNo := r.FormValue("phone_no")
-	password := r.FormValue("password")
-	role := r.FormValue("role")
+    // Extract other form fields
+    fullName := r.FormValue("full_name")
+    email := r.FormValue("email")
+    phoneNo := r.FormValue("phone_no")
+    role := r.FormValue("role")
 
-	// Extract Address JSON string from form data
-	addressStr := r.FormValue("address")
-	var addressJSON *string // Using a pointer to handle NULL cases
-	if addressStr != "" {
-		var address map[string]interface{}
-		if err := json.Unmarshal([]byte(addressStr), &address); err != nil {
-			http.Error(w, "Invalid address format", http.StatusBadRequest)
-			return
-		}
-		// Marshal back to JSON string
-		addressBytes, err := json.Marshal(address)
-		if err != nil {
-			http.Error(w, "Error marshalling address", http.StatusInternalServerError)
-			return
-		}
-		addressJSONStr := string(addressBytes)
-		addressJSON = &addressJSONStr
-	} else {
-		addressJSON = nil
-	}
+    // Extract and parse address JSON
+    var addressJSON *string
+    addressStr := r.FormValue("address")
+    if addressStr != "" {
+        addressJSONStr := addressStr
+        addressJSON = &addressJSONStr
+    }
 
+    // Prepare SQL query
+    var query string
+    var args []interface{}
 
-	// Prepare SQL query for updating the user with partial updates
-	query := `
-		UPDATE users
-		SET full_name = COALESCE(NULLIF($2, ''), full_name),
-		    email = COALESCE(NULLIF($3, ''), email),
-		    phone_no = COALESCE(NULLIF($4, ''), phone_no),
-		    password = COALESCE(NULLIF($5, ''), password),
-		    profile_picture = COALESCE($6::BYTEA, profile_picture),
-		    address = COALESCE($7::jsonb, address),
-		    role = COALESCE(NULLIF($8, ''), role)
-		WHERE user_id = $1
-	`
+    if hasProfilePicture {
+        query = `
+            UPDATE users
+            SET full_name = COALESCE(NULLIF($2, ''), full_name),
+                email = COALESCE(NULLIF($3, ''), email),
+                phone_no = COALESCE(NULLIF($4, ''), phone_no),
+                profile_picture = $5,
+                address = COALESCE(NULLIF($6::jsonb, '{}'::jsonb), address),
+                role = COALESCE(NULLIF($7, ''), role)
+            WHERE user_id = $1
+        `
+        args = []interface{}{userID, fullName, email, phoneNo, profilePicture, addressJSON, role}
+    } else {
+        query = `
+            UPDATE users
+            SET full_name = COALESCE(NULLIF($2, ''), full_name),
+                email = COALESCE(NULLIF($3, ''), email),
+                phone_no = COALESCE(NULLIF($4, ''), phone_no),
+                address = COALESCE(NULLIF($5::jsonb, '{}'::jsonb), address),
+                role = COALESCE(NULLIF($6, ''), role)
+            WHERE user_id = $1
+        `
+        args = []interface{}{userID, fullName, email, phoneNo, addressJSON, role}
+    }
 
-	// Execute the query
-	_, err = db.Exec(query, userID, fullName, email, phoneNo, password, profilePicture, addressJSON, role)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+    // Execute the query
+    _, err = db.Exec(query, args...)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
 
-	// Send a success response
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("User profile updated successfully"))
+    // Send success response
+    w.WriteHeader(http.StatusOK)
+    w.Write([]byte("User profile updated successfully"))
 }
+
+
+
