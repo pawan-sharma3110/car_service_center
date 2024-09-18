@@ -99,7 +99,6 @@ func AllUsers(db *sql.DB) (users []UserResponse, err error) {
 
 		// Handle address
 		if address.Valid {
-			fmt.Printf("Raw address JSON for user %s: %s\n", user.ID, address.String) // Debug print
 
 			var parsedAddress Address
 			err := json.Unmarshal([]byte(address.String), &parsedAddress) // Assuming JSON format for address
