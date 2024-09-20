@@ -106,8 +106,7 @@ func AllUsers(db *sql.DB) (users []UserResponse, err error) {
 				return nil, fmt.Errorf("failed to parse address for user %s: %v", user.ID, err)
 			}
 
-			// Debugging parsed data
-			fmt.Printf("Parsed address for user %s: %+v\n", user.ID, parsedAddress)
+			
 
 			user.Address = parsedAddress
 		} else {

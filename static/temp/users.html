@@ -287,7 +287,7 @@
                     row.innerHTML = `
                 <td>${index + 1}</td>
                 <td>${user.id}</td>
-                <td><img src="${profilePicture}" alt="Profile" width="50" class="rounded-circle profile-icon"></td>
+                <td><img src="${profilePicture}" alt="Profile" width="45" height="50" class="rounded-circle profile-icon"></td>
                 <td>${user.full_name}</td>
                 <td>${user.email}</td>
                 <td>${user.phone_no}</td>
@@ -331,53 +331,53 @@
             }
 
             document.getElementById('updateForm').addEventListener('submit', async function (event) {
-                event.preventDefault();
+    event.preventDefault();
 
-                const token = getToken();
-                const userId = document.getElementById('updateUserId').value;
+    const token = getToken();
+    const userId = document.getElementById('updateUserId').value;
 
-                // Prepare FormData object
-                const formData = new FormData();
-                formData.append('full_name', document.getElementById('updateFullName').value);
-                formData.append('email', document.getElementById('updateEmail').value);
-                formData.append('phone_no', document.getElementById('updatePhoneNo').value);
-                formData.append('role', document.getElementById('updateRole').value);
+    // Prepare FormData object
+    const formData = new FormData();
+    formData.append('full_name', document.getElementById('updateFullName').value);
+    formData.append('email', document.getElementById('updateEmail').value);
+    formData.append('phone_no', document.getElementById('updatePhoneNo').value);
+    formData.append('role', document.getElementById('updateRole').value);
 
-                // Convert address to JSON string and add to FormData
-                const address = {
-                    street: document.getElementById('updateStreet').value,
-                    city: document.getElementById('updateCity').value,
-                    state: document.getElementById('updateState').value,
-                    zip_code: document.getElementById('updateZipCode').value
-                };
-                formData.append('address', JSON.stringify(address));
+    // Convert address to JSON string and add to FormData
+    const address = {
+        street: document.getElementById('updateStreet').value,
+        city: document.getElementById('updateCity').value,
+        state: document.getElementById('updateState').value,
+        zip_code: document.getElementById('updateZipCode').value
+    };
+    formData.append('address', JSON.stringify(address));
 
-                // Add profile picture if available
-                const profilePicture = document.getElementById('updateProfilePicture').files[0];
-                if (profilePicture) {
-                    formData.append('profile_picture', profilePicture);
-                }
+    // Add profile picture if available
+    const profilePicture = document.getElementById('updateProfilePicture').files[0];
+    if (profilePicture) {
+        formData.append('profile_picture', profilePicture);
+    }
 
-                try {
-                    const response = await fetch(`http://localhost:8080/user/update-profile/${userId}`, {
-                        method: 'PATCH',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                            // 'Content-Type': 'multipart/form-data' // No need to set Content-Type manually
-                        },
-                        body: formData
-                    });
+    try {
+        const response = await fetch(`http://localhost:8080/user/update-profile/${userId}`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
 
-                    if (response.ok) {
-                        $('#updateModal').modal('hide');
-                        fetchUsers(); // Refresh the table after update
-                    } else {
-                        console.error('Failed to update user:', response.statusText);
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                }
-            });
+        if (response.ok) {
+            $('#updateModal').modal('hide');
+            fetchUsers(); // Refresh the table after update
+            populateTable();
+        } else {
+            console.error('Failed to update user:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});
 
             // Function to delete a user
             async function deleteUser(userId) {
