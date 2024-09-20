@@ -88,7 +88,7 @@
                         </div>
                         <div class="form-group">
                             <label for="service-cost">Cost</label>
-                            <input type="number" class="form-control" id="service-cost" step="0.01" required>
+                            <input type="number" class="form-control" id="service-cost" step="0.01" placeholder="INR Currency"> required 
                         </div>
                         <div class="form-group">
                             <label for="service-description">Description</label>
@@ -109,9 +109,23 @@
               e.preventDefault();
               $("#wrapper").toggleClass("toggled");
           });
-
+          function getToken() {
+                const name = "token=";
+                const decodedCookie = decodeURIComponent(document.cookie);
+                const cookies = decodedCookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    let cookie = cookies[i];
+                    while (cookie.charAt(0) === ' ') {
+                        cookie = cookie.substring(1);
+                    }
+                    if (cookie.indexOf(name) === 0) {
+                        return cookie.substring(name.length, cookie.length);
+                    }
+                }
+                return null;
+            }
           // Your token - replace this with the actual token retrieval logic
-          const authToken = 'YOUR_AUTH_TOKEN';
+          const authToken = getToken();
 
           // Function to fetch all services
           function fetchServices(query = '') {
@@ -137,7 +151,7 @@
                                       <td>${key + 1}</td>
                                       <td>${service.service_id || '-'}</td>
                                       <td>${service.name || 'No Name'}</td>
-                                      <td>${service.cost || '0.00'}</td>
+                                      <td>${service.cost+'₹' || '0.00'}</td>
                                       <td>${service.description || 'No Description'}</td>
                                       <td>
                                           <button class="btn btn-warning btn-sm edit-service" data-id="${service.service_id}" data-toggle="modal" data-target="#serviceModal">Edit</button>
