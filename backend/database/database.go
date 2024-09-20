@@ -32,15 +32,27 @@ func DbIn() (db *sql.DB) {
 	return db
 }
 func createUserTable(db *sql.DB) {
-	query := `CREATE TABLE IF NOT EXISTS users (
-	 user_id UUID PRIMARY KEY,
-    full_name VARCHAR(100),
-    phone_no VARCHAR(15),
-    email VARCHAR(100),
-    password VARCHAR(255),
-	role VARCHAR(15),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	// query := `CREATE TABLE IF NOT EXISTS users (
+	//  user_id UUID PRIMARY KEY,
+	// full_name VARCHAR(100),
+	// phone_no VARCHAR(15),
+	// email VARCHAR(100),
+	// password VARCHAR(255),
+	// role VARCHAR(15),
+	// created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	// )`
+	query := `CREATE TABLE users (
+		user_id UUID PRIMARY KEY,
+		full_name VARCHAR(100) ,
+		email VARCHAR(100),
+		phone_no VARCHAR(15),
+		password VARCHAR(255) NOT NULL,
+		role VARCHAR(15),
+		created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+		profile_picture BYTEA,  
+		address JSONB         
 	)`
+
 	_, err := db.Exec(query)
 	if err != nil {
 		log.Fatal(err)
