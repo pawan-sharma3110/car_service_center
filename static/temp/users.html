@@ -268,6 +268,7 @@
                     if (response.ok) {
                         const users = await response.json();
                         populateTable(users);
+                      
                     } else {
                         console.error('Failed to fetch users:', response.statusText);
                     }
