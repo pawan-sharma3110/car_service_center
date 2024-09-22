@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -44,14 +43,19 @@ func GenerateJwt(email string, id uuid.UUID, role string) (string, error) {
 	return token.SignedString([]byte(JwtKey))
 }
 
-func FormatDate(date sql.NullTime) interface{} {
-	if date.Valid {
-		return date.Time.Format(time.RFC3339) // Format date as RFC3339 string
-	}
-	return nil
+// Helper function to format time to "YYYY-MM-DD hh:mm:ss AM/PM"
+func FormatToAMPM(t time.Time) string {
+	return t.Format("2006-01-02 03:04:05 PM")
 }
 
-func GetUserID(w http.ResponseWriter,r*http.Request) uuid.UUID {
+// Helper function to parse time from UI (AM/PM) and convert to local time
+func ParseFromAMPM(dateTime string) (time.Time, error) {
+	loc, _ := time.LoadLocation("Local") // Use local time from the device
+	t, err := time.ParseInLocation("2006-01-02 03:04:05 PM", dateTime, loc)
+	return t, err
+}
+
+func GetUserID(w http.ResponseWriter, r *http.Request) uuid.UUID {
 	id := r.PathValue("id")
 
 	if id == "" {

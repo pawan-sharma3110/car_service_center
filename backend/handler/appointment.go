@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"log"
+
 	"net/http"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 // Create a new appointment
 
 func CreateAppointment(w http.ResponseWriter, r *http.Request) {
+	userId := utils.GetUserID(w, r)
 	var appt models.Appointment
 	err := json.NewDecoder(r.Body).Decode(&appt)
 	if err != nil {
@@ -25,24 +27,33 @@ func CreateAppointment(w http.ResponseWriter, r *http.Request) {
 	appt.ID = uuid.New()
 	appt.CreatedOn = time.Now()
 	appt.Status = "Unscheduled" // Default status
-
+	var totalCost float64
+	for _, service := range appt.Services {
+		totalCost += float64(service.Cost)
+	}
 	// Serialize services into JSON
 	servicesJSON, err := json.Marshal(appt.Services)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	query := `
-        INSERT INTO appointments (appointment_id, user_id, services, date, status, total_cost, created_on)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)`
-	_, err = db.Exec(query, appt.ID, appt.UserID, servicesJSON, appt.Date, appt.Status, appt.TotalCost, appt.CreatedOn)
+	appointmentTime, err := utils.ParseFromAMPM(appt.DateTime)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(appt)
+	query := `
+        INSERT INTO appointments (appointment_id, user_id, services, date, status, total_cost, created_on)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	_, err = db.Exec(query, appt.ID, userId, servicesJSON, appointmentTime, appt.Status, totalCost, appt.CreatedOn)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]string{
+		"masage": "Appointment Created",
+	})
 }
 
 // Get all appointments with user details
@@ -81,13 +92,14 @@ func GetAppointments(w http.ResponseWriter, r *http.Request) {
 
 		// Append data to the slice
 		appointments = append(appointments, map[string]interface{}{
-			"id":         id,
-			"full_name":  fullName,
-			"phone_no":   phoneNo,
-			"services":   services,
-			"total_cost": totalCost,
-			"date":       utils.FormatDate(date), // Handle date formatting
-			"status":     status,
+			"id":               id,
+			"full_name":        fullName,
+			"phone_no":         phoneNo,
+			"appointment_time": date,
+			"services":         services,
+			"total_cost":       totalCost,
+			// "date":       utils.FormatDate(date), // Handle date formatting
+			"status": status,
 		})
 	}
 
