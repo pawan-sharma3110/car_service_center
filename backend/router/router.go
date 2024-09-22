@@ -17,8 +17,8 @@ func AllRoutes() {
 	http.HandleFunc("/user/update-profile/{id}", middleware.RoleBasedAuth(handler.UpdateUserProfile, "admin", "user"))
 	http.HandleFunc("/user/logout", handler.LogoutHandler)
 	http.HandleFunc("/service/search", handler.SearchServicesHandler)
-	http.HandleFunc("/service/get/all", handler.GetAllService)
-	http.HandleFunc("/appointment", handler.CreateAppointment)
+	http.HandleFunc("/service/get/all", middleware.RoleBasedAuth(handler.GetAllService, "admin", "user"))
+	http.HandleFunc("/appointment",middleware.RoleBasedAuth(handler.CreateAppointment, "admin", "user"))
 
 	// Admin Services
 
