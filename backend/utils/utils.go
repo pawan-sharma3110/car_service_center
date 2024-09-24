@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -43,16 +44,16 @@ func GenerateJwt(email string, id uuid.UUID, role string) (string, error) {
 	return token.SignedString([]byte(JwtKey))
 }
 
-// Helper function to format time to "YYYY-MM-DD hh:mm:ss AM/PM"
-func FormatToAMPM(t time.Time) string {
-	return t.Format("2006-01-02 03:04:05 PM")
-}
+func ParseISODateTimeNoSeconds(dateTimeStr string) (time.Time, error) {
+	// Layout for ISO 8601 without seconds
+	layout := "2006-01-02T15:04"
 
-// Helper function to parse time from UI (AM/PM) and convert to local time
-func ParseFromAMPM(dateTime string) (time.Time, error) {
-	loc, _ := time.LoadLocation("Local") // Use local time from the device
-	t, err := time.ParseInLocation("2006-01-02 03:04:05 PM", dateTime, loc)
-	return t, err
+	// Parse the provided string based on the layout
+	parsedTime, err := time.Parse(layout, dateTimeStr)
+	if err != nil {
+		return time.Time{}, errors.New("invalid date/time format, expected ISO 8601 (YYYY-MM-DDTHH:MM)")
+	}
+	return parsedTime, nil
 }
 
 func GetUserID(w http.ResponseWriter, r *http.Request) uuid.UUID {
@@ -69,4 +70,26 @@ func GetUserID(w http.ResponseWriter, r *http.Request) uuid.UUID {
 		return uuid.Nil
 	}
 	return userId
+}
+func GetUserIDFromCookies(r *http.Request) (uuid.UUID, error) {
+	// Retrieve the cookie named "user_id"
+	cookie, err := r.Cookie("user_id")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			return uuid.Nil, errors.New("missing user ID cookie")
+		}
+
+		return uuid.Nil, err
+	}
+
+	// Return the user ID from the cookie value
+	userId := cookie.Value
+	if userId == "" {
+		return uuid.Nil, errors.New("user ID not found in cookie")
+	}
+	id, err := uuid.Parse(userId)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return id, nil
 }

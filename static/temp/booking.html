@@ -212,7 +212,7 @@
                             <!-- Selected services will appear here -->
                         </ul>
                         <div class="mt-3">
-                            <strong>Total Cost: </strong> $<span id="totalCost">0.00</span>
+                            <strong>Total Cost: </strong> ₹<span id="totalCost">0.00</span>
                         </div>
                         <div class="mt-3">
                             <label for="appointmentDate">Select Date:</label>
@@ -346,97 +346,232 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <!-- Custom Script -->
+ 
     <script>
-       $(document).ready(function () {
-            let totalCost = 0;
-            let selectedServices = [];
-
-            // Fetch services from API
-            $.get('/service/get/all', function (services) {
-                services.forEach(service => {
-                    $('#serviceList').append(`
-                        <li class="list-group-item">
-                            <input type="checkbox" id="service-${service.service_id}" data-service='${JSON.stringify(service)}'>
-                            <label for="service-${service.service_id}">${service.name}</label>
-                            <span class="badge badge-primary float-right">$${service.cost}</span>
-                        </li>
-                    `);
-                });
+        $(document).ready(function () {
+            // Toggle Sidebar
+            $("#menu-toggle").click(function (e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
             });
-
-            // Add or remove service to/from selected list
-            $('#serviceList').on('change', 'input[type="checkbox"]', function () {
-                const service = JSON.parse($(this).attr('data-service'));
-                const listItem = `
-                    <li class="list-group-item" data-service-id="${service.service_id}">
-                        ${service.name} <span class="badge badge-primary float-right">$${service.cost}</span>
-                        <button class="btn btn-danger btn-sm float-right remove-btn">Remove</button>
-                    </li>
-                `;
-
-                if (this.checked) {
-                    $('#selectedServices').append(listItem);
-                    selectedServices.push(service);  // Add the service object to the list
-                    totalCost += service.cost;
-                } else {
-                    $('#selectedServices').find(`li[data-service-id="${service.service_id}"]`).remove();
-                    selectedServices = selectedServices.filter(s => s.service_id !== service.service_id);  // Remove the service
-                    totalCost -= service.cost;
+    
+            // Open registration modal
+            $("#openRegisterModal").click(function () {
+                $("#registerModal").modal('show');
+            });
+    
+            // Fetch token from cookies
+            function getToken() {
+                const name = "token=";
+                const decodedCookie = decodeURIComponent(document.cookie);
+                const cookies = decodedCookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    let cookie = cookies[i];
+                    while (cookie.charAt(0) === ' ') {
+                        cookie = cookie.substring(1);
+                    }
+                    if (cookie.indexOf(name) === 0) {
+                        return cookie.substring(name.length, cookie.length);
+                    }
                 }
-
+                return null;
+            }
+    
+            // Fetch user ID from cookies
+            function getUserId() {
+                const name = "user_id=";
+                const decodedCookie = decodeURIComponent(document.cookie);
+                const cookies = decodedCookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    let cookie = cookies[i];
+                    while (cookie.charAt(0) === ' ') {
+                        cookie = cookie.substring(1);
+                    }
+                    if (cookie.indexOf(name) === 0) {
+                        return cookie.substring(name.length, cookie.length);
+                    }
+                }
+                return null;
+            }
+    
+            // Fetch services on page load
+            async function fetchServices() {
+                try {
+                    const response = await fetch('/service/get/all', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${getToken()}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    if (response.ok) {
+                        const services = await response.json();
+                        populateServiceList(services);
+                    } else {
+                        console.error('Failed to fetch services:', response.statusText);
+                        $('#serviceList').append('<li class="list-group-item">Failed to load services.</li>');
+                    }
+                } catch (error) {
+                    console.error('Error fetching services:', error);
+                    $('#serviceList').append('<li class="list-group-item">Error loading services.</li>');
+                }
+            }
+    
+            // Populate services into the list
+            function populateServiceList(services) {
+                const serviceList = $('#serviceList');
+                serviceList.empty(); // Clear any existing items
+    
+                services.forEach(service => {
+                    const serviceItem = `
+                        <li class="list-group-item-service">
+                            <div>
+                                <input type="checkbox" id="service-${service.service_id}" value='${JSON.stringify(service)}'>
+                                <label for="service-${service.service_id}">${service.name}</label>
+                            </div>
+                            <span class="badge badge-custom" >₹${service.cost.toFixed(2)}</span>
+                        </li>
+                    `;
+                    serviceList.append(serviceItem);
+                });
+            }
+    
+            // Initialize services list
+            fetchServices();
+    
+            let totalCost = 0;
+    
+            // Handle service selection
+            $('#serviceList').on('change', 'input[type="checkbox"]', function () {
+                const service = JSON.parse($(this).val());
+                const serviceId = service.service_id;
+                const serviceName = service.name;
+                const serviceCost = parseFloat(service.cost);
+    
+                if ($(this).is(':checked')) {
+                    // Add to selected services
+                    const selectedServiceItem = `
+                        <li class="selected-service-item" data-service-id="${serviceId}">
+                            <span>${serviceName}</span>
+                            <span class="badge badge-custom">₹${serviceCost.toFixed(2)}</span>
+                            <button class="btn btn-danger btn-sm remove-btn">Remove</button>
+                        </li>
+                    `;
+                    $('#selectedServices').append(selectedServiceItem);
+                    totalCost += serviceCost;
+                } else {
+                    // Remove from selected services
+                    $(`#selectedServices li[data-service-id="${serviceId}"]`).remove();
+                    totalCost -= serviceCost;
+                }
+    
                 $('#totalCost').text(totalCost.toFixed(2));
             });
-
-            // Remove service from selected services
+    
+            // Handle removal of selected service
             $('#selectedServices').on('click', '.remove-btn', function () {
-                const serviceId = $(this).parent().data('service-id');
-                $('#serviceList input[type="checkbox"]').each(function () {
-                    if ($(this).attr('data-service').includes(serviceId)) {
-                        $(this).prop('checked', false).trigger('change');
-                    }
-                });
+                const parentLi = $(this).closest('li');
+                const serviceId = parentLi.data('service-id');
+    
+                // Uncheck the corresponding checkbox
+                $(`#service-${serviceId}`).prop('checked', false);
+    
+                // Remove the service from selected list
+                parentLi.remove();
+    
+                // Recalculate total cost
+                const serviceCost = parseFloat(parentLi.find('.badge-custom').text().replace('₹', ''));
+                totalCost -= serviceCost;
+                $('#totalCost').text(totalCost.toFixed(2));
             });
-
-            // Book Appointment
+    
+            // Book appointment
             $('#bookAppointment').click(function () {
+                const selectedServices = [];
+                let totalCost = 0;
+    
+                // Collect selected services (id, name, and cost)
+                $('#selectedServices li').each(function () {
+                    const serviceId = $(this).data('service-id');
+                    const serviceName = $(this).find('span:first').text();
+                    const serviceCost = parseFloat($(this).find('.badge-custom').text().replace('₹', ''));
+    
+                    selectedServices.push({
+                        service_id: serviceId,
+                        name: serviceName,
+                        cost: serviceCost
+                    });
+    
+                    totalCost += serviceCost;
+                });
+    
                 const appointmentDate = $('#appointmentDate').val();
                 const appointmentTime = $('#appointmentTime').val();
-
-                // Fetch user ID from cookie
-                const userId = getCookie('userId');
-
-                // Create appointment data
+                const appointmentAMPM = $('#appointmentAMPM').val();
+    
+                if (selectedServices.length === 0) {
+                    alert('Please select at least one service.');
+                    return;
+                }
+    
+                if (!appointmentDate || !appointmentTime) {
+                    alert('Please select both date and time.');
+                    return;
+                }
+    
+                // Convert time based on AM/PM selection
+                let [hour, minute] = appointmentTime.split(':');
+                hour = parseInt(hour);
+                const ampm = appointmentAMPM;
+                if (ampm === 'PM' && hour < 12) hour += 12;
+                if (ampm === 'AM' && hour === 12) hour = 0;
+                const formattedTime = `${hour}:${minute}`;
+    
+                // Fetch user ID from cookies
+                const userId = getUserId();
+    
+                if (!userId) {
+                    alert('User not authenticated. Please log in.');
+                    return;
+                }
+    
+                // Create appointment data without seconds
                 const appointmentData = {
                     user_id: userId,
-                    services: selectedServices, // Send selected services as array of objects
-                    date_time: `${appointmentDate} ${appointmentTime}`,
+                    services: selectedServices,
+                    date_time: `${appointmentDate}T${formattedTime}`,
                     total_cost: totalCost
                 };
-
+    
                 // Send appointment data to the server
                 $.ajax({
                     url: '/appointment',
                     type: 'POST',
-                    contentType: 'application/json',
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
                     data: JSON.stringify(appointmentData),
                     success: function () {
                         alert('Appointment booked successfully!');
+                        // Reset the form
+                        $('#selectedServices').empty();
+                        $('#serviceList input[type="checkbox"]').prop('checked', false);
+                        $('#totalCost').text('0.00');
+                        $('#appointmentDate').val('');
+                        $('#appointmentTime').val('');
+                        $('#appointmentAMPM').val('AM');
                     },
                     error: function (err) {
                         console.error('Error:', err);
-                        alert('Failed to book appointment');
+                        alert('Failed to book appointment. Please try again.');
                     }
                 });
             });
-
-            // Helper function to get cookie value by name
-            function getCookie(name) {
-                const value = `; ${document.cookie}`;
-                const parts = value.split(`; ${name}=`);
-                if (parts.length === 2) return parts.pop().split(';').shift();
-            }
         });
     </script>
+    
+
 </body>
 
 </html>

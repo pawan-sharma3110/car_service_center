@@ -16,43 +16,61 @@ import (
 // Create a new appointment
 
 func CreateAppointment(w http.ResponseWriter, r *http.Request) {
-	userId := utils.GetUserID(w, r)
-	var appt models.Appointment
-	err := json.NewDecoder(r.Body).Decode(&appt)
+	// Fetch the user ID from the request (e.g., cookies or headers)
+	userId, err := utils.GetUserIDFromCookies(r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
-	// Insert appointment into the DB
-	appt.ID = uuid.New()
-	appt.CreatedOn = time.Now()
-	appt.Status = "Unscheduled" // Default status
+
+	// Parse the incoming request body to the Appointment struct
+	var appt models.Appointment
+	err = json.NewDecoder(r.Body).Decode(&appt)
+	if err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	// Initialize appointment data
+	appt.ID = uuid.New()        // Generate a new appointment ID
+	appt.CreatedOn = time.Now() // Set the current timestamp
+	appt.Status = "Unscheduled" // Default status of the appointment
+
+	// Calculate total cost by summing the cost of all selected services
 	var totalCost float64
 	for _, service := range appt.Services {
 		totalCost += float64(service.Cost)
 	}
-	// Serialize services into JSON
+	appt.TotalCost = totalCost
+
+	// Serialize services into JSON for database storage
 	servicesJSON, err := json.Marshal(appt.Services)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to process services data", http.StatusInternalServerError)
 		return
 	}
-	appointmentTime, err := utils.ParseFromAMPM(appt.DateTime)
+
+	// Convert the appointment time (without seconds)
+	appointmentTime, err := utils.ParseISODateTimeNoSeconds(appt.DateTime)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	// Insert the appointment into the database
 	query := `
         INSERT INTO appointments (appointment_id, user_id, services, date, status, total_cost, created_on)
         VALUES ($1, $2, $3, $4, $5, $6, $7)`
-	_, err = db.Exec(query, appt.ID, userId, servicesJSON, appointmentTime, appt.Status, totalCost, appt.CreatedOn)
+	_, err = db.Exec(query, appt.ID, userId, servicesJSON, appointmentTime, appt.Status, appt.TotalCost, appt.CreatedOn)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to create appointment", http.StatusInternalServerError)
 		return
 	}
+
+	// Respond with success message
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{
-		"masage": "Appointment Created",
+		"message": "Appointment Created Successfully",
 	})
 }
 
