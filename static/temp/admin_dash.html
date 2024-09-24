@@ -71,8 +71,8 @@
                 <a href="./service.html" class="list-group-item list-group-item-action bg-dark">Services</a>
                 <a href="./users.html" class="list-group-item list-group-item-action bg-dark">Users</a>
             </div>
-             <!-- Profile Dropdown -->
-             <div class="profile-dropdown">
+            <!-- Profile Dropdown -->
+            <div class="profile-dropdown">
                 <img src="../media/user-sign-icon2.jpg" alt="Profile Icon" width="50"
                     class="rounded-circle profile-icon">
                 <div class="dropdown-menu">
@@ -131,7 +131,7 @@
                 <div class="modal-body">
                     <form id="editForm">
                         <input type="hidden" id="appointmentId">
-                        
+
                         <!-- Status dropdown -->
                         <div class="mb-3">
                             <label for="status" class="form-label">Status</label>
@@ -178,27 +178,27 @@
             }
 
             function fetchAppointments() {
-    fetch("http://localhost:8080/appointments")
-        .then(response => response.json())
-        .then(data => {
-            let appointmentRows = '';
-            if (data.length === 0) {
-                appointmentRows = `<tr><td colspan="9" class="text-center">No appointments available</td></tr>`;
-            } else {
-                data.forEach((appointment, key) => {
-                    // Parse services JSON string
-                    let services = JSON.parse(appointment.services || "[]");
-                    let serviceNames = services.map(service => service.name).join(', ');
+                fetch("http://localhost:8080/appointments")
+                    .then(response => response.json())
+                    .then(data => {
+                        let appointmentRows = '';
+                        if (data.length === 0) {
+                            appointmentRows = `<tr><td colspan="9" class="text-center">No appointments available</td></tr>`;
+                        } else {
+                            data.forEach((appointment, key) => {
+                                // Parse services JSON string
+                                let services = JSON.parse(appointment.services || "[]");
+                                let serviceNames = services.map(service => service.name).join(', ');
 
-                    // Extract the appointment time directly from the appointment_time field
-                    const appointmentDateStr = appointment.appointment_time;
+                                // Extract the appointment time directly from the appointment_time field
+                                const appointmentDateStr = appointment.appointment_time;
 
-                    // Convert the appointment time string to a Date object
-                    const appointmentDate = new Date(appointmentDateStr);
-                    const formattedDate = formatAppointmentDate(appointmentDate);
+                                // Convert the appointment time string to a Date object
+                                const appointmentDate = new Date(appointmentDateStr);
+                                const formattedDate = formatAppointmentDate(appointmentDate);
 
-                    // Append appointment row
-                    appointmentRows += `
+                                // Append appointment row
+                                appointmentRows += `
                         <tr data-id="${appointment.id}" data-status="${appointment.status}" data-date="${appointmentDate.toISOString().slice(0, 16)}">
                             <td>${key + 1}</td>
                             <td>${appointment.id}</td>
@@ -213,24 +213,24 @@
                             </td>
                         </tr>
                     `;
-                });
+                            });
+                        }
+                        document.getElementById('appointment-table').innerHTML = appointmentRows;
+                    })
+                    .catch(error => {
+                        console.error("Error fetching appointments:", error);
+                        alert("Error fetching appointments: " + error.message);
+                    });
             }
-            document.getElementById('appointment-table').innerHTML = appointmentRows;
-        })
-        .catch(error => {
-            console.error("Error fetching appointments:", error);
-            alert("Error fetching appointments: " + error.message);
-        });
-}
 
-// Helper function to format the appointment date
-function formatAppointmentDate(date) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
-    return date.toLocaleString(undefined, options); // Adjust toLocaleString options as needed
-}
+            // Helper function to format the appointment date
+            function formatAppointmentDate(date) {
+                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+                return date.toLocaleString(undefined, options); // Adjust toLocaleString options as needed
+            }
 
-// Call fetchAppointments to display appointments on page load or as needed
-fetchAppointments();
+            // Call fetchAppointments to display appointments on page load or as needed
+            fetchAppointments();
 
 
             // Open edit modal and pre-fill form with data from the table
@@ -273,8 +273,8 @@ fetchAppointments();
                         console.error('Error updating appointment:', error);
                     });
             });
-                        // Logout functionality
-                        $('#logoutButton').click(function (e) {
+            // Logout functionality
+            $('#logoutButton').click(function (e) {
                 e.preventDefault(); // Prevent default link behavior
 
                 fetch('http://localhost:8080/user/logout', { // Ensure the endpoint matches your backend route
