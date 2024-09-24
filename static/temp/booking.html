@@ -360,6 +360,10 @@
                 $("#registerModal").modal('show');
             });
     
+            // Set the minimum date for the date picker (disable past dates)
+            const today = new Date().toISOString().split('T')[0];
+            $('#appointmentDate').attr('min', today);  // Disables past dates
+    
             // Fetch token from cookies
             function getToken() {
                 const name = "token=";
@@ -429,7 +433,7 @@
                                 <input type="checkbox" id="service-${service.service_id}" value='${JSON.stringify(service)}'>
                                 <label for="service-${service.service_id}">${service.name}</label>
                             </div>
-                            <span class="badge badge-custom" >₹${service.cost.toFixed(2)}</span>
+                            <span class="badge badge-custom">₹${service.cost.toFixed(2)}</span>
                         </li>
                     `;
                     serviceList.append(serviceItem);
@@ -483,6 +487,12 @@
                 const serviceCost = parseFloat(parentLi.find('.badge-custom').text().replace('₹', ''));
                 totalCost -= serviceCost;
                 $('#totalCost').text(totalCost.toFixed(2));
+    
+                // Reset total cost to 0 if all services are removed
+                if ($('#selectedServices li').length === 0) {
+                    totalCost = 0; // Reset total cost
+                    $('#totalCost').text(totalCost.toFixed(2)); // Update display
+                }
             });
     
             // Book appointment
@@ -508,6 +518,16 @@
                 const appointmentDate = $('#appointmentDate').val();
                 const appointmentTime = $('#appointmentTime').val();
                 const appointmentAMPM = $('#appointmentAMPM').val();
+    
+                // Check if the appointment date is in the past
+                const selectedDate = new Date(appointmentDate);
+                const currentDate = new Date();
+                currentDate.setHours(0, 0, 0, 0);  // Remove the time from the current date for comparison
+    
+                if (selectedDate < currentDate) {
+                    alert('You cannot book an appointment in the past.');
+                    return;
+                }
     
                 if (selectedServices.length === 0) {
                     alert('Please select at least one service.');
@@ -557,7 +577,8 @@
                         // Reset the form
                         $('#selectedServices').empty();
                         $('#serviceList input[type="checkbox"]').prop('checked', false);
-                        $('#totalCost').text('0.00');
+                        totalCost = 0; // Reset total cost
+                        $('#totalCost').text(totalCost.toFixed(2)); // Update display
                         $('#appointmentDate').val('');
                         $('#appointmentTime').val('');
                         $('#appointmentAMPM').val('AM');
@@ -570,6 +591,8 @@
             });
         });
     </script>
+    
+    
     
 
 </body>

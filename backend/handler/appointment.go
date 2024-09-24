@@ -3,7 +3,6 @@ package handler
 import (
 	"car_service/models"
 	"car_service/utils"
-	"database/sql"
 	"encoding/json"
 	"log"
 
@@ -51,17 +50,17 @@ func CreateAppointment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert the appointment time (without seconds)
-	appointmentTime, err := utils.ParseISODateTimeNoSeconds(appt.DateTime)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	// appointmentTime, err := utils.ParseISODateTimeNoSeconds(appt.DateTime)
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusBadRequest)
+	// 	return
+	// }
 
 	// Insert the appointment into the database
 	query := `
         INSERT INTO appointments (appointment_id, user_id, services, date, status, total_cost, created_on)
         VALUES ($1, $2, $3, $4, $5, $6, $7)`
-	_, err = db.Exec(query, appt.ID, userId, servicesJSON, appointmentTime, appt.Status, appt.TotalCost, appt.CreatedOn)
+	_, err = db.Exec(query, appt.ID, userId, servicesJSON, appt.DateTime, appt.Status, appt.TotalCost, appt.CreatedOn)
 	if err != nil {
 		http.Error(w, "Failed to create appointment", http.StatusInternalServerError)
 		return
@@ -80,7 +79,7 @@ func GetAppointments(w http.ResponseWriter, r *http.Request) {
 	query := `
 	 SELECT a.appointment_id, u.full_name, u.phone_no, a.services, a.total_cost, a.date, a.status
 	 FROM appointments a
-	 JOIN users u ON a.user_id = u.user_id  -- Change this to the correct column name if needed
+	 JOIN users u ON a.user_id = u.user_id
 	 `
 
 	// Execute the query
@@ -97,9 +96,8 @@ func GetAppointments(w http.ResponseWriter, r *http.Request) {
 
 	// Iterate over rows
 	for rows.Next() {
-		var id, fullName, phoneNo, services, status string
+		var id, fullName, phoneNo, services, status, date string
 		var totalCost float32
-		var date sql.NullTime
 
 		// Scan the row into variables
 		if err := rows.Scan(&id, &fullName, &phoneNo, &services, &totalCost, &date, &status); err != nil {
@@ -113,11 +111,10 @@ func GetAppointments(w http.ResponseWriter, r *http.Request) {
 			"id":               id,
 			"full_name":        fullName,
 			"phone_no":         phoneNo,
-			"appointment_time": date,
+			"appointment_time": date, // Date is now a string
 			"services":         services,
 			"total_cost":       totalCost,
-			// "date":       utils.FormatDate(date), // Handle date formatting
-			"status": status,
+			"status":           status,
 		})
 	}
 
@@ -136,8 +133,6 @@ func GetAppointments(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Appointment Status Update for admin
-
 // Ensure the Appointment struct matches the JSON structure
 type AppointmentPayload struct {
 	Date   string `json:"date"`
@@ -150,20 +145,11 @@ func UpdateAppointment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"error": "Method not allowed"}`, http.StatusMethodNotAllowed)
 		return
 	}
-	appointmentID := r.URL.Query().Get("id") // or use gorilla mux if needed
-	if appointmentID == "" {
-		http.Error(w, "Missing id parameter", http.StatusBadRequest)
-		return
-	}
-	id, err := uuid.Parse(appointmentID)
-	if err != nil {
-		http.Error(w, `{"error": "Invalid JSON data"}`, http.StatusBadRequest)
-		return
-	}
+	appointmentID := utils.GetUserID(w, r) // or use gorilla mux if needed
 
 	// Decode the incoming request
 	var appt AppointmentPayload
-	err = json.NewDecoder(r.Body).Decode(&appt)
+	err := json.NewDecoder(r.Body).Decode(&appt)
 	if err != nil {
 		http.Error(w, "Invalid JSON data", http.StatusBadRequest)
 		return
@@ -171,7 +157,7 @@ func UpdateAppointment(w http.ResponseWriter, r *http.Request) {
 
 	// Update the appointment in the database
 	query := `UPDATE appointments SET date = $1, status = $2 WHERE appointment_id = $3`
-	_, err = db.Exec(query, appt.Date, appt.Status, id)
+	_, err = db.Exec(query, appt.Date, appt.Status, appointmentID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

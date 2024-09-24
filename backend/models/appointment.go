@@ -25,25 +25,7 @@ func ServicesToJson(services []Service) string {
 	return string(servicesJson)
 }
 
-// func (a Appointment) InsertAppoitment(db *sql.DB) error {
-// 	query := `
-//         INSERT INTO appointments (id, user_id, services, date, status, total_cost, created_on)
-//         VALUES ($1, $2, $3, $4, $5, $6, $7)`
-// 	_, err := db.Exec(query,
-// 		a.ID,
-// 		a.UserID,
-// 		ServicesToJson(a.Services), // Convert services to JSON format
-// 		a.DateTime,
-// 		a.Status,
-// 		a.TotalCost,
-// 		a.CreatedOn,
-// 	)
-// 	if err != nil {
 
-//			return fmt.Errorf("failed to create appointment: %w", err)
-//		}
-//		return nil
-//	}
 func AllAppointment(db *sql.DB) (*[]Appointment, error) {
 	// Query to fetch all appointments
 	query := `SELECT id, user_id, services, date, status, total_cost, created_on FROM appointments`

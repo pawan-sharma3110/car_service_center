@@ -177,49 +177,61 @@
                 return hours + ':' + minutesStr + ' ' + ampm;
             }
 
-            // Fetch and display appointments on page load
             function fetchAppointments() {
-                fetch("http://localhost:8080/appointments")
-                    .then(response => response.json())
-                    .then(data => {
-                        let appointmentRows = '';
-                        if (data.length === 0) {
-                            appointmentRows = `<tr><td colspan="9" class="text-center">No appointments available</td></tr>`;
-                        } else {
-                            data.forEach((appointment, key) => {
-                                let services = JSON.parse(appointment.services || "[]");
-                                let serviceNames = services.map(service => service.name).join(', ');
+    fetch("http://localhost:8080/appointments")
+        .then(response => response.json())
+        .then(data => {
+            let appointmentRows = '';
+            if (data.length === 0) {
+                appointmentRows = `<tr><td colspan="9" class="text-center">No appointments available</td></tr>`;
+            } else {
+                data.forEach((appointment, key) => {
+                    // Parse services JSON string
+                    let services = JSON.parse(appointment.services || "[]");
+                    let serviceNames = services.map(service => service.name).join(', ');
 
-                                // Format the appointment date to 12-hour format
-                                const appointmentDate = new Date(appointment.date);
-                                const formattedDate = appointmentDate.toLocaleDateString() + ' ' + format12HourTime(appointmentDate);
+                    // Extract the appointment time directly from the appointment_time field
+                    const appointmentDateStr = appointment.appointment_time;
 
-                                appointmentRows += `
-                                    <tr data-id="${appointment.id}" data-status="${appointment.status}" data-date="${appointmentDate.toISOString().slice(0, 16)}">
-                                        <td>${key + 1}</td>
-                                        <td>${appointment.id}</td>
-                                        <td>${appointment.full_name}</td>
-                                        <td>${serviceNames}</td>
-                                        <td>${appointment.phone_no}</td>
-                                        <td>${appointment.total_cost}₹</td>
-                                        <td>${formattedDate}</td>
-                                        <td>${appointment.status}</td>
-                                        <td>
-                                            <button class="btn btn-primary btn-sm edit-appointment">Edit</button>
-                                        </td>
-                                    </tr>
-                                `;
-                            });
-                        }
-                        document.getElementById('appointment-table').innerHTML = appointmentRows;
-                    })
-                    .catch(error => {
-                        console.error("Error fetching appointments:", error);
-                        alert("Error fetching appointments: " + error.message);
-                    });
+                    // Convert the appointment time string to a Date object
+                    const appointmentDate = new Date(appointmentDateStr);
+                    const formattedDate = formatAppointmentDate(appointmentDate);
+
+                    // Append appointment row
+                    appointmentRows += `
+                        <tr data-id="${appointment.id}" data-status="${appointment.status}" data-date="${appointmentDate.toISOString().slice(0, 16)}">
+                            <td>${key + 1}</td>
+                            <td>${appointment.id}</td>
+                            <td>${appointment.full_name}</td>
+                            <td>${serviceNames}</td>
+                            <td>${appointment.phone_no}</td>
+                            <td>${appointment.total_cost}₹</td>
+                            <td>${formattedDate}</td>
+                            <td>${appointment.status}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm edit-appointment">Edit</button>
+                            </td>
+                        </tr>
+                    `;
+                });
             }
+            document.getElementById('appointment-table').innerHTML = appointmentRows;
+        })
+        .catch(error => {
+            console.error("Error fetching appointments:", error);
+            alert("Error fetching appointments: " + error.message);
+        });
+}
 
-            fetchAppointments();
+// Helper function to format the appointment date
+function formatAppointmentDate(date) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+    return date.toLocaleString(undefined, options); // Adjust toLocaleString options as needed
+}
+
+// Call fetchAppointments to display appointments on page load or as needed
+fetchAppointments();
+
 
             // Open edit modal and pre-fill form with data from the table
             $(document).on('click', '.edit-appointment', function () {
