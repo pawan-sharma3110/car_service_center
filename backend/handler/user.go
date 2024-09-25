@@ -214,45 +214,45 @@ func DeleteUserById(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateUserProfile(w http.ResponseWriter, r *http.Request) {
-    // Extract the user ID
-    userID := utils.GetUserID(w, r)
+	// Extract the user ID
+	userID := utils.GetUserID(w, r)
 
-    // Parse multipart form data
-    if err := r.ParseMultipartForm(10 << 20); err != nil {
-        http.Error(w, "Error parsing form data", http.StatusInternalServerError)
-        return
-    }
+	// Parse multipart form data
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		http.Error(w, "Error parsing form data", http.StatusInternalServerError)
+		return
+	}
 
-    // Read profile picture
-    var profilePicture []byte
-    hasProfilePicture := false
-    file, _, err := r.FormFile("profile_picture")
-    if err == nil {
-        defer file.Close()
-        profilePicture, _ = io.ReadAll(file)
-        hasProfilePicture = true
-    }
+	// Read profile picture
+	var profilePicture []byte
+	hasProfilePicture := false
+	file, _, err := r.FormFile("profile_picture")
+	if err == nil {
+		defer file.Close()
+		profilePicture, _ = io.ReadAll(file)
+		hasProfilePicture = true
+	}
 
-    // Extract other form fields
-    fullName := r.FormValue("full_name")
-    email := r.FormValue("email")
-    phoneNo := r.FormValue("phone_no")
-    role := r.FormValue("role")
+	// Extract other form fields
+	fullName := r.FormValue("full_name")
+	email := r.FormValue("email")
+	phoneNo := r.FormValue("phone_no")
+	role := r.FormValue("role")
 
-    // Extract and parse address JSON
-    var addressJSON *string
-    addressStr := r.FormValue("address")
-    if addressStr != "" {
-        addressJSONStr := addressStr
-        addressJSON = &addressJSONStr
-    }
+	// Extract and parse address JSON
+	var addressJSON *string
+	addressStr := r.FormValue("address")
+	if addressStr != "" {
+		addressJSONStr := addressStr
+		addressJSON = &addressJSONStr
+	}
 
-    // Prepare SQL query
-    var query string
-    var args []interface{}
+	// Prepare SQL query
+	var query string
+	var args []interface{}
 
-    if hasProfilePicture {
-        query = `
+	if hasProfilePicture {
+		query = `
             UPDATE users
             SET full_name = COALESCE(NULLIF($2, ''), full_name),
                 email = COALESCE(NULLIF($3, ''), email),
@@ -262,9 +262,9 @@ func UpdateUserProfile(w http.ResponseWriter, r *http.Request) {
                 role = COALESCE(NULLIF($7, ''), role)
             WHERE user_id = $1
         `
-        args = []interface{}{userID, fullName, email, phoneNo, profilePicture, addressJSON, role}
-    } else {
-        query = `
+		args = []interface{}{userID, fullName, email, phoneNo, profilePicture, addressJSON, role}
+	} else {
+		query = `
             UPDATE users
             SET full_name = COALESCE(NULLIF($2, ''), full_name),
                 email = COALESCE(NULLIF($3, ''), email),
@@ -273,20 +273,17 @@ func UpdateUserProfile(w http.ResponseWriter, r *http.Request) {
                 role = COALESCE(NULLIF($6, ''), role)
             WHERE user_id = $1
         `
-        args = []interface{}{userID, fullName, email, phoneNo, addressJSON, role}
-    }
+		args = []interface{}{userID, fullName, email, phoneNo, addressJSON, role}
+	}
 
-    // Execute the query
-    _, err = db.Exec(query, args...)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusInternalServerError)
-        return
-    }
+	// Execute the query
+	_, err = db.Exec(query, args...)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-    // Send success response
-    w.WriteHeader(http.StatusOK)
-    w.Write([]byte("User profile updated successfully"))
+	// Send success response
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("User profile updated successfully"))
 }
-
-
-

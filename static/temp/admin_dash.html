@@ -73,7 +73,7 @@
             </div>
             <!-- Profile Dropdown -->
             <div class="profile-dropdown">
-                <img src="../media/user-sign-icon2.jpg" alt="Profile Icon" width="50"
+                <img id="profilePicture" src="" alt="Profile Icon" width="60" height="60"
                     class="rounded-circle profile-icon">
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="./profile.html">Update Profile</a>
@@ -273,6 +273,43 @@
                         console.error('Error updating appointment:', error);
                     });
             });
+
+
+
+            function getCookie(name) {
+                let cookieArr = document.cookie.split(";");
+
+                for (let i = 0; i < cookieArr.length; i++) {
+                    let cookiePair = cookieArr[i].split("=");
+                    if (name === cookiePair[0].trim()) {
+                        return decodeURIComponent(cookiePair[1]);
+                    }
+                }
+                return null;
+            }
+
+            // Function to load profile picture
+            function loadProfilePicture() {
+                const userId = getCookie("user_id"); // Fetch user ID from the cookie
+
+                if (userId) {
+                    // Construct the URL to fetch the profile picture
+                    const imageUrl = `/profile-picture?user_id=${userId}`; // Same port, API call
+                    const profileImageElement = document.querySelector('.profile-icon');
+
+                    // Set the src of the img element
+                    profileImageElement.src = imageUrl;
+
+                    profileImageElement.onerror = function () {
+                        // Optional: Fallback if no profile picture is found
+                        profileImageElement.src = "../media/user-sign-icon2.jpg";
+                    };
+                } else {
+                    console.log("User ID not found in cookies.");
+                }
+            }
+
+            loadProfilePicture();
             // Logout functionality
             $('#logoutButton').click(function (e) {
                 e.preventDefault(); // Prevent default link behavior
