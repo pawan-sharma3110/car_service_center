@@ -159,6 +159,32 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Logged out successfully"))
 }
 
+func GetUserProfile(w http.ResponseWriter, r *http.Request) {
+	userID := utils.GetUserID(w, r) // Assuming this function retrieves user ID from the cookie
+
+	// Query the user details from the database
+	var user models.User
+	var addressData []byte // Variable to hold the raw JSON data for the address
+
+	err := db.QueryRow(`SELECT user_id, full_name, email, phone_no, role, address FROM users WHERE user_id = $1`, userID).
+		Scan(&user.ID, &user.FullName, &user.Email, &user.PhoneNo, &user.Role, &addressData)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Unmarshal the address JSON data into the Address struct
+	if err := json.Unmarshal(addressData, &user.Address); err != nil {
+		http.Error(w, "Error parsing address data", http.StatusInternalServerError)
+		return
+	}
+
+	// Send the user data as JSON response
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
+}
+
 func GetAllUser(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -238,6 +264,7 @@ func UpdateUserProfile(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	phoneNo := r.FormValue("phone_no")
 	role := r.FormValue("role")
+	password := r.FormValue("password") // New field for password
 
 	// Extract and parse address JSON
 	var addressJSON *string
@@ -247,33 +274,71 @@ func UpdateUserProfile(w http.ResponseWriter, r *http.Request) {
 		addressJSON = &addressJSONStr
 	}
 
-	// Prepare SQL query
+	// Prepare SQL query and arguments
 	var query string
 	var args []interface{}
 
-	if hasProfilePicture {
-		query = `
-            UPDATE users
-            SET full_name = COALESCE(NULLIF($2, ''), full_name),
-                email = COALESCE(NULLIF($3, ''), email),
-                phone_no = COALESCE(NULLIF($4, ''), phone_no),
-                profile_picture = $5,
-                address = COALESCE(NULLIF($6::jsonb, '{}'::jsonb), address),
-                role = COALESCE(NULLIF($7, ''), role)
-            WHERE user_id = $1
-        `
-		args = []interface{}{userID, fullName, email, phoneNo, profilePicture, addressJSON, role}
+	// Check if password field is empty or not
+	if password != "" {
+		// Hash the new password (assuming you have a helper for password hashing)
+		hashedPassword, err := utils.HashPassword(password)
+		if err != nil {
+			http.Error(w, "Error hashing password", http.StatusInternalServerError)
+			return
+		}
+
+		if hasProfilePicture {
+			query = `
+                UPDATE users
+                SET full_name = COALESCE(NULLIF($2, ''), full_name),
+                    email = COALESCE(NULLIF($3, ''), email),
+                    phone_no = COALESCE(NULLIF($4, ''), phone_no),
+                    profile_picture = $5,
+                    address = COALESCE(NULLIF($6::jsonb, '{}'::jsonb), address),
+                    role = COALESCE(NULLIF($7, ''), role),
+                    password = $8
+                WHERE user_id = $1
+            `
+			args = []interface{}{userID, fullName, email, phoneNo, profilePicture, addressJSON, role, hashedPassword}
+		} else {
+			query = `
+                UPDATE users
+                SET full_name = COALESCE(NULLIF($2, ''), full_name),
+                    email = COALESCE(NULLIF($3, ''), email),
+                    phone_no = COALESCE(NULLIF($4, ''), phone_no),
+                    address = COALESCE(NULLIF($5::jsonb, '{}'::jsonb), address),
+                    role = COALESCE(NULLIF($6, ''), role),
+                    password = $7
+                WHERE user_id = $1
+            `
+			args = []interface{}{userID, fullName, email, phoneNo, addressJSON, role, hashedPassword}
+		}
 	} else {
-		query = `
-            UPDATE users
-            SET full_name = COALESCE(NULLIF($2, ''), full_name),
-                email = COALESCE(NULLIF($3, ''), email),
-                phone_no = COALESCE(NULLIF($4, ''), phone_no),
-                address = COALESCE(NULLIF($5::jsonb, '{}'::jsonb), address),
-                role = COALESCE(NULLIF($6, ''), role)
-            WHERE user_id = $1
-        `
-		args = []interface{}{userID, fullName, email, phoneNo, addressJSON, role}
+		// Password field is empty, retain the old password
+		if hasProfilePicture {
+			query = `
+                UPDATE users
+                SET full_name = COALESCE(NULLIF($2, ''), full_name),
+                    email = COALESCE(NULLIF($3, ''), email),
+                    phone_no = COALESCE(NULLIF($4, ''), phone_no),
+                    profile_picture = $5,
+                    address = COALESCE(NULLIF($6::jsonb, '{}'::jsonb), address),
+                    role = COALESCE(NULLIF($7, ''), role)
+                WHERE user_id = $1
+            `
+			args = []interface{}{userID, fullName, email, phoneNo, profilePicture, addressJSON, role}
+		} else {
+			query = `
+                UPDATE users
+                SET full_name = COALESCE(NULLIF($2, ''), full_name),
+                    email = COALESCE(NULLIF($3, ''), email),
+                    phone_no = COALESCE(NULLIF($4, ''), phone_no),
+                    address = COALESCE(NULLIF($5::jsonb, '{}'::jsonb), address),
+                    role = COALESCE(NULLIF($6, ''), role)
+                WHERE user_id = $1
+            `
+			args = []interface{}{userID, fullName, email, phoneNo, addressJSON, role}
+		}
 	}
 
 	// Execute the query
