@@ -376,10 +376,12 @@
 
                     if (response.ok) {
                         $('#updateModal').modal('hide');
-                        fetchUsers();
+                        alert("Profile updated successfully!");
+                        location.reload();
+
 
                     } else {
-                        console.error('Failed to update user:', response.statusText);
+                        alert('Failed to update user:');
                     }
                 } catch (error) {
                     console.error('Error:', error);

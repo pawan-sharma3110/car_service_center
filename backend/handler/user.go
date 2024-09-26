@@ -166,7 +166,7 @@ func GetUserProfile(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	var addressData []byte // Variable to hold the raw JSON data for the address
 
-	err := db.QueryRow(`SELECT user_id, full_name, email, phone_no, role, address FROM users WHERE user_id = $1`, userID).
+	err := db.QueryRow(`SELECT user_id,full_name, email, phone_no, role, address FROM users WHERE user_id = $1`, userID).
 		Scan(&user.ID, &user.FullName, &user.Email, &user.PhoneNo, &user.Role, &addressData)
 
 	if err != nil {
@@ -174,10 +174,16 @@ func GetUserProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Unmarshal the address JSON data into the Address struct
-	if err := json.Unmarshal(addressData, &user.Address); err != nil {
-		http.Error(w, "Error parsing address data", http.StatusInternalServerError)
-		return
+	// Check if addressData is empty
+	if len(addressData) == 0 {
+		// Optionally, you can set user.Address to a default value or leave it empty
+		user.Address = models.Address{} // Assuming Address is a struct in your models
+	} else {
+		// Unmarshal the address JSON data into the Address struct
+		if err := json.Unmarshal(addressData, &user.Address); err != nil {
+			http.Error(w, "Error parsing address data: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	// Send the user data as JSON response
