@@ -156,6 +156,7 @@
             #sidebar-wrapper {
                 margin-left: 0;
             }
+
             #page-content-wrapper {
                 padding-left: 15rem;
             }
@@ -175,9 +176,10 @@
             </div>
             <!-- Profile Dropdown -->
             <div class="profile-dropdown">
-                <img src="../media/user-sign-icon2.jpg" alt="Profile Icon" width="50" class="rounded-circle profile-icon" data-toggle="dropdown">
+                <img src="../media/user-sign-icon2.jpg" alt="Profile Icon" width="50"
+                    class="rounded-circle profile-icon" data-toggle="dropdown">
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="./profile.html">Update Profile</a>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#updateModal">Update Profile</a>
                     <a class="dropdown-item" href="#" id="logoutButton">Logout</a>
                 </div>
             </div>
@@ -238,7 +240,8 @@
     </div>
 
     <!-- User Registration Modal (Preserved from Admin Dashboard) -->
-    <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -252,7 +255,8 @@
                     <form id="registrationForm" action="/user/register" method="post">
                         <div class="form-group">
                             <label for="fullName">Full Name</label>
-                            <input type="text" class="form-control" id="fullName" name="fullName" placeholder="Enter full name">
+                            <input type="text" class="form-control" id="fullName" name="fullName"
+                                placeholder="Enter full name">
                         </div>
                         <div class="form-group">
                             <label for="email">Email</label>
@@ -260,11 +264,13 @@
                         </div>
                         <div class="form-group">
                             <label for="phoneNo">Phone No</label>
-                            <input type="text" class="form-control" id="phoneNo" name="phoneNo" placeholder="Enter phone number" maxlength="10">
+                            <input type="text" class="form-control" id="phoneNo" name="phoneNo"
+                                placeholder="Enter phone number" maxlength="10">
                         </div>
                         <div class="form-group">
                             <label for="password">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" minlength="6" maxlength="10">
+                            <input type="password" class="form-control" id="password" name="password"
+                                placeholder="Enter password" minlength="6" maxlength="10">
                         </div>
                         <div class="form-group">
                             <label for="role">Role</label>
@@ -281,7 +287,8 @@
     </div>
 
     <!-- Update User Modal (Preserved from Admin Dashboard) -->
-    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -330,7 +337,8 @@
                         </div>
                         <div class="form-group">
                             <label for="updateProfileImage">Profile Image (max 3MB)</label>
-                            <input type="file" class="form-control-file" id="updateProfilePicture" name="profile_picture">
+                            <input type="file" class="form-control-file" id="updateProfilePicture"
+                                name="profile_picture">
                         </div>
                         <button type="submit" class="btn btn-primary">Update</button>
                     </form>
@@ -346,7 +354,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <!-- Custom Script -->
- 
+
     <script>
         $(document).ready(function () {
             // Toggle Sidebar
@@ -354,16 +362,16 @@
                 e.preventDefault();
                 $("#wrapper").toggleClass("toggled");
             });
-    
+
             // Open registration modal
             $("#openRegisterModal").click(function () {
                 $("#registerModal").modal('show');
             });
-    
+
             // Set the minimum date for the date picker (disable past dates)
             const today = new Date().toISOString().split('T')[0];
             $('#appointmentDate').attr('min', today);  // Disables past dates
-    
+
             // Fetch token from cookies
             function getToken() {
                 const name = "token=";
@@ -380,7 +388,7 @@
                 }
                 return null;
             }
-    
+
             // Fetch user ID from cookies
             function getUserId() {
                 const name = "user_id=";
@@ -397,7 +405,7 @@
                 }
                 return null;
             }
-    
+
             // Fetch services on page load
             async function fetchServices() {
                 try {
@@ -420,12 +428,12 @@
                     $('#serviceList').append('<li class="list-group-item">Error loading services.</li>');
                 }
             }
-    
+
             // Populate services into the list
             function populateServiceList(services) {
                 const serviceList = $('#serviceList');
                 serviceList.empty(); // Clear any existing items
-    
+
                 services.forEach(service => {
                     const serviceItem = `
                         <li class="list-group-item-service">
@@ -439,19 +447,19 @@
                     serviceList.append(serviceItem);
                 });
             }
-    
+
             // Initialize services list
             fetchServices();
-    
+
             let totalCost = 0;
-    
+
             // Handle service selection
             $('#serviceList').on('change', 'input[type="checkbox"]', function () {
                 const service = JSON.parse($(this).val());
                 const serviceId = service.service_id;
                 const serviceName = service.name;
                 const serviceCost = parseFloat(service.cost);
-    
+
                 if ($(this).is(':checked')) {
                     // Add to selected services
                     const selectedServiceItem = `
@@ -468,77 +476,77 @@
                     $(`#selectedServices li[data-service-id="${serviceId}"]`).remove();
                     totalCost -= serviceCost;
                 }
-    
+
                 $('#totalCost').text(totalCost.toFixed(2));
             });
-    
+
             // Handle removal of selected service
             $('#selectedServices').on('click', '.remove-btn', function () {
                 const parentLi = $(this).closest('li');
                 const serviceId = parentLi.data('service-id');
-    
+
                 // Uncheck the corresponding checkbox
                 $(`#service-${serviceId}`).prop('checked', false);
-    
+
                 // Remove the service from selected list
                 parentLi.remove();
-    
+
                 // Recalculate total cost
                 const serviceCost = parseFloat(parentLi.find('.badge-custom').text().replace('₹', ''));
                 totalCost -= serviceCost;
                 $('#totalCost').text(totalCost.toFixed(2));
-    
+
                 // Reset total cost to 0 if all services are removed
                 if ($('#selectedServices li').length === 0) {
                     totalCost = 0; // Reset total cost
                     $('#totalCost').text(totalCost.toFixed(2)); // Update display
                 }
             });
-    
+
             // Book appointment
             $('#bookAppointment').click(function () {
                 const selectedServices = [];
                 let totalCost = 0;
-    
+
                 // Collect selected services (id, name, and cost)
                 $('#selectedServices li').each(function () {
                     const serviceId = $(this).data('service-id');
                     const serviceName = $(this).find('span:first').text();
                     const serviceCost = parseFloat($(this).find('.badge-custom').text().replace('₹', ''));
-    
+
                     selectedServices.push({
                         service_id: serviceId,
                         name: serviceName,
                         cost: serviceCost
                     });
-    
+
                     totalCost += serviceCost;
                 });
-    
+
                 const appointmentDate = $('#appointmentDate').val();
                 const appointmentTime = $('#appointmentTime').val();
                 const appointmentAMPM = $('#appointmentAMPM').val();
-    
+
                 // Check if the appointment date is in the past
                 const selectedDate = new Date(appointmentDate);
                 const currentDate = new Date();
                 currentDate.setHours(0, 0, 0, 0);  // Remove the time from the current date for comparison
-    
+
                 if (selectedDate < currentDate) {
                     alert('You cannot book an appointment in the past.');
                     return;
                 }
-    
+
                 if (selectedServices.length === 0) {
                     alert('Please select at least one service.');
                     return;
                 }
-    
+
                 if (!appointmentDate || !appointmentTime) {
                     alert('Please select both date and time.');
                     return;
                 }
-    
+
                 // Convert time based on AM/PM selection
                 let [hour, minute] = appointmentTime.split(':');
                 hour = parseInt(hour);
@@ -546,15 +554,15 @@
                 if (ampm === 'PM' && hour < 12) hour += 12;
                 if (ampm === 'AM' && hour === 12) hour = 0;
                 const formattedTime = `${hour}:${minute}`;
-    
+
                 // Fetch user ID from cookies
                 const userId = getUserId();
-    
+
                 if (!userId) {
                     alert('User not authenticated. Please log in.');
                     return;
                 }
-    
+
                 // Create appointment data without seconds
                 const appointmentData = {
                     user_id: userId,
@@ -562,7 +570,7 @@
                     date_time: `${appointmentDate}T${formattedTime}`,
                     total_cost: totalCost
                 };
-    
+
                 // Send appointment data to the server
                 $.ajax({
                     url: '/appointment',
@@ -591,9 +599,78 @@
             });
         });
     </script>
-    
-    
-    
+
+    <script>
+        // Helper function to get the user ID from cookies
+        function getCookie(name) {
+            let cookieArr = document.cookie.split(";");
+
+            for (let i = 0; i < cookieArr.length; i++) {
+                let cookiePair = cookieArr[i].split("=");
+                if (name === cookiePair[0].trim()) {
+                    return decodeURIComponent(cookiePair[1]);
+                }
+            }
+            return null;
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Triggered when the Update Profile button is clicked
+            document.querySelector('.dropdown-item[data-target="#updateModal"]').addEventListener('click', function () {
+                // Assume we have the user ID stored somewhere, or you can pass it dynamically
+                var userId = getCookie("user_id"); // Replace this with dynamic value
+
+                // Fetch user data from the server
+                fetch(`/user/profile/${userId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Populate form fields with the fetched user data
+                        document.getElementById('updateUserId').value = data.id;
+                        document.getElementById('updateFullName').value = data.full_name;
+                        document.getElementById('updateEmail').value = data.email;
+                        document.getElementById('updatePhoneNo').value = data.phone_no;
+                        document.getElementById('updateRole').value = data.role;
+                        document.getElementById('updateStreet').value = data.address.street;
+                        document.getElementById('updateCity').value = data.address.city;
+                        document.getElementById('updateState').value = data.address.state;
+                        document.getElementById('updateZipCode').value = data.address.zip_code;
+                    })
+                    .catch(error => console.error('Error fetching user profile:', error));
+            });
+        });
+
+        document.getElementById("updateForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Get the form data
+            var formData = new FormData(this);
+            var userId = document.getElementById('updateUserId').value;
+
+            // Send the form data to the server
+            fetch(`/user/update-profile/${userId}`, {
+                method: 'POST', // Or PUT if using that
+                body: formData,
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.text(); // Handle success response
+                    } else {
+                        throw new Error("Failed to update profile");
+                    }
+                })
+                .then(data => {
+                    alert("Profile updated successfully!");
+                    location.reload(); // Reload the page or update the UI accordingly
+                })
+                .catch(error => console.error('Error updating profile:', error));
+        });
+    </script>
+
 
 </body>
 
