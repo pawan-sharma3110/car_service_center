@@ -528,24 +528,7 @@
                 const appointmentAMPM = $('#appointmentAMPM').val();
 
                 // Check if the appointment date is in the past
-                const selectedDate = new Date(appointmentDate);
-                const currentDate = new Date();
-                currentDate.setHours(0, 0, 0, 0);  // Remove the time from the current date for comparison
-
-                if (selectedDate < currentDate) {
-                    alert('You cannot book an appointment in the past.');
-                    return;
-                }
-
-                if (selectedServices.length === 0) {
-                    alert('Please select at least one service.');
-                    return;
-                }
-
-                if (!appointmentDate || !appointmentTime) {
-                    alert('Please select both date and time.');
-                    return;
-                }
+                validateAppt();
 
                 // Convert time based on AM/PM selection
                 let [hour, minute] = appointmentTime.split(':');
@@ -597,6 +580,27 @@
                     }
                 });
             });
+
+            function validateAppt() {
+                const selectedDate = new Date(appointmentDate);
+                const currentDate = new Date();
+                currentDate.setHours(0, 0, 0, 0);  // Remove the time from the current date for comparison
+
+                if (selectedDate < currentDate) {
+                    alert('You cannot book an appointment in the past.');
+                    return;
+                }
+
+                if (selectedServices.length === 0) {
+                    alert('Please select at least one service.');
+                    return;
+                }
+
+                if (!appointmentDate || !appointmentTime) {
+                    alert('Please select both date and time.');
+                    return;
+                }
+            }
         });
     </script>
 

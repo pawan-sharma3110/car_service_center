@@ -155,7 +155,66 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateModalLabel">Update User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateForm" enctype="multipart/form-data">
+                        <input type="hidden" id="updateUserId"> <!-- Hidden field for User ID -->
+                        <div class="form-group">
+                            <label for="updateFullName">Full Name</label>
+                            <input type="text" class="form-control" id="updateFullName">
+                        </div>
+                        <div class="form-group">
+                            <label for="updateEmail">Email</label>
+                            <input type="email" class="form-control" id="updateEmail">
+                        </div>
+                        <div class="form-group">
+                            <label for="updatePhoneNo">Phone No</label>
+                            <input type="text" class="form-control" id="updatePhoneNo" maxlength="10">
+                        </div>
+                        <div class="form-group">
+                            <label for="updateRole">Role</label>
+                            <select class="form-control" id="updateRole">
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="updateStreet">Street</label>
+                            <input type="text" class="form-control" id="updateStreet">
+                        </div>
+                        <div class="form-group">
+                            <label for="updateCity">City</label>
+                            <input type="text" class="form-control" id="updateCity">
+                        </div>
+                        <div class="form-group">
+                            <label for="updateState">State</label>
+                            <input type="text" class="form-control" id="updateState">
+                        </div>
+                        <div class="form-group">
+                            <label for="updateZipCode">Zip Code</label>
+                            <input type="text" class="form-control" id="updateZipCode">
+                        </div>
+                        <div class="form-group">
+                            <label for="updateProfileImage">Profile Image (max 3MB)</label>
+                            <input type="file" class="form-control-file" id="updateProfilePicture"
+                                name="profile_picture">
+                        </div>
 
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
@@ -176,7 +235,6 @@
                 const minutesStr = minutes < 10 ? '0' + minutes : minutes;
                 return hours + ':' + minutesStr + ' ' + ampm;
             }
-
             function fetchAppointments() {
                 fetch("http://localhost:8080/appointments")
                     .then(response => response.json())
@@ -193,25 +251,27 @@
                                 // Extract the appointment time directly from the appointment_time field
                                 const appointmentDateStr = appointment.appointment_time;
 
-                                // Convert the appointment time string to a Date object
+                                // Convert the appointment time string to a Date object in local time
                                 const appointmentDate = new Date(appointmentDateStr);
+
+                                // Format the appointment date for display (local time)
                                 const formattedDate = formatAppointmentDate(appointmentDate);
 
                                 // Append appointment row
                                 appointmentRows += `
-                        <tr data-id="${appointment.id}" data-status="${appointment.status}" data-date="${appointmentDate.toISOString().slice(0, 16)}">
-                            <td>${key + 1}</td>
-                            <td>${appointment.id}</td>
-                            <td>${appointment.full_name}</td>
-                            <td>${serviceNames}</td>
-                            <td>${appointment.phone_no}</td>
-                            <td>${appointment.total_cost}₹</td>
-                            <td>${formattedDate}</td>
-                            <td>${appointment.status}</td>
-                            <td>
-                                <button class="btn btn-primary btn-sm edit-appointment">Edit</button>
-                            </td>
-                        </tr>
+                    <tr data-id="${appointment.id}" data-status="${appointment.status}" data-date="${appointmentDate}">
+                        <td>${key + 1}</td>
+                        <td>${appointment.id}</td>
+                        <td>${appointment.full_name}</td>
+                        <td>${serviceNames}</td>
+                        <td>${appointment.phone_no}</td>
+                        <td>${appointment.total_cost}₹</td>
+                        <td>${formattedDate}</td>
+                        <td>${appointment.status}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm edit-appointment">Edit</button>
+                        </td>
+                    </tr>
                     `;
                             });
                         }
@@ -222,6 +282,7 @@
                         alert("Error fetching appointments: " + error.message);
                     });
             }
+
 
             // Helper function to format the appointment date
             function formatAppointmentDate(date) {
@@ -240,14 +301,35 @@
                 const status = row.data('status');
                 const date = row.data('date');
 
+                // Convert the date to local time
+                const localDate = new Date(date);
+
+                // Format the date for the datetime-local input field (YYYY-MM-DDTHH:MM)
+                const formattedDateForInput = localDate.getFullYear() + '-' +
+                    String(localDate.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(localDate.getDate()).padStart(2, '0') + 'T' +
+                    String(localDate.getHours()).padStart(2, '0') + ':' +
+                    String(localDate.getMinutes()).padStart(2, '0');
+
+                // Get the current date and time (to disable past dates)
+                const now = new Date();
+                const formattedNowForMin = now.getFullYear() + '-' +
+                    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(now.getDate()).padStart(2, '0') + 'T' +
+                    String(now.getHours()).padStart(2, '0') + ':' +
+                    String(now.getMinutes()).padStart(2, '0');
+
                 // Pre-fill form fields
                 $('#appointmentId').val(appointmentId);
                 $('#status').val(status);
-                $('#time').val(date);
+                $('#time').val(formattedDateForInput);  // Set local date/time here
+                $('#time').attr('min', formattedNowForMin);  // Disable past dates
 
                 // Show the modal
                 $('#editModal').modal('show');
             });
+
+
 
             // Submit edit form
             $('#editForm').submit(function (e) {
@@ -255,7 +337,7 @@
                 const appointmentId = $('#appointmentId').val();
                 const appointmentDetails = {
                     status: $('#status').val(),
-                    date: $('#time').val(),
+                    date: $('#time').val(),  // Make sure this is in the right format
                 };
 
                 fetch(`http://localhost:8080/admin/appointment/${appointmentId}`, {
@@ -333,8 +415,81 @@
                         console.error('Error during logout:', error);
                     });
             });
+
+        });
+    </script>
+
+
+    <script>
+        // Helper function to get the user ID from cookies
+        function getCookie(name) {
+            let cookieArr = document.cookie.split(";");
+
+            for (let i = 0; i < cookieArr.length; i++) {
+                let cookiePair = cookieArr[i].split("=");
+                if (name === cookiePair[0].trim()) {
+                    return decodeURIComponent(cookiePair[1]);
+                }
+            }
+            return null;
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Triggered when the Update Profile button is clicked
+            document.querySelector('.dropdown-item[data-target="#updateModal"]').addEventListener('click', function () {
+                // Assume we have the user ID stored somewhere, or you can pass it dynamically
+                var userId = getCookie("user_id"); // Replace this with dynamic value
+
+                // Fetch user data from the server
+                fetch(`/user/profile/${userId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Populate form fields with the fetched user data
+                        document.getElementById('updateUserId').value = data.id;
+                        document.getElementById('updateFullName').value = data.full_name;
+                        document.getElementById('updateEmail').value = data.email;
+                        document.getElementById('updatePhoneNo').value = data.phone_no;
+                        document.getElementById('updateRole').value = data.role;
+                        document.getElementById('updateStreet').value = data.address.street;
+                        document.getElementById('updateCity').value = data.address.city;
+                        document.getElementById('updateState').value = data.address.state;
+                        document.getElementById('updateZipCode').value = data.address.zip_code;
+                    })
+                    .catch(error => console.error('Error fetching user profile:', error));
+            });
+        });
+
+        document.getElementById("updateForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Get the form data
+            var formData = new FormData(this);
+            var userId = document.getElementById('updateUserId').value;
+
+            // Send the form data to the server
+            fetch(`/user/update-profile/${userId}`, {
+                method: 'POST', // Or PUT if using that
+                body: formData,
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.text(); // Handle success response
+                    } else {
+                        throw new Error("Failed to update profile");
+                    }
+                })
+                .then(data => {
+                    alert("Profile updated successfully!");
+                    location.reload(); // Reload the page or update the UI accordingly
+                })
+                .catch(error => console.error('Error updating profile:', error));
         });
     </script>
 </body>
 
-</html>
+</html
