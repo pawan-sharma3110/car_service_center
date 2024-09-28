@@ -7,14 +7,15 @@
     <title>Car Service & Washing Center</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
- <link rel="stylesheet" href="./css/home.css">
+    <link rel="stylesheet" href="./css/home.css">
 </head>
 
 <body>
-    
+
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-       <a class="navbar-brand" href="./index.html">Washing Hub</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <a class="navbar-brand" href="./index.html">Washing Hub</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -57,7 +58,7 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="card">
-                        <img src="./media/3.jpg" height="233px"card-img-top" alt="Service 1">
+                        <img src="./media/3.jpg" height="233px" card-img-top" alt="Service 1">
                         <div class="card-body">
                             <h5 class="card-title">Car Washing</h5>
                             <p class="card-text">Professional car washing services to keep your car sparkling clean.</p>
@@ -66,7 +67,8 @@
                 </div>
                 <div class="col-md-4">
                     <div class="card">
-                        <img src="./media/beautiful-car-washing-service_23-2149212221.avif" class="card-img-top" alt="Service 2">
+                        <img src="./media/beautiful-car-washing-service_23-2149212221.avif" class="card-img-top"
+                            alt="Service 2">
                         <div class="card-body">
                             <h5 class="card-title">Car Detailing</h5>
                             <p class="card-text">Comprehensive car detailing to restore your car's original shine.</p>
@@ -78,7 +80,8 @@
                         <img src="./media/oil.JPG" class="card-img-top" alt="Service 3">
                         <div class="card-body">
                             <h5 class="card-title">Oil Change</h5>
-                            <p class="card-text">Quick and efficient oil change services to keep your engine running smoothly.</p>
+                            <p class="card-text">Quick and efficient oil change services to keep your engine running
+                                smoothly.</p>
                         </div>
                     </div>
                 </div>
@@ -94,8 +97,11 @@
                 </div>
                 <div class="col-md-6">
                     <h2>About Us</h2>
-                    <p>We are a team of experienced professionals dedicated to providing the best car services and washing solutions. Our goal is to ensure your car remains in top condition and looks as good as new.</p>
-                    <p>With years of experience and a commitment to quality, we offer a range of services designed to meet all your car care needs.</p>
+                    <p>We are a team of experienced professionals dedicated to providing the best car services and
+                        washing solutions. Our goal is to ensure your car remains in top condition and looks as good as
+                        new.</p>
+                    <p>With years of experience and a commitment to quality, we offer a range of services designed to
+                        meet all your car care needs.</p>
                 </div>
             </div>
         </div>
@@ -138,18 +144,21 @@
             </div>
             <div class="row">
                 <div class="col-md-6 offset-md-3">
-                    <form>
+                    <form action="https://api.web3forms.com/submit" method="Post">
+                        <input type="hidden" name="access_key" value="69805e75-b472-4906-a436-6cac24af0a8e">
                         <div class="form-group">
                             <label for="name">Full Name</label>
-                            <input type="text" class="form-control" id="name" required>
+                            <input type="text" class="form-control" id="name" name="full_name" required>
                         </div>
                         <div class="form-group">
                             <label for="email">Email</label>
-                            <input type="email" class="form-control" id="email" required placeholder="Your Email">
+                            <input type="email" class="form-control" id="email" name="email" required
+                                placeholder="Your Email">
                         </div>
                         <div class="form-group">
                             <label for="message">Message</label>
-                            <textarea class="form-control" id="message" rows="5" required placeholder="Any inquiries or to book a service"></textarea>
+                            <textarea class="form-control" id="message" name="massage" rows="5" required
+                                placeholder="Any inquiries or to book a service"></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary btn-block">Submit</button>
                     </form>
@@ -196,7 +205,7 @@
             <p class="mb-0">&copy; 2024 Car Service Center. All Rights Reserved.</p>
         </div>
     </footer>
-    
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
