@@ -20,7 +20,7 @@ func AllRoutes() {
 	http.HandleFunc("/service/search", handler.SearchServicesHandler)
 	http.HandleFunc("/service/get/all", middleware.RoleBasedAuth(handler.GetAllService, "admin", "user"))
 	http.HandleFunc("/appointment", middleware.RoleBasedAuth(handler.CreateAppointment, "admin", "user"))
-
+	http.HandleFunc("/appointment/by_id", middleware.RoleBasedAuth(handler.GetAppointmentsByUserID, "admin", "user"))
 	// Admin Services
 
 	http.HandleFunc("/users", middleware.RoleBasedAuth(handler.GetAllUser, "admin"))

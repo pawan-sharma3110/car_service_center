@@ -205,3 +205,70 @@ func AppointmentByID(w http.ResponseWriter, r *http.Request) {
 		"date": res.Date, "status": res.Status,
 	})
 }
+
+func GetAppointmentsByUserID(w http.ResponseWriter, r *http.Request) {
+	// Get the user_id from the cookies
+	userID, err := utils.GetUserIDFromCookies(r)
+	if err != nil {
+		http.Error(w, "User ID not found in cookies", http.StatusUnauthorized)
+		return
+	}
+
+	type Appointment struct {
+		ServiceNames []string `json:"service_names"`
+		TotalCost    float64  `json:"total_cost"`
+		CreatedOn    string   `json:"created_on"`
+		Date         string   `json:"date"`
+		Status       string   `json:"status"`
+	}
+	// SQL query to get services and other appointment details
+	query := `
+	SELECT 
+	    jsonb_agg(s -> 'name') AS service_names,
+	    total_cost,
+	    created_on,
+	    date,
+	    status
+	FROM 
+	    appointments, 
+	    jsonb_array_elements(appointments.services) AS s
+	WHERE 
+	    user_id = $1
+	GROUP BY 
+	    appointment_id;
+	`
+
+	// Execute the query
+	rows, err := db.Query(query, userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	// Collect the appointments
+	var appointments []Appointment
+	for rows.Next() {
+		var appointment Appointment
+		var serviceNames []byte // Store the JSONB array result
+
+		err := rows.Scan(&serviceNames, &appointment.TotalCost, &appointment.CreatedOn, &appointment.Date, &appointment.Status)
+		if err != nil {
+			http.Error(w, "Error processing appointments", http.StatusInternalServerError)
+			return
+		}
+
+		// Parse the JSONB array of service names
+		err = json.Unmarshal(serviceNames, &appointment.ServiceNames)
+		if err != nil {
+			http.Error(w, "Error parsing service names", http.StatusInternalServerError)
+			return
+		}
+
+		appointments = append(appointments, appointment)
+	}
+
+	// Return the appointments as JSON
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(appointments)
+}
