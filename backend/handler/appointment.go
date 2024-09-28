@@ -7,7 +7,6 @@ import (
 	"log"
 
 	"net/http"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -32,7 +31,6 @@ func CreateAppointment(w http.ResponseWriter, r *http.Request) {
 
 	// Initialize appointment data
 	appt.ID = uuid.New()        // Generate a new appointment ID
-	appt.CreatedOn = time.Now() // Set the current timestamp
 	appt.Status = "Unscheduled" // Default status of the appointment
 
 	// Calculate total cost by summing the cost of all selected services
@@ -266,6 +264,11 @@ func GetAppointmentsByUserID(w http.ResponseWriter, r *http.Request) {
 		}
 
 		appointments = append(appointments, appointment)
+
+		if len(appointments) == 0 {
+			json.NewEncoder(w).Encode(map[string]string{"Message": "No Appointment available"})
+			return
+		}
 	}
 
 	// Return the appointments as JSON

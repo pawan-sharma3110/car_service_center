@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Manage Appointments</title>
+    <title>Admin Dashboard - Services</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/admin_dash.css">
     <style>
@@ -67,7 +67,7 @@
         <div class="bg-dark border-right" id="sidebar-wrapper">
             <div class="sidebar-heading text-white">Admin Dashboard</div>
             <div class="list-group list-group-flush">
-                <a href="./admin_dash.html" class="list-group-item list-group-item-action bg-dark"> My Appointments</a>
+                <a href="./admin_dash.html" class="list-group-item list-group-item-action bg-dark">Appointments</a>
                 <a href="./service.html" class="list-group-item list-group-item-action bg-dark">Services</a>
                 <a href="./users.html" class="list-group-item list-group-item-action bg-dark">Users</a>
             </div>
@@ -76,7 +76,7 @@
                 <img id="profilePicture" src="" alt="Profile Icon" width="60" height="60"
                     class="rounded-circle profile-icon">
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="./appointment.html" id="appointments">My Appointments</a>
+                    <a class="dropdown-item" href="#" id="appointments">My Appointments</a>
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#updateModal">Update Profile</a>
                     <a class="dropdown-item" href="#" id="logoutButton">Logout</a>
                 </div>
@@ -101,13 +101,11 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Appointment ID</th>
-                            <th>Full Name</th>
                             <th>Service Name</th>
-                            <th>Mobile Number</th>
                             <th>Total Cost</th>
-                            <th>Time</th>
+                            <th>Appointment Time</th>
                             <th>Status</th>
+                            <th>Create On</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -156,6 +154,8 @@
             </div>
         </div>
     </div>
+
+
     <!-- Update User Profile -->
     <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel"
         aria-hidden="true">
@@ -235,149 +235,39 @@
             </div>
         </div>
     </div>
-    <!-- Scripts -->
+
+
+
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
     <script>
         $(document).ready(function () {
             $("#menu-toggle").click(function (e) {
                 e.preventDefault();
                 $("#wrapper").toggleClass("toggled");
             });
-
-            // Function to format time in 12-hour format
-            function format12HourTime(date) {
-                let hours = date.getHours();
-                const minutes = date.getMinutes();
-                const ampm = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12;
-                hours = hours ? hours : 12; // the hour '0' should be '12'
-                const minutesStr = minutes < 10 ? '0' + minutes : minutes;
-                return hours + ':' + minutesStr + ' ' + ampm;
+            function getToken() {
+                const name = "token=";
+                const decodedCookie = decodeURIComponent(document.cookie);
+                const cookies = decodedCookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    let cookie = cookies[i];
+                    while (cookie.charAt(0) === ' ') {
+                        cookie = cookie.substring(1);
+                    }
+                    if (cookie.indexOf(name) === 0) {
+                        return cookie.substring(name.length, cookie.length);
+                    }
+                }
+                return null;
             }
-            function fetchAppointments() {
-                fetch("http://localhost:8080/appointments")
-                    .then(response => response.json())
-                    .then(data => {
-                        let appointmentRows = '';
-                        if (data.length === 0) {
-                            appointmentRows = `<tr><td colspan="9" class="text-center">No appointments available</td></tr>`;
-                        } else {
-                            data.forEach((appointment, key) => {
-                                // Parse services JSON string
-                                let services = JSON.parse(appointment.services || "[]");
-                                let serviceNames = services.map(service => service.name).join(', ');
-
-                                // Extract the appointment time directly from the appointment_time field
-                                const appointmentDateStr = appointment.appointment_time;
-
-                                // Convert the appointment time string to a Date object in local time
-                                const appointmentDate = new Date(appointmentDateStr);
-
-                                // Format the appointment date for display (local time)
-                                const formattedDate = formatAppointmentDate(appointmentDate);
-
-                                // Append appointment row
-                                appointmentRows += `
-                    <tr data-id="${appointment.id}" data-status="${appointment.status}" data-date="${appointmentDate}">
-                        <td>${key + 1}</td>
-                        <td>${appointment.id}</td>
-                        <td>${appointment.full_name}</td>
-                        <td>${serviceNames}</td>
-                        <td>${appointment.phone_no}</td>
-                        <td>${appointment.total_cost}₹</td>
-                        <td>${formattedDate}</td>
-                        <td>${appointment.status}</td>
-                        <td>
-                            <button class="btn btn-primary btn-sm edit-appointment">Edit</button>
-                        </td>
-                    </tr>
-                    `;
-                            });
-                        }
-                        document.getElementById('appointment-table').innerHTML = appointmentRows;
-                    })
-                    .catch(error => {
-                        console.error("Error fetching appointments:", error);
-                        alert("Error fetching appointments: " + error.message);
-                    });
-            }
-
-
-            // Helper function to format the appointment date
-            function formatAppointmentDate(date) {
-                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
-                return date.toLocaleString(undefined, options); // Adjust toLocaleString options as needed
-            }
-
-            // Call fetchAppointments to display appointments on page load or as needed
-            fetchAppointments();
-
-
-            // Open edit modal and pre-fill form with data from the table
-            $(document).on('click', '.edit-appointment', function () {
-                const row = $(this).closest('tr');
-                const appointmentId = row.data('id');
-                const status = row.data('status');
-                const date = row.data('date');
-
-                // Convert the date to local time
-                const localDate = new Date(date);
-
-                // Format the date for the datetime-local input field (YYYY-MM-DDTHH:MM)
-                const formattedDateForInput = localDate.getFullYear() + '-' +
-                    String(localDate.getMonth() + 1).padStart(2, '0') + '-' +
-                    String(localDate.getDate()).padStart(2, '0') + 'T' +
-                    String(localDate.getHours()).padStart(2, '0') + ':' +
-                    String(localDate.getMinutes()).padStart(2, '0');
-
-                // Get the current date and time (to disable past dates)
-                const now = new Date();
-                const formattedNowForMin = now.getFullYear() + '-' +
-                    String(now.getMonth() + 1).padStart(2, '0') + '-' +
-                    String(now.getDate()).padStart(2, '0') + 'T' +
-                    String(now.getHours()).padStart(2, '0') + ':' +
-                    String(now.getMinutes()).padStart(2, '0');
-
-                // Pre-fill form fields
-                $('#appointmentId').val(appointmentId);
-                $('#status').val(status);
-                $('#time').val(formattedDateForInput);  // Set local date/time here
-                $('#time').attr('min', formattedNowForMin);  // Disable past dates
-
-                // Show the modal
-                $('#editModal').modal('show');
-            });
+            // Your token - replace this with the actual token retrieval logic
+            const authToken = getToken();
 
 
 
-            // Submit edit form
-            $('#editForm').submit(function (e) {
-                e.preventDefault();
-                const appointmentId = $('#appointmentId').val();
-                const appointmentDetails = {
-                    status: $('#status').val(),
-                    date: $('#time').val(),  // Make sure this is in the right format
-                };
-
-                fetch(`http://localhost:8080/admin/appointment/${appointmentId}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(appointmentDetails),
-                })
-                    .then(response => response.json())
-                    .then(result => {
-                        console.log('Success:', result);
-                        $('#editModal').modal('hide');
-                        fetchAppointments();
-                    })
-                    .catch(error => {
-                        console.error('Error updating appointment:', error);
-                    });
-            });
-
-
-
+            // Helper function to get the user ID from cookies
             function getCookie(name) {
                 let cookieArr = document.cookie.split(";");
 
@@ -389,6 +279,80 @@
                 }
                 return null;
             }
+
+
+            // Fetch appointments by user ID
+            function fetchAppointments() {
+                // Fetch appointments by user_id (ensure the endpoint handles user_id from cookies)
+                fetch("http://localhost:8080/appointment/by_id")
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        let appointmentRows = '';
+
+                        if (data.length === 0 || data.Message === "No Appointment available") {
+                            appointmentRows = `<tr><td colspan="9" class="text-center">No appointments available</td></tr>`;
+                        } else {
+                            data.forEach((appointment, key) => {
+                                // Parse services JSON array (already parsed in the response)
+                                let serviceNames = appointment.service_names.join(', ');
+
+                                // Convert the date and time strings to a Date object
+                                const appointmentDate = new Date(appointment.date);
+                                const dbtimestamp = new Date(appointment.created_on);
+
+                                // Format the appointment date for display
+                                const formattedDate = formatAppointmentDate(appointmentDate);
+                                const createformate = formatAppointmentDate(dbtimestamp);
+
+                                // Append each appointment row
+                                appointmentRows += `
+                        <tr data-id="${appointment.id}" data-status="${appointment.status}" data-date="${appointmentDate}">
+                            <td>${key + 1}</td>
+                             <td>${serviceNames}</td>
+                            <td>${appointment.total_cost}₹</td>
+                            <td>${formattedDate}</td>
+                            <td>${appointment.status}</td>
+                            <td>${createformate}</td>
+
+                            <td>
+                                <button class="btn btn-primary btn-sm edit-appointment">Edit</button>
+                            </td>
+                        </tr>
+                    `;
+                            });
+                        }
+
+                        document.getElementById('appointment-table').innerHTML = appointmentRows;
+                    })
+                    .catch(error => {
+                        console.error("Error fetching appointments:", error);
+                        alert("Error fetching appointments: " + error.message);
+                    });
+            }
+
+            // Helper function to format the appointment date
+            function formatAppointmentDate(date) {
+                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+                return date.toLocaleString(undefined, options); // Format date based on user's locale
+            }
+
+            // Call the fetchAppointments function when the page loads
+            window.onload = fetchAppointments;
+
+
+
+
+
+
+
+
+
+
 
             // Function to load profile picture
             function loadProfilePicture() {
@@ -412,6 +376,7 @@
             }
 
             loadProfilePicture();
+
             // Logout functionality
             $('#logoutButton').click(function (e) {
                 e.preventDefault(); // Prevent default link behavior
@@ -438,8 +403,6 @@
 
         });
     </script>
-
-
     <script>
         // Helper function to get the user ID from cookies
         function getCookie(name) {
@@ -548,6 +511,7 @@
 
 
     </script>
+
 </body>
 
-</html
+</html>
