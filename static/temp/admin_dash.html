@@ -151,8 +151,11 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary">Update</button>
-                        <button type="button" class="btn btn-danger float-end">Delete Appointment</button>
+                        <button type="button" id="delete-btn" class="btn btn-danger float-end">Delete
+                            Appointment</button>
+
                     </form>
+
                 </div>
             </div>
         </div>
@@ -376,9 +379,6 @@
                         console.error('Error updating appointment:', error);
                     });
             });
-
-
-
             function getCookie(name) {
                 let cookieArr = document.cookie.split(";");
 
@@ -440,8 +440,52 @@
         });
     </script>
 
-
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Reference the delete button
+            const deleteButton = document.getElementById('delete-btn');
+            const appointmentIdInput = document.getElementById('appointmentId'); // Hidden input for appointment ID
+
+            // Add event listener for the delete button
+            deleteButton.addEventListener('click', function (event) {
+                event.preventDefault(); // Prevent default button behavior
+
+                const appointmentId = appointmentIdInput.value; // Get the appointment ID from the hidden input
+
+                // Ensure we have the appointment ID
+                if (!appointmentId) {
+                    alert('Appointment ID not found');
+                    return;
+                }
+
+                // Ask for confirmation before deletion
+                const confirmDelete = confirm("Are you sure you want to delete this appointment?");
+                if (!confirmDelete) return;
+
+                // Send DELETE request to the server
+                fetch(`http://localhost:8080/admin/appointment/delete/${appointmentId}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to delete the appointment');
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        alert(data); // Show success message
+                        // Close the modal or refresh the page
+                        $('#editModal').modal('hide'); // Close the modal
+                        location.reload(); // Reload the page to reflect changes (you can update UI without reloading if needed)
+                    })
+                    .catch(error => {
+                        console.error('Error deleting appointment:', error);
+                        alert('Error deleting appointment: ' + error.message);
+                    });
+            });
+        });
+
+
         // Helper function to get the user ID from cookies
         function getCookie(name) {
             let cookieArr = document.cookie.split(";");
