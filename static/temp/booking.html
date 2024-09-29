@@ -389,14 +389,14 @@
 
                 services.forEach(service => {
                     const serviceItem = `
-                        <li class="list-group-item-service">
-                            <div>
-                                <input type="checkbox" id="service-${service.service_id}" value='${JSON.stringify(service)}'>
-                                <label for="service-${service.service_id}">${service.name}</label>
-                            </div>
-                            <span class="badge badge-custom">₹${service.cost.toFixed(2)}</span>
-                        </li>
-                    `;
+                    <li class="list-group-item-service">
+                        <div>
+                            <input type="checkbox" id="service-${service.service_id}" value='${JSON.stringify(service)}'>
+                            <label for="service-${service.service_id}">${service.name}</label>
+                        </div>
+                        <span class="badge badge-custom">₹${service.cost.toFixed(2)}</span>
+                    </li>
+                `;
                     serviceList.append(serviceItem);
                 });
             }
@@ -416,12 +416,12 @@
                 if ($(this).is(':checked')) {
                     // Add selected services
                     const selectedServiceItem = `
-                        <li class="selected-service-item" data-service-id="${serviceId}">
-                            <span>${serviceName}</span>
-                            <span class="badge badge-custom">₹${serviceCost.toFixed(2)}</span>
-                            <button class="btn btn-danger btn-sm remove-btn">Remove</button>
-                        </li>
-                    `;
+                    <li class="selected-service-item" data-service-id="${serviceId}">
+                        <span>${serviceName}</span>
+                        <span class="badge badge-custom">₹${serviceCost.toFixed(2)}</span>
+                        <button class="btn btn-danger btn-sm remove-btn">Remove</button>
+                    </li>
+                `;
                     $('#selectedServices').append(selectedServiceItem);
                     totalCost += serviceCost;
                 } else {
@@ -454,7 +454,6 @@
                 }
             });
 
-            // Book appointment
             // Book appointment
             $('#bookAppointment').click(function () {
                 const selectedServices = [];
@@ -506,27 +505,23 @@
                 // Convert time based on AM/PM
                 let [hour, minute] = appointmentTime.split(':');
                 hour = parseInt(hour);
-                const ampm = appointmentAMPM;
-                if (ampm === 'PM' && hour < 12) hour += 12;
-                if (ampm === 'AM' && hour === 12) hour = 0;
-                const formattedTime = `${hour}:${minute}`;
+                if (appointmentAMPM === 'PM' && hour < 12) hour += 12;
+                if (appointmentAMPM === 'AM' && hour === 12) hour = 0;
 
+                const formattedTime = `${hour}:${minute}`;
                 const userId = getUserId();
                 if (!userId) {
                     alert('User not authenticated. Please log in.');
                     return;
                 }
 
-                // Get the formatted current date and time for 'create_on'
-                const createOn = getFormattedCurrentDateTime();
-
                 // Create appointment data
                 const appointmentData = {
                     user_id: userId,
                     services: selectedServices,
-                    date_time: `${appointmentDate}T${formattedTime}`,
+                    date_time: formatAppointmentDateTime(appointmentDate, formattedTime, appointmentAMPM),
                     total_cost: totalCost,
-                    create_on: createOn  // Set the create_on field using the function
+                    create_on: getFormattedCurrentDateTime()  // Set the create_on field using the function
                 };
 
                 // Send appointment data to the server
@@ -556,10 +551,8 @@
                 });
             });
 
-
             function getFormattedCurrentDateTime() {
                 const now = new Date();
-
                 // Get formatted date and time without seconds
                 const formattedDateTime = now.toLocaleString('en-US', {
                     year: 'numeric',
@@ -574,19 +567,41 @@
                 return formattedDateTime; // Return the formatted string
             }
 
+            function formatAppointmentDateTime(date, time, ampm) {
+                const appointmentDate = new Date(date);
+                const [hour, minute] = time.split(':');
+                appointmentDate.setHours(parseInt(hour) + (ampm === 'PM' && hour < 12 ? 12 : 0), minute);
 
+                // Format appointment date as "September 30, 2024 at 12:39 AM"
+                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+                return appointmentDate.toLocaleString('en-US', options).replace(',', ',');
+            }
+            function getCookie(name) {
+                let cookieArr = document.cookie.split(";");
 
+                for (let i = 0; i < cookieArr.length; i++) {
+                    let cookiePair = cookieArr[i].split("=");
+                    if (name === cookiePair[0].trim()) {
+                        return decodeURIComponent(cookiePair[1]);
+                    }
+                }
+                return null;
+            }
 
-
-
-            // Load profile picture
+            // Function to load profile picture
             function loadProfilePicture() {
-                const userId = getUserId();
+                const userId = getCookie("user_id"); // Fetch user ID from the cookie
+
                 if (userId) {
-                    const imageUrl = `/profile-picture?user_id=${userId}`;
+                    // Construct the URL to fetch the profile picture
+                    const imageUrl = `/profile-picture?user_id=${userId}`; // Same port, API call
                     const profileImageElement = document.querySelector('.profile-icon');
+
+                    // Set the src of the img element
                     profileImageElement.src = imageUrl;
+
                     profileImageElement.onerror = function () {
+                        // Optional: Fallback if no profile picture is found
                         profileImageElement.src = "../media/user-sign-icon2.jpg";
                     };
                 } else {
@@ -597,6 +612,8 @@
             loadProfilePicture();
         });
     </script>
+
+
 
     <script>
         // Helper function to get the user ID from cookies
