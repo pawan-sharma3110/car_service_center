@@ -168,7 +168,7 @@ func UpdateAppointment(w http.ResponseWriter, r *http.Request) {
 
 // Delete appointment by ID
 func DeleteAppointment(w http.ResponseWriter, r *http.Request) {
-	appointmentID := r.URL.Query().Get("id")
+	appointmentID := utils.GetUserID(w, r) //Here this function use for get appointment id
 	_, err := db.Exec("DELETE FROM appointments WHERE appointment_id = $1", appointmentID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
