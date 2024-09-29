@@ -174,7 +174,7 @@
                 <img id="profilePicture" src="" alt="Profile Icon" width="60" height="60"
                     class="rounded-circle profile-icon">
                 <div class="dropdown-menu">
-                    <a href="./admin_dash.html" class="list-group-item list-group-item-action bg-dark"> My
+                    <a href="./appointment.html" class="list-group-item list-group-item-action bg-dark"> My
                         Appointments</a>
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#updateModal">Update Profile</a>
                     <a class="dropdown-item" href="#" id="logoutButton">Logout</a>
@@ -329,14 +329,9 @@
                 $("#wrapper").toggleClass("toggled");
             });
 
-            // Open registration modal
-            $("#openRegisterModal").click(function () {
-                $("#registerModal").modal('show');
-            });
-
             // Set the minimum date for the date picker (disable past dates)
             const today = new Date().toISOString().split('T')[0];
-            $('#appointmentDate').attr('min', today);  // Disables past dates
+            $('#appointmentDate').attr('min', today); // Disables past dates
 
             // Fetch token from cookies
             function getToken() {
@@ -344,10 +339,7 @@
                 const decodedCookie = decodeURIComponent(document.cookie);
                 const cookies = decodedCookie.split(';');
                 for (let i = 0; i < cookies.length; i++) {
-                    let cookie = cookies[i];
-                    while (cookie.charAt(0) === ' ') {
-                        cookie = cookie.substring(1);
-                    }
+                    let cookie = cookies[i].trim();
                     if (cookie.indexOf(name) === 0) {
                         return cookie.substring(name.length, cookie.length);
                     }
@@ -355,16 +347,12 @@
                 return null;
             }
 
-            // Fetch user ID from cookies
             function getUserId() {
                 const name = "user_id=";
                 const decodedCookie = decodeURIComponent(document.cookie);
                 const cookies = decodedCookie.split(';');
                 for (let i = 0; i < cookies.length; i++) {
-                    let cookie = cookies[i];
-                    while (cookie.charAt(0) === ' ') {
-                        cookie = cookie.substring(1);
-                    }
+                    let cookie = cookies[i].trim();
                     if (cookie.indexOf(name) === 0) {
                         return cookie.substring(name.length, cookie.length);
                     }
@@ -386,7 +374,6 @@
                         const services = await response.json();
                         populateServiceList(services);
                     } else {
-                        console.error('Failed to fetch services:', response.statusText);
                         $('#serviceList').append('<li class="list-group-item">Failed to load services.</li>');
                     }
                 } catch (error) {
@@ -398,7 +385,7 @@
             // Populate services into the list
             function populateServiceList(services) {
                 const serviceList = $('#serviceList');
-                serviceList.empty(); // Clear any existing items
+                serviceList.empty(); // Clear existing items
 
                 services.forEach(service => {
                     const serviceItem = `
@@ -427,7 +414,7 @@
                 const serviceCost = parseFloat(service.cost);
 
                 if ($(this).is(':checked')) {
-                    // Add to selected services
+                    // Add selected services
                     const selectedServiceItem = `
                         <li class="selected-service-item" data-service-id="${serviceId}">
                             <span>${serviceName}</span>
@@ -446,15 +433,13 @@
                 $('#totalCost').text(totalCost.toFixed(2));
             });
 
-            // Handle removal of selected service
+            // Handle service removal
             $('#selectedServices').on('click', '.remove-btn', function () {
                 const parentLi = $(this).closest('li');
                 const serviceId = parentLi.data('service-id');
 
-                // Uncheck the corresponding checkbox
+                // Uncheck corresponding checkbox
                 $(`#service-${serviceId}`).prop('checked', false);
-
-                // Remove the service from selected list
                 parentLi.remove();
 
                 // Recalculate total cost
@@ -462,19 +447,20 @@
                 totalCost -= serviceCost;
                 $('#totalCost').text(totalCost.toFixed(2));
 
-                // Reset total cost to 0 if all services are removed
+                // Reset total cost if all services are removed
                 if ($('#selectedServices li').length === 0) {
-                    totalCost = 0; // Reset total cost
-                    $('#totalCost').text(totalCost.toFixed(2)); // Update display
+                    totalCost = 0;
+                    $('#totalCost').text(totalCost.toFixed(2));
                 }
             });
 
+            // Book appointment
             // Book appointment
             $('#bookAppointment').click(function () {
                 const selectedServices = [];
                 let totalCost = 0;
 
-                // Collect selected services (id, name, and cost)
+                // Collect selected services
                 $('#selectedServices li').each(function () {
                     const serviceId = $(this).data('service-id');
                     const serviceName = $(this).find('span:first').text();
@@ -493,10 +479,31 @@
                 const appointmentTime = $('#appointmentTime').val();
                 const appointmentAMPM = $('#appointmentAMPM').val();
 
-                // Check if the appointment date is in the past
-                validateAppt();
+                // Validate date and time
+                if (!appointmentDate) {
+                    alert('Please select an appointment date.');
+                    return;
+                }
+                if (!appointmentTime || !appointmentAMPM) {
+                    alert('Please select both time and AM/PM.');
+                    return;
+                }
 
-                // Convert time based on AM/PM selection
+                const selectedDate = new Date(appointmentDate);
+                const currentDate = new Date();
+                currentDate.setHours(0, 0, 0, 0);
+
+                if (selectedDate < currentDate) {
+                    alert('You cannot book an appointment in the past.');
+                    return;
+                }
+
+                if (selectedServices.length === 0) {
+                    alert('Please select at least one service.');
+                    return;
+                }
+
+                // Convert time based on AM/PM
                 let [hour, minute] = appointmentTime.split(':');
                 hour = parseInt(hour);
                 const ampm = appointmentAMPM;
@@ -504,22 +511,22 @@
                 if (ampm === 'AM' && hour === 12) hour = 0;
                 const formattedTime = `${hour}:${minute}`;
 
-                // Fetch user ID from cookies
                 const userId = getUserId();
-
                 if (!userId) {
                     alert('User not authenticated. Please log in.');
                     return;
                 }
 
-                // Create appointment data without seconds
+                // Get the formatted current date and time for 'create_on'
+                const createOn = getFormattedCurrentDateTime();
+
+                // Create appointment data
                 const appointmentData = {
                     user_id: userId,
                     services: selectedServices,
                     date_time: `${appointmentDate}T${formattedTime}`,
                     total_cost: totalCost,
-                    create_on: getFormattedCurrentDateTime()
-
+                    create_on: createOn  // Set the create_on field using the function
                 };
 
                 // Send appointment data to the server
@@ -533,11 +540,11 @@
                     data: JSON.stringify(appointmentData),
                     success: function () {
                         alert('Appointment booked successfully!');
-                        // Reset the form
+                        // Reset form
                         $('#selectedServices').empty();
                         $('#serviceList input[type="checkbox"]').prop('checked', false);
-                        totalCost = 0; // Reset total cost
-                        $('#totalCost').text(totalCost.toFixed(2)); // Update display
+                        totalCost = 0;
+                        $('#totalCost').text(totalCost.toFixed(2));
                         $('#appointmentDate').val('');
                         $('#appointmentTime').val('');
                         $('#appointmentAMPM').val('AM');
@@ -549,75 +556,37 @@
                 });
             });
 
-            function validateAppt() {
-                const selectedDate = new Date(appointmentDate);
-                const currentDate = new Date();
-                currentDate.setHours(0, 0, 0, 0);  // Remove the time from the current date for comparison
 
-                if (selectedDate < currentDate) {
-                    alert('You cannot book an appointment in the past.');
-                    return;
-                }
-
-                if (selectedServices.length === 0) {
-                    alert('Please select at least one service.');
-                    return;
-                }
-
-                if (!appointmentDate || !appointmentTime) {
-                    alert('Please select both date and time.');
-                    return;
-                }
-            }
-
-            // Helper function to get the user ID from cookies
-            function getCookie(name) {
-                let cookieArr = document.cookie.split(";");
-
-                for (let i = 0; i < cookieArr.length; i++) {
-                    let cookiePair = cookieArr[i].split("=");
-                    if (name === cookiePair[0].trim()) {
-                        return decodeURIComponent(cookiePair[1]);
-                    }
-                }
-                return null;
-            }
             function getFormattedCurrentDateTime() {
-                const now = new Date(); // Get the current date and time
+                const now = new Date();
 
-                // Define options for the date formatting
-                const options = {
+                // Get formatted date and time without seconds
+                const formattedDateTime = now.toLocaleString('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
                     hour: '2-digit',
                     minute: '2-digit',
-                    hour12: true
-                };
+                    hour12: true,
+                    timeZone: 'Asia/Kolkata' // Time zone for Haryana (GMT+5:30)
+                }).replace(',', ', ');
 
-                // Format the date using toLocaleString
-                const formattedDate = now.toLocaleString('en-US', options);
-
-                // Replace the comma with " at " to match your desired format
-                return formattedDate.replace(',', ',');
+                return formattedDateTime; // Return the formatted string
             }
 
 
 
-            // Function to load profile picture
+
+
+
+            // Load profile picture
             function loadProfilePicture() {
-                const userId = getCookie("user_id"); // Fetch user ID from the cookie
-
+                const userId = getUserId();
                 if (userId) {
-                    // Construct the URL to fetch the profile picture
-                    const imageUrl = `/profile-picture?user_id=${userId}`; // Same port, API call
+                    const imageUrl = `/profile-picture?user_id=${userId}`;
                     const profileImageElement = document.querySelector('.profile-icon');
-
-                    // Set the src of the img element
                     profileImageElement.src = imageUrl;
-
                     profileImageElement.onerror = function () {
-                        // Optional: Fallback if no profile picture is found
                         profileImageElement.src = "../media/user-sign-icon2.jpg";
                     };
                 } else {
@@ -626,10 +595,9 @@
             }
 
             loadProfilePicture();
-
-
         });
     </script>
+
     <script>
         // Helper function to get the user ID from cookies
         function getCookie(name) {
@@ -717,7 +685,7 @@
                 // Send the form data to the server
                 fetch(`/user/update-profile/${userId}`, {
                     method: 'POST', // Or PUT if using that
-                      headers: {
+                    headers: {
                         'Authorization': `Bearer ${getToken()}`,
                         'Content-Type': 'application/json'
                     },

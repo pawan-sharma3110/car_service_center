@@ -4,6 +4,7 @@ import (
 	"car_service/models"
 	"car_service/utils"
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"net/http"
@@ -28,7 +29,7 @@ func CreateAppointment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
-
+	fmt.Println(appt.CreatedOn)
 	// Initialize appointment data
 	appt.ID = uuid.New()        // Generate a new appointment ID
 	appt.Status = "Unscheduled" // Default status of the appointment
@@ -177,7 +178,7 @@ func DeleteAppointment(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Appointment deleted successfully"))
 }
-func AppointmentByID(w http.ResponseWriter, r *http.Request) {
+func AppointmenStatustByID(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -213,15 +214,18 @@ func GetAppointmentsByUserID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type Appointment struct {
-		ServiceNames []string `json:"service_names"`
-		TotalCost    float64  `json:"total_cost"`
-		CreatedOn    string   `json:"created_on"`
-		Date         string   `json:"date"`
-		Status       string   `json:"status"`
+		AppointmentID string   `json:"appointment_id"`
+		ServiceNames  []string `json:"service_names"`
+		TotalCost     float64  `json:"total_cost"`
+		CreatedOn     string   `json:"created_on"`
+		Date          string   `json:"date"`
+		Status        string   `json:"status"`
 	}
+
 	// SQL query to get services and other appointment details
 	query := `
 	SELECT 
+	    appointment_id,
 	    jsonb_agg(s -> 'name') AS service_names,
 	    total_cost,
 	    created_on,
@@ -245,12 +249,13 @@ func GetAppointmentsByUserID(w http.ResponseWriter, r *http.Request) {
 	defer rows.Close()
 
 	// Collect the appointments
-	var appointments []Appointment
+	appointments := []map[string]interface{}{}
 	for rows.Next() {
 		var appointment Appointment
 		var serviceNames []byte // Store the JSONB array result
 
-		err := rows.Scan(&serviceNames, &appointment.TotalCost, &appointment.CreatedOn, &appointment.Date, &appointment.Status)
+		// Scan the result into variables, including the appointment_id
+		err := rows.Scan(&appointment.AppointmentID, &serviceNames, &appointment.TotalCost, &appointment.CreatedOn, &appointment.Date, &appointment.Status)
 		if err != nil {
 			http.Error(w, "Error processing appointments", http.StatusInternalServerError)
 			return
@@ -263,12 +268,14 @@ func GetAppointmentsByUserID(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		appointments = append(appointments, appointment)
-
-		if len(appointments) == 0 {
-			json.NewEncoder(w).Encode(map[string]string{"Message": "No Appointment available"})
-			return
-		}
+		appointments = append(appointments, map[string]interface{}{
+			"appointment_id":   appointment.AppointmentID,
+			"appointment_time": appointment.Date, // Date is now a string
+			"service_names":    appointment.ServiceNames,
+			"total_cost":       appointment.TotalCost,
+			"status":           appointment.Status,
+			"created_on":       appointment.CreatedOn,
+		})
 	}
 
 	// Return the appointments as JSON

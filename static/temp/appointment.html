@@ -101,6 +101,7 @@
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>ID</th>
                             <th>Service Name</th>
                             <th>Total Cost</th>
                             <th>Appointment Time</th>
@@ -262,7 +263,7 @@
                 }
                 return null;
             }
-            // Your token - replace this with the actual token retrieval logic
+
             const authToken = getToken();
 
 
@@ -283,42 +284,39 @@
 
             // Fetch appointments by user ID
             function fetchAppointments() {
-                // Fetch appointments by user_id (ensure the endpoint handles user_id from cookies)
                 fetch("http://localhost:8080/appointment/by_id")
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
+                    .then(response => response.json())
                     .then(data => {
                         let appointmentRows = '';
-
-                        if (data.length === 0 || data.Message === "No Appointment available") {
+                        if (data.length === 0) {
                             appointmentRows = `<tr><td colspan="9" class="text-center">No appointments available</td></tr>`;
                         } else {
                             data.forEach((appointment, key) => {
-                                // Parse services JSON array (already parsed in the response)
+                                // Directly use service_names from API response
                                 let serviceNames = appointment.service_names.join(', ');
 
-                                // Convert the date and time strings to a Date object
-                                const appointmentDate = new Date(appointment.date);
-                                const dbtimestamp = new Date(appointment.created_on);
+                                // Extract the appointment time directly from the appointment_time field
+                                const appointmentDateStr = appointment.appointment_time;
 
-                                // Format the appointment date for display
-                                const formattedDate = formatAppointmentDate(appointmentDate);
-                                const createformate = formatAppointmentDate(dbtimestamp);
+                                let formattedDate = "Invalid Date"; // Default for invalid dates
+                                if (appointmentDateStr && appointmentDateStr !== "TNaN:undefined") {
+                                    // Convert the appointment time string to a Date object in local time
+                                    const appointmentDate = new Date(appointmentDateStr);
 
-                                // Append each appointment row
+                                    // Format the appointment date for display (local time)
+                                    formattedDate = formatAppointmentDate(appointmentDate);
+                                }
+                                const createtime = formatAppointmentDate(appointment.created_on)
+                                // Append appointment row
                                 appointmentRows += `
-                        <tr data-id="${appointment.id}" data-status="${appointment.status}" data-date="${appointmentDate}">
+                        <tr data-id="${appointment.appointment_id}" data-status="${appointment.status}" data-date="${appointment.appointment_time}">
                             <td>${key + 1}</td>
-                             <td>${serviceNames}</td>
+                            <td>${appointment.appointment_id}</td>
+                            <td>${serviceNames}</td>
                             <td>${appointment.total_cost}₹</td>
                             <td>${formattedDate}</td>
                             <td>${appointment.status}</td>
-                            <td>${createformate}</td>
-
+                            <td>${createtime}</td>
                             <td>
                                 <button class="btn btn-primary btn-sm edit-appointment">Edit</button>
                             </td>
@@ -326,7 +324,6 @@
                     `;
                             });
                         }
-
                         document.getElementById('appointment-table').innerHTML = appointmentRows;
                     })
                     .catch(error => {
@@ -343,8 +340,6 @@
 
             // Call the fetchAppointments function when the page loads
             window.onload = fetchAppointments;
-
-
 
 
 
