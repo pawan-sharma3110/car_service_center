@@ -654,7 +654,8 @@
                 fetch(`/user/profile/${userId}`, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`,
+                        'Content-Type': 'application/json'
                     }
                 })
                     .then(response => response.json())
@@ -716,6 +717,10 @@
                 // Send the form data to the server
                 fetch(`/user/update-profile/${userId}`, {
                     method: 'POST', // Or PUT if using that
+                      headers: {
+                        'Authorization': `Bearer ${getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
                     body: formData,
                 })
                     .then(response => {

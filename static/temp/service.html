@@ -30,7 +30,7 @@
                 <img id="profilePicture" src="" alt="Profile Icon" width="60" height="60"
                     class="rounded-circle profile-icon">
                 <div class="dropdown-menu">
-                    <a href="./admin_dash.html" class="list-group-item list-group-item-action bg-dark"> My Appointments</a>
+                    <a class="dropdown-item" href="./appointment.html" id="appointments">My Appointments</a>
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#updateModal">Update Profile</a>
                     <a class="dropdown-item" href="#" id="logoutButton">Logout</a>
                 </div>
@@ -423,6 +423,7 @@
                     method: 'POST', // Use POST, GET, or DELETE based on your backend API
                     credentials: 'include', // Ensure cookies are included for authentication
                     headers: {
+                        'Authorization': `Bearer ${getToken()}`,
                         'Content-Type': 'application/json'
                     }
                 })
@@ -454,7 +455,21 @@
             }
             return null;
         }
-
+        function getToken() {
+            const name = "token=";
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const cookies = decodedCookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i];
+                while (cookie.charAt(0) === ' ') {
+                    cookie = cookie.substring(1);
+                }
+                if (cookie.indexOf(name) === 0) {
+                    return cookie.substring(name.length, cookie.length);
+                }
+            }
+            return null;
+        }
         document.addEventListener("DOMContentLoaded", function () {
             // Triggered when the Update Profile button is clicked
             document.querySelector('.dropdown-item[data-target="#updateModal"]').addEventListener('click', function () {
@@ -465,7 +480,8 @@
                 fetch(`/user/profile/${userId}`, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`,
+                        'Content-Type': 'application/json'
                     }
                 })
                     .then(response => response.json())
@@ -527,6 +543,10 @@
                 // Send the form data to the server
                 fetch(`/user/update-profile/${userId}`, {
                     method: 'POST', // Or PUT if using that
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
                     body: formData,
                 })
                     .then(response => {
@@ -549,6 +569,7 @@
 
 
     </script>
+
 
 </body>
 

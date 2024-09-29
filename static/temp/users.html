@@ -70,7 +70,7 @@
                 <img id="profilePicture" src="" alt="Profile Icon" width="60" height="60"
                     class="rounded-circle profile-icon">
                 <div class="dropdown-menu">
-                    <a href="./admin_dash.html" class="list-group-item list-group-item-action bg-dark"> My
+                    <a href="./admin_dash.html" class="dropdown-item"> My
                         Appointments</a>
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#updateModal">Update Profile</a>
                     <a class="dropdown-item" href="#" id="logoutButton">Logout</a>
@@ -632,6 +632,10 @@
                 // Send the form data to the server
                 fetch(`/user/update-profile/${userId}`, {
                     method: 'POST', // Or PUT if using that
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
                     body: formData,
                 })
                     .then(response => {
