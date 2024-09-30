@@ -333,6 +333,7 @@
             // Call fetchAppointments to display appointments on page load or as needed
             fetchAppointments();
 
+            // Function to parse date input from 'datetime-local' format
             function parseAppointmentDate(dateString) {
                 // Ensure the dateString is defined and not null
                 if (!dateString) {
@@ -353,92 +354,108 @@
             }
 
             // Function to format the appointment date in the desired format
-            function formatAppointmentDate(date) {
+            function formatAppointmentDateTime(date, time, ampm) {
+                const [hour, minute] = time.split(":");
+                let hours = parseInt(hour, 10);
+
+                // Convert 12-hour time format to 24-hour format
+                if (ampm === "PM" && hours !== 12) {
+                    hours += 12;
+                } else if (ampm === "AM" && hours === 12) {
+                    hours = 0;
+                }
+
+                date.setHours(hours, minute, 0, 0);
+
                 const options = {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
                 };
-                return date.toLocaleString('en-US', options); // Format date to 'September 30, 2024 at 02:27 PM'
+
+                return date.toLocaleString("en-US", options); // Format date to 'October 1, 2024 at 01:36 PM'
             }
 
             // When the edit button is clicked
-            $(document).on('click', '.edit-appointment', function () {
-                const row = $(this).closest('tr');
-                const appointmentId = row.data('id');
-                const status = row.data('status');
-                const date = row.data('date');
+            $(document).on("click", ".edit-appointment", function () {
+                const row = $(this).closest("tr");
+                const appointmentId = row.data("id");
+                const status = row.data("status");
+                const date = row.data("date");
 
                 // Convert the date to local time
                 const localDate = new Date(date);
 
                 // Format the date for the datetime-local input field (YYYY-MM-DDTHH:MM)
-                const formattedDateForInput = localDate.getFullYear() + '-' +
-                    String(localDate.getMonth() + 1).padStart(2, '0') + '-' +
-                    String(localDate.getDate()).padStart(2, '0') + 'T' +
-                    String(localDate.getHours()).padStart(2, '0') + ':' +
-                    String(localDate.getMinutes()).padStart(2, '0');
-
-                // Get the current date and time (to disable past dates)
-                const now = new Date();
-                const formattedNowForMin = now.getFullYear() + '-' +
-                    String(now.getMonth() + 1).padStart(2, '0') + '-' +
-                    String(now.getDate()).padStart(2, '0') + 'T' +
-                    String(now.getHours()).padStart(2, '0') + ':' +
-                    String(now.getMinutes()).padStart(2, '0');
+                const formattedDateForInput =
+                    localDate.getFullYear() +
+                    "-" +
+                    String(localDate.getMonth() + 1).padStart(2, "0") +
+                    "-" +
+                    String(localDate.getDate()).padStart(2, "0") +
+                    "T" +
+                    String(localDate.getHours()).padStart(2, "0") +
+                    ":" +
+                    String(localDate.getMinutes()).padStart(2, "0");
 
                 // Pre-fill form fields
-                $('#appointmentId').val(appointmentId);
-                $('#status').val(status);
-                $('#time').val(formattedDateForInput);  // Set local date/time here
-                $('#time').attr('min', formattedNowForMin);  // Disable past dates
+                $("#appointmentId").val(appointmentId);
+                $("#status").val(status);
+                $("#time").val(formattedDateForInput);
 
                 // Show the modal
-                $('#editModal').modal('show');
+                $("#editModal").modal("show");
             });
 
             // Submit edit form
-            $('#editForm').submit(function (e) {
+            $("#editForm").submit(function (e) {
                 e.preventDefault();
-                const appointmentId = $('#appointmentId').val();
 
-                // Get the date from the input and parse it
-                const rawDate = $('#time').val(); // Get the date from input
-                const appointmentDate = parseAppointmentDate(rawDate); // Use the custom parse function
+                const appointmentId = $("#appointmentId").val();
+                const rawDateTime = $("#time").val(); // Get the datetime-local input value
+                const status = $("#status").val();
 
-                // Check if the parsed date is valid
+                // Parse the raw date input using the custom function
+                const appointmentDate = parseAppointmentDate(rawDateTime);
+
+                // Validate if the date is correct
                 if (isNaN(appointmentDate)) {
-                    console.error("Invalid appointment date:", rawDate); // Log invalid date
-                    alert("Invalid appointment date. Please check the date and time format.");
-                    return; // Exit the function if the date is invalid
+                    alert("Invalid appointment date. Please correct the date.");
+                    return;
                 }
 
-                // Format the date for the backend (if necessary)
-                const formattedDate = appointmentDate.toISOString(); // Example format: "2024-09-30T01:35:00.000Z"
+                // Format the date to 'October 1, 2024 at 01:36 PM' for backend
+                const formattedDate = formatAppointmentDateTime(appointmentDate, appointmentDate.getHours() + ":" + appointmentDate.getMinutes(), appointmentDate.getHours() >= 12 ? "PM" : "AM");
 
                 const appointmentDetails = {
-                    status: $('#status').val(),
-                    date: formattedDate,  // Send the properly formatted date
+                    status: status,
+                    date: formattedDate, // Send formatted date back to backend
                 };
 
-                fetch(`http://localhost:8080/admin/appointment/${appointmentId}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(appointmentDetails),
-                })
-                    .then(response => response.json())
-                    .then(result => {
-                        console.log('Success:', result);
-                        $('#editModal').modal('hide');
-                        fetchAppointments(); // Refresh the appointment list
-                    })
-                    .catch(error => {
-                        console.error('Error updating appointment:', error);
-                    });
+                // Send the updated appointment details to the backend
+                $.ajax({
+                    url: `/admin/appointment/${appointmentId}`,
+                    type: "PATCH",
+                    contentType: "application/json",
+                    data: JSON.stringify(appointmentDetails),
+                    success: function (response) {
+                        // Handle success
+                        alert("Appointment updated successfully.");
+                        // Optionally, refresh the appointments table
+                        fetchAppointments();
+                        $("#editModal").modal("hide");
+                    },
+                    error: function (error) {
+                        // Handle error
+                        console.error("Error updating appointment:", error);
+                        alert("Error updating appointment.");
+                    },
+                });
             });
+
 
 
 

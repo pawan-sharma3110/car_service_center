@@ -33,7 +33,7 @@ func AllRoutes() {
 	http.HandleFunc("/service/update/{id}", middleware.RoleBasedAuth(handler.UpdadeService, "admin"))
 	http.HandleFunc("/appointment/{id}", middleware.RoleBasedAuth(handler.AppointmenStatustByID, "admin"))
 	http.HandleFunc("/appointments", middleware.RoleBasedAuth(handler.GetAppointments, "admin"))
-	http.HandleFunc("/admin/appointment/{id}", middleware.RoleBasedAuth(handler.UpdateAppointment, "admin"))
+	http.HandleFunc("/admin/appointment/{id}", middleware.RoleBasedAuth(handler.UpdateAppointment, "admin","user"))
 	http.HandleFunc("/admin/appointment/delete/{id}", middleware.RoleBasedAuth(handler.DeleteAppointment, "admin"))
 
 }
