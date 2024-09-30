@@ -521,7 +521,6 @@
                     services: selectedServices,
                     date_time: formatAppointmentDateTime(appointmentDate, formattedTime, appointmentAMPM),
                     total_cost: totalCost,
-                    create_on: getFormattedCurrentDateTime()  // Set the create_on field using the function
                 };
 
                 // Send appointment data to the server
@@ -551,21 +550,27 @@
                 });
             });
 
-            function getFormattedCurrentDateTime() {
-                const now = new Date();
-                // Get formatted date and time without seconds
-                const formattedDateTime = now.toLocaleString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true,
-                    timeZone: 'Asia/Kolkata' // Time zone for Haryana (GMT+5:30)
-                }).replace(',', ', ');
+            // function getFormattedCurrentDateTime() {
+            //     const now = new Date();
 
-                return formattedDateTime; // Return the formatted string
-            }
+            //     // Get individual components
+            //     const options = {
+            //         year: 'numeric',
+            //         month: 'long',
+            //         day: 'numeric',
+            //         hour: '2-digit',
+            //         minute: '2-digit',
+            //         hour12: true,
+            //         timeZone: 'Asia/Kolkata' // Ensure this is the desired time zone
+            //     };
+
+            //     // Use toLocaleString to format the date and time
+            //     const formattedDateTime = now.toLocaleString('en-US', options)
+            //         .replace(',', ' at'); // Replace the comma with ' at' to match your format
+
+            //     return formattedDateTime; // Return the formatted date and time string
+            // }
+
 
             function formatAppointmentDateTime(date, time, ampm) {
                 const appointmentDate = new Date(date);

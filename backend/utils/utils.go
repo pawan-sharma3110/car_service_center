@@ -44,16 +44,34 @@ func GenerateJwt(email string, id uuid.UUID, role string) (string, error) {
 	return token.SignedString([]byte(JwtKey))
 }
 
-func ParseISODateTimeNoSeconds(dateTimeStr string) (time.Time, error) {
-	// Layout for ISO 8601 without seconds
-	layout := "2006-01-02T15:04"
+// func ParseISODateTimeNoSeconds(dateTimeStr string) (time.Time, error) {
+// 	// Layout for ISO 8601 without seconds
+// 	layout := "2006-01-02T15:04"
 
-	// Parse the provided string based on the layout
-	parsedTime, err := time.Parse(layout, dateTimeStr)
+// 	// Parse the provided string based on the layout
+// 	parsedTime, err := time.Parse(layout, dateTimeStr)
+// 	if err != nil {
+// 		return time.Time{}, errors.New("invalid date/time format, expected ISO 8601 (YYYY-MM-DDTHH:MM)")
+// 	}
+// 	return parsedTime, nil
+// }
+
+func GetFormattedCurrentDateTime() string {
+	// Define the layout for formatting the time
+	const layout = "January 2, 2006 at 03:04 PM"
+
+	// Get the current time in the Asia/Kolkata time zone
+	location, err := time.LoadLocation("Asia/Kolkata")
 	if err != nil {
-		return time.Time{}, errors.New("invalid date/time format, expected ISO 8601 (YYYY-MM-DDTHH:MM)")
+		fmt.Println("Error loading time zone:", err)
+		return ""
 	}
-	return parsedTime, nil
+
+	// Format the current time according to the layout
+	now := time.Now().In(location)
+	formattedTime := now.Format(layout)
+
+	return formattedTime
 }
 
 func GetUserID(w http.ResponseWriter, r *http.Request) uuid.UUID {

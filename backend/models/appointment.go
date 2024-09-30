@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -16,7 +15,7 @@ type Appointment struct {
 	DateTime  string    `json:"date_time"`  // Date and time of the appointment
 	Status    string    `json:"status"`     // Status of the appointment (Scheduled, Completed, Canceled)
 	TotalCost float64   `json:"total_cost"` // Total cost of the selected services
-	CreatedOn time.Time `json:"created_on"` // Timestamp when the appointment was created
+	CreatedOn string    `json:"created_on"` // Timestamp when the appointment was created
 }
 
 // Helper function to convert services to JSON
@@ -24,7 +23,6 @@ func ServicesToJson(services []Service) string {
 	servicesJson, _ := json.Marshal(services)
 	return string(servicesJson)
 }
-
 
 func AllAppointment(db *sql.DB) (*[]Appointment, error) {
 	// Query to fetch all appointments

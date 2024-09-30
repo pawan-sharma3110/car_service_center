@@ -33,6 +33,7 @@ func CreateAppointment(w http.ResponseWriter, r *http.Request) {
 	// Initialize appointment data
 	appt.ID = uuid.New()        // Generate a new appointment ID
 	appt.Status = "Unscheduled" // Default status of the appointment
+	appt.CreatedOn = utils.GetFormattedCurrentDateTime()
 
 	// Calculate total cost by summing the cost of all selected services
 	var totalCost float64
