@@ -101,7 +101,7 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>ID</th>
+                            <th>Appointment ID</th>
                             <th>Service Name</th>
                             <th>Total Cost</th>
                             <th>Appointment Time</th>
@@ -137,9 +137,7 @@
                             <label for="status" class="form-label">Status</label>
                             <select class="form-control" id="status" required>
                                 <option value="Unscheduled">Unscheduled</option>
-                                <option value="Scheduled">Scheduled</option>
                                 <option value="Declined">Declined</option>
-                                <option value="Completed">Completed</option>
                             </select>
                         </div>
 
@@ -318,10 +316,104 @@
                         alert("Error fetching appointments: " + error.message);
                     });
             }
-            
+
 
             // Call the fetchAppointments function when the page loads
             window.onload = fetchAppointments;
+
+
+            // Function to format the date for 'datetime-local' input (YYYY-MM-DDTHH:MM)
+            function formatDateForInput(dateString) {
+                const date = new Date(dateString);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const day = String(date.getDate()).padStart(2, "0");
+                const hours = String(date.getHours()).padStart(2, "0");
+                const minutes = String(date.getMinutes()).padStart(2, "0");
+
+                return `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
+
+            // Function to format the date and time in the custom format (e.g., October 1, 2024 at 01:36 PM)
+            function formatAppointmentDateTime(date) {
+                const options = {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                };
+                return date.toLocaleString("en-US", options);
+            }
+
+            // When the edit button is clicked
+            $(document).on("click", ".edit-appointment", function () {
+                const row = $(this).closest("tr");
+                const appointmentId = row.data("id");
+                const status = row.data("status");
+                const date = row.data("date"); // This should be a valid date string
+
+                // Pre-fill form fields
+                const formattedDateForInput = formatDateForInput(date); // Format the date for the datetime-local input
+                $("#appointmentId").val(appointmentId);
+                $("#status").val(status);
+                $("#time").val(formattedDateForInput);
+
+                // Show the modal
+                $("#editModal").modal("show");
+            });
+
+            // Submit edit form
+            $("#editForm").submit(function (e) {
+                e.preventDefault();
+
+                const appointmentId = $("#appointmentId").val();
+                const rawDateTime = $("#time").val(); // Get the datetime-local input value (YYYY-MM-DDTHH:MM)
+                const status = $("#status").val();
+
+                // Convert the raw input datetime to a Date object
+                const appointmentDate = new Date(rawDateTime);
+
+                // Validate if the date is correct
+                if (isNaN(appointmentDate.getTime())) {
+                    alert("Invalid appointment date. Please correct the date.");
+                    return;
+                }
+
+                // Format the date to your desired format for the backend (e.g., October 1, 2024 at 01:36 PM)
+                const formattedDate = formatAppointmentDateTime(appointmentDate);
+
+                const appointmentDetails = {
+                    status: status,
+                    date: formattedDate, // Send the formatted date back to backend
+                };
+
+                // Send the updated appointment details to the backend
+                $.ajax({
+                    url: `/admin/appointment/${appointmentId}`,
+                    type: "PATCH",
+                    contentType: "application/json",
+                    data: JSON.stringify(appointmentDetails),
+                    success: function (response) {
+                        // Handle success
+                        alert("Appointment updated successfully.");
+                        // Optionally, refresh the appointments table
+                        fetchAppointments();
+                        $("#editModal").modal("hide");
+                    },
+                    error: function (error) {
+                        // Handle error
+                        console.error("Error updating appointment:", error);
+                        alert("Error updating appointment.");
+                    },
+                });
+            });
+
+
+
+
+
 
             // Function to load profile picture
             function loadProfilePicture() {
