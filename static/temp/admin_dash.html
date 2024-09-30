@@ -260,37 +260,8 @@
                 return hours + ':' + minutesStr + ' ' + ampm;
             }
 
-            // Function to parse the appointment date string
-            function parseAppointmentDate(dateStr) {
-                // Create a mapping for month names to numbers
-                const monthNames = {
-                    January: 0,
-                    February: 1,
-                    March: 2,
-                    April: 3,
-                    May: 4,
-                    June: 5,
-                    July: 6,
-                    August: 7,
-                    September: 8,
-                    October: 9,
-                    November: 10,
-                    December: 11
-                };
-
-                // Split the date string
-                const parts = dateStr.split(' ');
-                const month = monthNames[parts[0]]; // Get month number
-                const day = parseInt(parts[1].replace(',', '')); // Day as an integer
-                const year = parseInt(parts[2]); // Year as an integer
-                const timeParts = parts[4].split(':');
-                const hours = parseInt(timeParts[0]) + (parts[5] === 'PM' ? 12 : 0); // Convert to 24-hour format
-                const minutes = parseInt(timeParts[1]);
-
-                // Create a new Date object
-                return new Date(year, month, day, hours, minutes);
-            }
-
+            // Function to fetch and display appointments
+            // Function to fetch and display appointments
             function fetchAppointments() {
                 fetch("http://localhost:8080/appointments")
                     .then(response => response.json())
@@ -304,34 +275,23 @@
                                 let services = JSON.parse(appointment.services || "[]");
                                 let serviceNames = services.map(service => service.name).join(', ');
 
-                                // Parse the appointment time
-                                const appointmentDate = parseAppointmentDate(appointment.appointment_time); // Use the custom parse function
-
-                                // Check if appointmentDate is valid
-                                if (isNaN(appointmentDate)) {
-                                    console.error("Invalid appointment date:", appointment.appointment_time); // Log the invalid date
-                                    return; // Skip this iteration if date is invalid
-                                }
-
-                                // Format the appointment date for display (local time)
-                                const formattedDate = formatAppointmentDate(appointmentDate);
 
                                 // Append appointment row
                                 appointmentRows += `
-                            <tr data-id="${appointment.id}" data-status="${appointment.status}" data-date="${appointmentDate}">
-                                <td>${key + 1}</td>
-                                <td>${appointment.id}</td>
-                                <td>${appointment.full_name}</td>
-                                <td>${serviceNames}</td>
-                                <td>${appointment.phone_no}</td>
-                                <td>${appointment.total_cost}₹</td>
-                                <td>${formattedDate}</td>
-                                <td>${appointment.status}</td>
-                                <td>
-                                    <button class="btn btn-primary btn-sm edit-appointment">Edit</button>
-                                </td>
-                            </tr>
-                            `;
+                    <tr data-id="${appointment.id}" data-status="${appointment.status}" data-date="${appointment.appointment_time}">
+                        <td>${key + 1}</td>
+                        <td>${appointment.id}</td>
+                        <td>${appointment.full_name}</td>
+                        <td>${serviceNames}</td>
+                        <td>${appointment.phone_no}</td>
+                        <td>${appointment.total_cost}₹</td>
+                        <td>${appointment.appointment_time}</td>
+                        <td>${appointment.status}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm edit-appointment">Edit</button>
+                        </td>
+                    </tr>
+                    `;
                             });
                         }
                         document.getElementById('appointment-table').innerHTML = appointmentRows;
@@ -342,26 +302,43 @@
                     });
             }
 
-            // Helper function to format the appointment date
-            function formatAppointmentDate(date) {
-                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
-                return date.toLocaleString(undefined, options); // Adjust toLocaleString options as needed
+            // Helper function to parse appointment date
+            function parseAppointmentDate(dateString) {
+                if (!dateString) {
+                    console.error("Date string is undefined or null");
+                    return NaN;
+                }
+                const appointmentDate = new Date(dateString);
+                if (isNaN(appointmentDate.getTime())) {
+                    console.error("Invalid date:", dateString);
+                    return NaN;
+                }
+                return appointmentDate;
             }
+
+            // Helper function to format the date in "October 1, 2024 at 01:36 PM" format
+            function formatAppointmentDate(date) {
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                };
+                return date.toLocaleString('en-US', options); // "October 1, 2024 at 01:36 PM" format
+            }
+
 
             // Call fetchAppointments to display appointments on page load or as needed
             fetchAppointments();
 
-            // Open edit modal and pre-fill form with data from the table
-            // Function to parse the appointment date
             function parseAppointmentDate(dateString) {
                 // Ensure the dateString is defined and not null
                 if (!dateString) {
                     console.error("Date string is undefined or null");
                     return NaN; // Return NaN for invalid input
                 }
-
-                // Replace ' at ' with a space to make it easier to parse
-                dateString = dateString.replace(' at ', ' ');
 
                 // Create a new Date object from the parsed date string
                 const appointmentDate = new Date(dateString);
@@ -373,6 +350,19 @@
                 }
 
                 return appointmentDate;
+            }
+
+            // Function to format the appointment date in the desired format
+            function formatAppointmentDate(date) {
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                };
+                return date.toLocaleString('en-US', options); // Format date to 'September 30, 2024 at 02:27 PM'
             }
 
             // When the edit button is clicked

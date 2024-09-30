@@ -281,7 +281,6 @@
                 return null;
             }
 
-
             // Fetch appointments by user ID
             function fetchAppointments() {
                 fetch("http://localhost:8080/appointment/by_id")
@@ -294,18 +293,6 @@
                             data.forEach((appointment, key) => {
                                 // Directly use service_names from API response
                                 let serviceNames = appointment.service_names.join(', ');
-
-                                // Extract the appointment time directly from the appointment_time field
-                                // const appointmentDateStr = appointment.appointment_time;
-
-                                // let formattedDate = "Invalid Date"; // Default for invalid dates
-                                // if (appointmentDateStr && appointmentDateStr !== "TNaN:undefined") {
-                                //     // Convert the appointment time string to a Date object in local time
-                                //     const appointmentDate = new Date(appointmentDateStr);
-
-                                //     // Format the appointment date for display (local time)
-                                //     formattedDate = formatAppointmentDate(appointmentDate);
-                                // }
 
                                 // Append appointment row
                                 appointmentRows += `
@@ -331,22 +318,10 @@
                         alert("Error fetching appointments: " + error.message);
                     });
             }
-
-
-
-
-
+            
 
             // Call the fetchAppointments function when the page loads
             window.onload = fetchAppointments;
-
-
-
-
-
-
-
-
 
             // Function to load profile picture
             function loadProfilePicture() {
