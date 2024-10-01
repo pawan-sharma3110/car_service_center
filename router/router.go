@@ -7,7 +7,7 @@ import (
 )
 
 func AllRoutes() {
-	fileServer := http.FileServer(http.Dir("../static"))
+	fileServer := http.FileServer(http.Dir("./static"))
 
 	http.Handle("/", fileServer)
 	http.HandleFunc("/user/register", handler.RegisterHandler)
@@ -33,7 +33,7 @@ func AllRoutes() {
 	http.HandleFunc("/service/update/{id}", middleware.RoleBasedAuth(handler.UpdadeService, "admin"))
 	http.HandleFunc("/appointment/{id}", middleware.RoleBasedAuth(handler.AppointmenStatustByID, "admin"))
 	http.HandleFunc("/appointments", middleware.RoleBasedAuth(handler.GetAppointments, "admin"))
-	http.HandleFunc("/admin/appointment/{id}", middleware.RoleBasedAuth(handler.UpdateAppointment, "admin","user"))
+	http.HandleFunc("/admin/appointment/{id}", middleware.RoleBasedAuth(handler.UpdateAppointment, "admin", "user"))
 	http.HandleFunc("/admin/appointment/delete/{id}", middleware.RoleBasedAuth(handler.DeleteAppointment, "admin"))
 
 }

@@ -32,7 +32,7 @@ func DbIn() (db *sql.DB) {
 	return db
 }
 func createUserTable(db *sql.DB) {
-	
+
 	query := `CREATE TABLE IF NOT EXISTS users (
 		user_id UUID PRIMARY KEY,
 		full_name VARCHAR(100) ,
