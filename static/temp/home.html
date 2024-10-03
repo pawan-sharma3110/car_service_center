@@ -8,8 +8,51 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="../css/home.css">
+    <!-- <link rel="stylesheet" href="../css/admin_dash.css"> -->
 
 </head>
+<style>
+    /* Ensure this CSS is included after any Bootstrap CSS for specificity */
+    .profile-dropdown {
+        position: relative;
+        display: inline-block;
+        margin-right: 90px;
+        cursor: pointer;
+
+    }
+
+    .profile-dropdown .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: #343a40;
+
+        /* Match your sidebar background color */
+        min-width: 160px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+    }
+
+    .profile-dropdown:hover .dropdown-menu {
+        display: block;
+        cursor: pointer;
+    }
+
+    .dropdown-menu a {
+        color: #fff;
+        /* Adjust text color as needed */
+        text-decoration: none;
+        display: block;
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    .dropdown-menu a:hover {
+        background-color: #4e88c2;
+        /* Adjust hover color as needed */
+    }
+</style>
 
 <body>
 
@@ -168,11 +211,85 @@
         </div>
     </section>
 
-    <!-- <footer>
-        <div class="container">
-            <p>&copy; 2024 Car Service Center. All Rights Reserved.</p>
+    <!-- Update User Profile -->
+    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateForm" enctype="multipart/form-data">
+                        <input type="hidden" id="updateUserId" name="user_id"> <!-- Hidden field for User ID -->
+
+                        <div class="form-group">
+                            <label for="updateFullName">Full Name</label>
+                            <input type="text" class="form-control" id="updateFullName" name="full_name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="updateEmail">Email</label>
+                            <input type="email" class="form-control" id="updateEmail" name="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="updatePassword">Password</label>
+                            <input type="password" class="form-control" id="updatePassword" name="password"
+                                placeholder="Enter new password">
+                            <small class="form-text text-muted">Leave this blank to keep the current password.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="updatePhoneNo">Phone No</label>
+                            <input type="text" class="form-control" id="updatePhoneNo" name="phone_no" maxlength="10"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="updateRole">Role</label>
+                            <select class="form-control" id="updateRole" name="role" required>
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+
+                        <!-- Address Fields -->
+                        <div class="form-group">
+                            <label for="updateStreet">Street</label>
+                            <input type="text" class="form-control" id="updateStreet" name="street" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="updateCity">City</label>
+                            <input type="text" class="form-control" id="updateCity" name="city" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="updateState">State</label>
+                            <input type="text" class="form-control" id="updateState" name="state" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="updateZipCode">Zip Code</label>
+                            <input type="text" class="form-control" id="updateZipCode" name="zip_code" required>
+                        </div>
+
+                        <!-- Hidden Address JSON Field -->
+                        <input type="hidden" id="addressJSON" name="address">
+
+                        <div class="form-group">
+                            <label for="updateProfileImage">Profile Image (max 3MB)</label>
+                            <input type="file" class="form-control-file" id="updateProfilePicture"
+                                name="profile_picture" accept="image/*">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+            </div>
         </div>
-    </footer> -->
+    </div>
     <footer>
         <div class="container">
             <div class="row">
