@@ -108,7 +108,6 @@
         </div>
     </div>
 
-
     <!-- Update User Profile -->
     <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel"
         aria-hidden="true">
@@ -188,7 +187,6 @@
             </div>
         </div>
     </div>
-
 
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -405,16 +403,6 @@
             loadProfilePicture();
 
 
-
-
-
-
-
-
-
-
-
-
             // Logout functionality
             $('#logoutButton').click(function (e) {
                 e.preventDefault(); // Prevent default link behavior
@@ -455,6 +443,8 @@
             }
             return null;
         }
+
+        // Fetch token from cookies
         function getToken() {
             const name = "token=";
             const decodedCookie = decodeURIComponent(document.cookie);
@@ -470,6 +460,7 @@
             }
             return null;
         }
+
         document.addEventListener("DOMContentLoaded", function () {
             // Triggered when the Update Profile button is clicked
             document.querySelector('.dropdown-item[data-target="#updateModal"]').addEventListener('click', function () {
@@ -480,8 +471,7 @@
                 fetch(`/user/profile/${userId}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${getToken()}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     }
                 })
                     .then(response => response.json())
@@ -545,7 +535,7 @@
                     method: 'POST', // Or PUT if using that
                     headers: {
                         'Authorization': `Bearer ${getToken()}`,
-                        'Content-Type': 'application/json'
+
                     },
                     body: formData,
                 })
@@ -569,7 +559,6 @@
 
 
     </script>
-
 
 </body>
 

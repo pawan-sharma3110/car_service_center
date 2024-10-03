@@ -251,7 +251,7 @@ func UpdateUserProfile(w http.ResponseWriter, r *http.Request) {
 
 	// Parse multipart form data
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
-		http.Error(w, "Error parsing form data", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -355,6 +355,7 @@ func UpdateUserProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send success response
+
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("User profile updated successfully"))
 }

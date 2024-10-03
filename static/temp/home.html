@@ -327,6 +327,53 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
+        // Function to load profile picture
+        function loadProfilePicture() {
+            const userId = getCookie("user_id"); // Fetch user ID from the cookie
+
+            if (userId) {
+                // Construct the URL to fetch the profile picture
+                const imageUrl = `/profile-picture?user_id=${userId}`; // Same port, API call
+                const profileImageElement = document.querySelector('.profile-icon');
+
+                // Set the src of the img element
+                profileImageElement.src = imageUrl;
+
+                profileImageElement.onerror = function () {
+                    // Optional: Fallback if no profile picture is found
+                    profileImageElement.src = "../media/user-sign-icon2.jpg";
+                };
+            } else {
+                console.log("User ID not found in cookies.");
+            }
+        }
+        loadProfilePicture();
+
+    // Logout functionality
+    $('#logoutButton').click(function (e) {
+        e.preventDefault(); // Prevent default link behavior
+
+        fetch('http://localhost:8080/user/logout', { // Ensure the endpoint matches your backend route
+            method: 'POST', // Use POST, GET, or DELETE based on your backend API
+            credentials: 'include', // Ensure cookies are included for authentication
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    // If logout is successful, redirect to login page or homepage
+                    window.location.href = '../index.html'; // Adjust the redirect path as needed
+                } else {
+                    alert('Logout failed. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error during logout:', error);
+            });
+    });
+
+    
         // Helper function to get the user ID from cookies
         function getCookie(name) {
             let cookieArr = document.cookie.split(";");
@@ -339,6 +386,8 @@
             }
             return null;
         }
+
+        // Fetch token from cookies
         function getToken() {
             const name = "token=";
             const decodedCookie = decodeURIComponent(document.cookie);
@@ -354,6 +403,7 @@
             }
             return null;
         }
+
         document.addEventListener("DOMContentLoaded", function () {
             // Triggered when the Update Profile button is clicked
             document.querySelector('.dropdown-item[data-target="#updateModal"]').addEventListener('click', function () {
@@ -364,8 +414,7 @@
                 fetch(`/user/profile/${userId}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${getToken()}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     }
                 })
                     .then(response => response.json())
@@ -429,7 +478,7 @@
                     method: 'POST', // Or PUT if using that
                     headers: {
                         'Authorization': `Bearer ${getToken()}`,
-                        'Content-Type': 'application/json'
+
                     },
                     body: formData,
                 })
