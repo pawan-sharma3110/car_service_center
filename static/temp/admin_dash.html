@@ -264,6 +264,7 @@
             // Function to fetch and display appointments
             function fetchAppointments() {
                 fetch("http://localhost:8080/appointments")
+                
                     .then(response => response.json())
                     .then(data => {
                         let appointmentRows = '';
@@ -568,6 +569,23 @@
             return null;
         }
 
+        // Fetch token from cookies
+        function getToken() {
+            const name = "token=";
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const cookies = decodedCookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i];
+                while (cookie.charAt(0) === ' ') {
+                    cookie = cookie.substring(1);
+                }
+                if (cookie.indexOf(name) === 0) {
+                    return cookie.substring(name.length, cookie.length);
+                }
+            }
+            return null;
+        }
+
         document.addEventListener("DOMContentLoaded", function () {
             // Triggered when the Update Profile button is clicked
             document.querySelector('.dropdown-item[data-target="#updateModal"]').addEventListener('click', function () {
@@ -579,6 +597,7 @@
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`,
                     }
                 })
                     .then(response => response.json())
@@ -640,6 +659,10 @@
                 // Send the form data to the server
                 fetch(`/user/update-profile/${userId}`, {
                     method: 'POST', // Or PUT if using that
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`,
+
+                    },
                     body: formData,
                 })
                     .then(response => {
