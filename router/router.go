@@ -13,7 +13,7 @@ func AllRoutes() {
 	http.HandleFunc("/user/register", handler.RegisterHandler)
 	http.HandleFunc("/user/login", handler.Login)
 
-	http.HandleFunc("/profile-picture", middleware.RoleBasedAuth(handler.GetProfilePicture, "admin"))
+	http.HandleFunc("/profile-picture", middleware.RoleBasedAuth(handler.GetProfilePicture, "admin", "user"))
 	http.HandleFunc("/user/profile/{id}", middleware.RoleBasedAuth(handler.GetUserProfile, "admin", "user"))
 	http.HandleFunc("/user/update-profile/{id}", middleware.RoleBasedAuth(handler.UpdateUserProfile, "admin", "user"))
 	http.HandleFunc("/user/logout", handler.LogoutHandler)

@@ -7,30 +7,41 @@
     <title>Car Service & Washing Center</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
- <link rel="stylesheet" href="../css/home.css">
-    
+    <link rel="stylesheet" href="../css/home.css">
+
 </head>
 
 <body>
-    
+
     <nav class="navbar navbar-expand-lg navbar-light bg-light my-nav">
-       <a class="navbar-brand" href="./home.html">Washing Hub</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <a class="navbar-brand" href="./home.html">Washing Hub</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="./home.html">Home <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Service</a>
+                    <a class="nav-link" href="./service.html">Service</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Appointment</a>
+                    <a class="nav-link" href="./booking.html">Appointment</a>
                 </li>
             </ul>
-        
+            <!-- Profile Dropdown -->
+            <div class="profile-dropdown">
+                <img id="profilePicture" src="" alt="Profile Icon" width="60" height="60"
+                    class="rounded-circle profile-icon">
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="./appointment.html" id="appointments">My Appointments</a>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#updateModal">Update Profile</a>
+                    <a class="dropdown-item" href="#" id="logoutButton">Logout</a>
+                </div>
+            </div>
+
     </nav>
 
     <section class="hero">
@@ -50,7 +61,7 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="card">
-                        <img src="../media/3.jpg" height="233px"card-img-top" alt="Service 1">
+                        <img src="../media/3.jpg" height="233px" card-img-top" alt="Service 1">
                         <div class="card-body">
                             <h5 class="card-title">Car Washing</h5>
                             <p class="card-text">Professional car washing services to keep your car sparkling clean.</p>
@@ -59,7 +70,8 @@
                 </div>
                 <div class="col-md-4">
                     <div class="card">
-                        <img src="../media/beautiful-car-washing-service_23-2149212221.avif" class="card-img-top" alt="Service 2">
+                        <img src="../media/beautiful-car-washing-service_23-2149212221.avif" class="card-img-top"
+                            alt="Service 2">
                         <div class="card-body">
                             <h5 class="card-title">Car Detailing</h5>
                             <p class="card-text">Comprehensive car detailing to restore your car's original shine.</p>
@@ -71,7 +83,8 @@
                         <img src="../media/oil.JPG" class="card-img-top" alt="Service 3">
                         <div class="card-body">
                             <h5 class="card-title">Oil Change</h5>
-                            <p class="card-text">Quick and efficient oil change services to keep your engine running smoothly.</p>
+                            <p class="card-text">Quick and efficient oil change services to keep your engine running
+                                smoothly.</p>
                         </div>
                     </div>
                 </div>
@@ -87,8 +100,11 @@
                 </div>
                 <div class="col-md-6">
                     <h2>About Us</h2>
-                    <p>We are a team of experienced professionals dedicated to providing the best car services and washing solutions. Our goal is to ensure your car remains in top condition and looks as good as new.</p>
-                    <p>With years of experience and a commitment to quality, we offer a range of services designed to meet all your car care needs.</p>
+                    <p>We are a team of experienced professionals dedicated to providing the best car services and
+                        washing solutions. Our goal is to ensure your car remains in top condition and looks as good as
+                        new.</p>
+                    <p>With years of experience and a commitment to quality, we offer a range of services designed to
+                        meet all your car care needs.</p>
                 </div>
             </div>
         </div>
@@ -142,7 +158,8 @@
                         </div>
                         <div class="form-group">
                             <label for="message">Message</label>
-                            <textarea class="form-control" id="message" rows="5" required placeholder="Any inquiries or to book a service"></textarea>
+                            <textarea class="form-control" id="message" rows="5" required
+                                placeholder="Any inquiries or to book a service"></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary btn-block">Submit</button>
                     </form>
@@ -192,6 +209,134 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Helper function to get the user ID from cookies
+        function getCookie(name) {
+            let cookieArr = document.cookie.split(";");
+
+            for (let i = 0; i < cookieArr.length; i++) {
+                let cookiePair = cookieArr[i].split("=");
+                if (name === cookiePair[0].trim()) {
+                    return decodeURIComponent(cookiePair[1]);
+                }
+            }
+            return null;
+        }
+        function getToken() {
+            const name = "token=";
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const cookies = decodedCookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i];
+                while (cookie.charAt(0) === ' ') {
+                    cookie = cookie.substring(1);
+                }
+                if (cookie.indexOf(name) === 0) {
+                    return cookie.substring(name.length, cookie.length);
+                }
+            }
+            return null;
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            // Triggered when the Update Profile button is clicked
+            document.querySelector('.dropdown-item[data-target="#updateModal"]').addEventListener('click', function () {
+                // Assume we have the user ID stored somewhere, or you can pass it dynamically
+                var userId = getCookie("user_id"); // Replace this with dynamic value if necessary
+
+                // Fetch user data from the server
+                fetch(`/user/profile/${userId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Populate form fields with the fetched user data
+                        document.getElementById('updateUserId').value = data.id;
+                        document.getElementById('updateFullName').value = data.full_name;
+                        document.getElementById('updateEmail').value = data.email;
+                        // Password field is left blank intentionally
+                        document.getElementById('updatePassword').value = '';
+                        document.getElementById('updatePhoneNo').value = data.phone_no;
+                        document.getElementById('updateRole').value = data.role;
+                        document.getElementById('updateStreet').value = data.address.street;
+                        document.getElementById('updateCity').value = data.address.city;
+                        document.getElementById('updateState').value = data.address.state;
+                        document.getElementById('updateZipCode').value = data.address.zip_code;
+                        // Reset profile picture input
+                        document.getElementById('updateProfilePicture').value = '';
+                    })
+                    .catch(error => console.error('Error fetching user profile:', error));
+            });
+
+            document.getElementById("updateForm").addEventListener("submit", function (event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                // Serialize address fields into JSON
+                var address = {
+                    street: document.getElementById('updateStreet').value.trim(),
+                    city: document.getElementById('updateCity').value.trim(),
+                    state: document.getElementById('updateState').value.trim(),
+                    zip_code: document.getElementById('updateZipCode').value.trim()
+                };
+
+                // Validate address fields if necessary
+                // Example: Ensure zip code is numeric
+                if (!/^\d{6}(-\d{6})?$/.test(address.zip_code)) {
+                    alert("Please enter a valid zip code.");
+                    return;
+                }
+
+                // Set the serialized address JSON
+                document.getElementById('addressJSON').value = JSON.stringify(address);
+
+                // Validate profile picture size (max 3MB)
+                var profilePictureInput = document.getElementById('updateProfilePicture');
+                if (profilePictureInput.files.length > 0) {
+                    var file = profilePictureInput.files[0];
+                    if (file.size > 3 * 1024 * 1024) { // 3MB in bytes
+                        alert("Profile picture must be less than 3MB.");
+                        return;
+                    }
+                }
+
+                // Get the form data
+                var formData = new FormData(this);
+
+                var userId = document.getElementById('updateUserId').value;
+
+                // Send the form data to the server
+                fetch(`/user/update-profile/${userId}`, {
+                    method: 'POST', // Or PUT if using that
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: formData,
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.text(); // Handle success response
+                        } else {
+                            return response.text().then(text => { throw new Error(text) });
+                        }
+                    })
+                    .then(data => {
+                        alert("Profile updated successfully!");
+                        location.reload(); // Reload the page or update the UI accordingly
+                    })
+                    .catch(error => {
+                        console.error('Error updating profile:', error);
+                        alert(`Error updating profile: ${error.message}`);
+                    });
+            });
+        });
+
+
+    </script>
+
 </body>
 
 </html>
