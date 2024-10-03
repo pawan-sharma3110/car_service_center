@@ -56,7 +56,7 @@
 
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-light my-nav">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light my-nav  fixed-top">
         <a class="navbar-brand" href="./home.html">Washing Hub</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,7 +68,7 @@
                     <a class="nav-link" href="./home.html">Home <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="./service.html">Service</a>
+                    <a class="nav-link" href="./user_services.html">Service</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="./booking.html">Appointment</a>
@@ -322,7 +322,8 @@
             <p class="mb-0">&copy; 2024 Car Service Center. All Rights Reserved.</p>
         </div>
     </footer>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <!-- Font Awesome Kit -->
+    <!-- <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -349,31 +350,31 @@
         }
         loadProfilePicture();
 
-    // Logout functionality
-    $('#logoutButton').click(function (e) {
-        e.preventDefault(); // Prevent default link behavior
+        // Logout functionality
+        $('#logoutButton').click(function (e) {
+            e.preventDefault(); // Prevent default link behavior
 
-        fetch('http://localhost:8080/user/logout', { // Ensure the endpoint matches your backend route
-            method: 'POST', // Use POST, GET, or DELETE based on your backend API
-            credentials: 'include', // Ensure cookies are included for authentication
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => {
-                if (response.ok) {
-                    // If logout is successful, redirect to login page or homepage
-                    window.location.href = '../index.html'; // Adjust the redirect path as needed
-                } else {
-                    alert('Logout failed. Please try again.');
+            fetch('http://localhost:8080/user/logout', { // Ensure the endpoint matches your backend route
+                method: 'POST', // Use POST, GET, or DELETE based on your backend API
+                credentials: 'include', // Ensure cookies are included for authentication
+                headers: {
+                    'Content-Type': 'application/json'
                 }
             })
-            .catch(error => {
-                console.error('Error during logout:', error);
-            });
-    });
+                .then(response => {
+                    if (response.ok) {
+                        // If logout is successful, redirect to login page or homepage
+                        window.location.href = '../index.html'; // Adjust the redirect path as needed
+                    } else {
+                        alert('Logout failed. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error during logout:', error);
+                });
+        });
 
-    
+
         // Helper function to get the user ID from cookies
         function getCookie(name) {
             let cookieArr = document.cookie.split(";");

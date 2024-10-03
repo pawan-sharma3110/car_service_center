@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Service & Washing Center</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="../css/home.css">
+
+
+</head>
+<style>
+    /* Ensure this CSS is included after any Bootstrap CSS for specificity */
+    .profile-dropdown {
+        position: relative;
+        display: inline-block;
+        margin-right: 90px;
+        cursor: pointer;
+
+    }
+
+    .profile-dropdown .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: #343a40;
+
+        /* Match your sidebar background color */
+        min-width: 160px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+    }
+
+    .profile-dropdown:hover .dropdown-menu {
+        display: block;
+        cursor: pointer;
+    }
+
+    .dropdown-menu a {
+        color: #fff;
+        /* Adjust text color as needed */
+        text-decoration: none;
+        display: block;
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    .dropdown-menu a:hover {
+        background-color: #4e88c2;
+        /* Adjust hover color as needed */
+    }
+
+    .container-fluid {
+        margin-top: 100px;
+        padding-left: 50px;
+        padding-right: 50px;
+    }
+</style>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light my-nav  fixed-top">
+        <a class="navbar-brand" href="./home.html">Washing Hub</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="./home.html">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./user_services.html">Service</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./booking.html">Appointment</a>
+                </li>
+            </ul>
+            <!-- Profile Dropdown -->
+            <div class="profile-dropdown">
+                <img id="profilePicture" src="" alt="Profile Icon" width="60" height="60"
+                    class="rounded-circle profile-icon">
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="./appointment.html" id="appointments">My Appointments</a>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#updateModal">Update Profile</a>
+                    <a class="dropdown-item" href="#" id="logoutButton">Logout</a>
+                </div>
+            </div>
+
+    </nav>
+
+    <div class="container-fluid">
+        <div id="services">
+            <h2 class="mt-4">Our Services</h2>
+
+            <table class="table table-striped mt-3">
+                <thead>
+                    <tr>
+                        <th>#</th> <!-- Add this column for serial number -->
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Cost</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="service-table">
+                    <!-- Data will be populated dynamically with JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+
+
+
+
+    <!-- Update User Profile -->
+    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateForm" enctype="multipart/form-data">
+                        <input type="hidden" id="updateUserId" name="user_id"> <!-- Hidden field for User ID -->
+
+                        <div class="form-group">
+                            <label for="updateFullName">Full Name</label>
+                            <input type="text" class="form-control" id="updateFullName" name="full_name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="updateEmail">Email</label>
+                            <input type="email" class="form-control" id="updateEmail" name="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="updatePassword">Password</label>
+                            <input type="password" class="form-control" id="updatePassword" name="password"
+                                placeholder="Enter new password">
+                            <small class="form-text text-muted">Leave this blank to keep the current password.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="updatePhoneNo">Phone No</label>
+                            <input type="text" class="form-control" id="updatePhoneNo" name="phone_no" maxlength="10"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="updateRole">Role</label>
+                            <select class="form-control" id="updateRole" name="role" required>
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+
+                        <!-- Address Fields -->
+                        <div class="form-group">
+                            <label for="updateStreet">Street</label>
+                            <input type="text" class="form-control" id="updateStreet" name="street" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="updateCity">City</label>
+                            <input type="text" class="form-control" id="updateCity" name="city" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="updateState">State</label>
+                            <input type="text" class="form-control" id="updateState" name="state" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="updateZipCode">Zip Code</label>
+                            <input type="text" class="form-control" id="updateZipCode" name="zip_code" required>
+                        </div>
+
+                        <!-- Hidden Address JSON Field -->
+                        <input type="hidden" id="addressJSON" name="address">
+
+                        <div class="form-group">
+                            <label for="updateProfileImage">Profile Image (max 3MB)</label>
+                            <input type="file" class="form-control-file" id="updateProfilePicture"
+                                name="profile_picture" accept="image/*">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class=" fixed-bottom">
+        <div class="container">
+            <div class="row">
+                <!-- Footer Logo and Description -->
+                <div class="col-md-4 mb-3">
+                    <h5 class="text-uppercase">Car Service Center</h5>
+                    <p>Providing top-notch car servicing and washing services with a commitment to excellence.</p>
+                </div>
+                <!-- Quick Links -->
+                <div class="col-md-4 mb-3">
+                    <h5 class="text-uppercase">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="./index.html" class="text-white">Home</a></li>
+                        <li><a href="./login.html" class="text-white">Services</a></li>
+                        <li><a href="#contact" class="text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <!-- Social Media Icons -->
+                <div class="col-md-4 mb-3">
+                    <h5 class="text-uppercase">Follow Us</h5>
+                    <div>
+                        <a href="#" class="text-white me-2"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="border-light">
+            <p class="mb-0">&copy; 2024 Car Service Center. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+
+            // Helper function to get a specific cookie by name
+            function getCookie(name) {
+                let cookieArr = document.cookie.split(";");
+                for (let i = 0; i < cookieArr.length; i++) {
+                    let cookiePair = cookieArr[i].split("=");
+                    if (name === cookiePair[0].trim()) {
+                        return decodeURIComponent(cookiePair[1]);
+                    }
+                }
+                return null;
+            }
+
+            // Function to retrieve the authentication token from cookies
+            function getToken() {
+                const token = getCookie("token");
+                return token ? token : null;
+            }
+
+            // Retrieve the auth token
+            const authToken = getToken();
+
+            // Function to fetch all services
+            function fetchServices(query = '') {
+                let url = '/service/get/all';
+                if (query) {
+                    url = `/service/search?q=${encodeURIComponent(query)}`;
+                }
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    success: function (data) {
+                        let serviceRows = '';
+
+                        if (!Array.isArray(data) || data.length === 0) {
+                            serviceRows = `<tr><td colspan="6" class="text-center">No services available</td></tr>`;
+                        } else {
+                            $.each(data, function (key, service) {
+                                serviceRows += `
+                                <tr>
+                                    <td>${key + 1}</td>
+                                    <td>${service.service_id || '-'}</td>
+                                    <td>${service.name || 'No Name'}</td>
+                                    <td>${service.cost ? service.cost + '₹' : '0.00'}</td>
+                                    <td>${service.description || 'No Description'}</td>
+                                    <td>
+                                        <button class="btn btn-success btn-md edit-service" data-id="${service.service_id}" data-toggle="modal" href="./home.html">Book Now</button>
+                                      
+                                    </td>
+                                </tr>`;
+                            });
+                        }
+
+                        $('#service-table').html(serviceRows);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching services:', error);
+                        alert("Failed to load services.");
+                    }
+                });
+            }
+
+            // Function to load profile picture
+            function loadProfilePicture() {
+                const userId = getCookie("user_id"); // Fetch user ID from the cookie
+
+                if (userId) {
+                    // Construct the URL to fetch the profile picture
+                    const imageUrl = `/profile-picture?user_id=${encodeURIComponent(userId)}`; // Ensure proper encoding
+                    const profileImageElement = document.querySelector('.profile-icon');
+
+                    if (profileImageElement) {
+                        // Set the src of the img element
+                        profileImageElement.src = imageUrl;
+
+                        profileImageElement.onerror = function () {
+                            // Fallback if no profile picture is found
+                            profileImageElement.src = "../media/user-sign-icon2.jpg";
+                        };
+                    } else {
+                        console.warn("Profile image element not found.");
+                    }
+                } else {
+                    console.log("User ID not found in cookies.");
+                }
+            }
+
+            // Initial load of profile picture
+            loadProfilePicture();
+
+            // Logout functionality
+            $('#logoutButton').click(function (e) {
+                e.preventDefault(); // Prevent default link behavior
+
+                fetch('/user/logout', { // Use relative path for consistency
+                    method: 'POST', // Ensure your backend expects POST for logout
+                    credentials: 'include', // Include cookies for authentication
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}` // Include auth token if required
+                    },
+                    body: JSON.stringify({}) // Send an empty JSON body or required data
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            // If logout is successful, redirect to login page or homepage
+                            window.location.href = '../index.html'; // Adjust the redirect path as needed
+                        } else {
+                            response.text().then(text => {
+                                console.error('Logout failed:', text);
+                                alert('Logout failed. Please try again.');
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error during logout:', error);
+                        alert('An error occurred during logout. Please try again.');
+                    });
+            });
+
+            // Event listener for Update Profile button click
+            $('.dropdown-item[data-target="#updateModal"]').click(function (e) {
+                e.preventDefault(); // Prevent default link behavior
+
+                const userId = getCookie("user_id"); // Ensure 'user_id' cookie is set
+
+                if (!userId) {
+                    alert("User not authenticated.");
+                    return;
+                }
+
+                // Fetch user data from the server
+                fetch(`/user/profile/${encodeURIComponent(userId)}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        // 'Content-Type': 'application/json' // Remove if not needed
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Populate form fields with fetched user data
+                        $('#updateUserId').val(data.id || '');
+                        $('#updateFullName').val(data.full_name || '');
+                        $('#updateEmail').val(data.email || '');
+                        $('#updatePassword').val(''); // Leave blank
+                        $('#updatePhoneNo').val(data.phone_no || '');
+                        $('#updateRole').val(data.role || '');
+                        $('#updateStreet').val((data.address && data.address.street) || '');
+                        $('#updateCity').val((data.address && data.address.city) || '');
+                        $('#updateState').val((data.address && data.address.state) || '');
+                        $('#updateZipCode').val((data.address && data.address.zip_code) || '');
+                        $('#updateProfilePicture').val(''); // Reset file input
+                    })
+                    .catch(error => {
+                        console.error('Error fetching user profile:', error);
+                        alert('Failed to fetch user profile. Please try again.');
+                    });
+            });
+
+            // Event listener for Update Profile form submission
+            $("#updateForm").submit(function (event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                // Serialize address fields into JSON
+                const address = {
+                    street: $('#updateStreet').val().trim(),
+                    city: $('#updateCity').val().trim(),
+                    state: $('#updateState').val().trim(),
+                    zip_code: $('#updateZipCode').val().trim()
+                };
+
+                // Validate address fields if necessary
+                // Example: Ensure zip code is numeric and 5-10 digits
+                if (!/^\d{5,10}$/.test(address.zip_code)) {
+                    alert("Please enter a valid zip code (5-10 digits).");
+                    return;
+                }
+
+                // Set the serialized address JSON in a hidden input
+                $('#addressJSON').val(JSON.stringify(address));
+
+                // Validate profile picture size (max 3MB)
+                const profilePictureInput = $('#updateProfilePicture')[0];
+                if (profilePictureInput.files.length > 0) {
+                    const file = profilePictureInput.files[0];
+                    if (file.size > 3 * 1024 * 1024) { // 3MB in bytes
+                        alert("Profile picture must be less than 3MB.");
+                        return;
+                    }
+                }
+
+                // Get the form data
+                const formData = new FormData(this);
+
+                const userId = $('#updateUserId').val();
+                if (!userId) {
+                    alert("User ID is missing.");
+                    return;
+                }
+
+                // Send the form data to the server
+                fetch(`/user/update-profile/${encodeURIComponent(userId)}`, {
+                    method: 'POST', // Use 'PUT' if your API expects it
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                        // 'Content-Type' is automatically set when using FormData
+                    },
+                    body: formData,
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.text(); // Handle success response
+                        } else {
+                            return response.text().then(text => { throw new Error(text) });
+                        }
+                    })
+                    .then(data => {
+                        alert("Profile updated successfully!");
+                        location.reload(); // Reload the page or update the UI accordingly
+                    })
+                    .catch(error => {
+                        console.error('Error updating profile:', error);
+                        alert(`Error updating profile: ${error.message}`);
+                    });
+            });
+
+            // Fetch all services on page load
+            fetchServices();
+        });
+    </script>
+
+
+</body>
+
+</html>
