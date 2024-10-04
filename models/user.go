@@ -61,7 +61,7 @@ func (u User) ValidateUser(email string, password string, db *sql.DB) (id uuid.U
 	query := `SELECT password,user_id,role FROM users WHERE email = $1`
 	err = db.QueryRow(query, u.Email).Scan(&hashedPassword, &u.ID, &role)
 	if err != nil {
-		return uuid.Nil, nil, fmt.Errorf(err.Error(), u.Email)
+		return uuid.Nil, nil, fmt.Errorf("invalid email %v", u.Email)
 	}
 	fmt.Println(u.Email)
 	fmt.Println(u.ID)
@@ -105,8 +105,6 @@ func AllUsers(db *sql.DB) (users []UserResponse, err error) {
 			if err != nil {
 				return nil, fmt.Errorf("failed to parse address for user %s: %v", user.ID, err)
 			}
-
-			
 
 			user.Address = parsedAddress
 		} else {
