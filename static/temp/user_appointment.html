@@ -8,190 +8,63 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="../css/home.css">
-    <style>
-        /* Navbar Styles */
-        .navbar {
-            background-color: #f8f9fa;
-            /* Retain Bootstrap's light background */
-        }
+    <!-- <link rel="stylesheet" href="../css/admin_dash.css"> -->
 
-        .navbar .navbar-brand,
-        .navbar .nav-link {
-            color: #343a40;
-            /* Dark text for better readability */
-        }
-
-        .navbar .nav-link:hover {
-            color: #007bff;
-            /* Bootstrap's primary color on hover */
-        }
-
-        /* Profile Dropdown Styles */
-        .profile-dropdown {
-            position: relative;
-            display: inline-block;
-            margin-right: 90px;
-            /* Reduced margin for less clutter */
-            cursor: pointer;
-        }
-
-        .profile-dropdown .profile-icon {
-            border: 2px solid #343a40;
-            /* Border to distinguish the profile icon */
-        }
-
-        .profile-dropdown .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: 110%;
-            right: 0;
-            background-color: #343a40;
-            min-width: 160px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            border-radius: 4px;
-            padding: 0;
-        }
-
-        .profile-dropdown:hover .dropdown-menu {
-            display: block;
-        }
-
-        .dropdown-menu a {
-            color: #fff;
-            text-decoration: none;
-            display: block;
-            padding: 10px 20px;
-        }
-
-        .dropdown-menu a:hover {
-            background-color: #4e88c2;
-        }
-
-        /* Main Content Styles */
-        .container-fluid {
-            margin-top: 50px;
-            width: 1240px;
-            /* Adjusted to account for fixed navbar height */
-            padding-left: 20px;
-            padding-right: 20px;
-            padding-bottom: 100px;
-            /* To prevent content from being hidden behind footer */
-        }
-
-        .main-content h2,
-        .main-content h4 {
-            color: #343a40;
-            /* Consistent heading color */
-            margin-bottom: 20px;
-        }
-
-        /* Service List Styles */
-        .list-group-item-service {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 15px;
-        }
-
-        .list-group-item-service:hover {
-            background-color: #f1f1f1;
-        }
-
-        .badge-custom {
-            background-color: #17a2b8;
-            /* Bootstrap's info color */
-            color: #fff;
-        }
-
-        /* Selected Services Styles */
-        .selected-service-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 15px;
-        }
-
-        .selected-service-item:hover {
-            background-color: #f1f1f1;
-        }
-
-        /* Button Styles */
-        .btn-primary {
-            background-color: #007bff;
-            /* Bootstrap's primary color */
-            border-color: #007bff;
-        }
-
-        .btn-primary:hover {
-            background-color: #0069d9;
-            border-color: #0062cc;
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            /* Bootstrap's danger color */
-            border-color: #dc3545;
-        }
-
-        .btn-danger:hover {
-            background-color: #c82333;
-            border-color: #bd2130;
-        }
-
-        /* Footer Styles */
-        footer {
-            background-color: #343a40;
-            /* Dark background */
-            color: #fff;
-            padding: 20px 0;
-        }
-
-        footer a {
-            color: #fff;
-            text-decoration: none;
-        }
-
-        footer a:hover {
-            color: #adb5bd;
-            /* Light gray on hover */
-            text-decoration: none;
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .container-fluid {
-                padding-left: 10px;
-                padding-right: 10px;
-            }
-
-            .profile-dropdown {
-                margin-right: 10px;
-            }
-
-            .selected-service-item,
-            .list-group-item-service {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .badge-custom {
-                margin-top: 5px;
-            }
-
-            .btn-primary,
-            .btn-danger {
-                width: 100%;
-                text-align: center;
-            }
-        }
-    </style>
 </head>
+<style>
+    /* Ensure this CSS is included after any Bootstrap CSS for specificity */
+    .profile-dropdown {
+        position: relative;
+        display: inline-block;
+        margin-right: 90px;
+        cursor: pointer;
+
+    }
+
+    .profile-dropdown .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: #343a40;
+
+        /* Match your sidebar background color */
+        min-width: 160px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+    }
+
+    .profile-dropdown:hover .dropdown-menu {
+        display: block;
+        cursor: pointer;
+    }
+
+    .dropdown-menu a {
+        color: #fff;
+        /* Adjust text color as needed */
+        text-decoration: none;
+        display: block;
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    .dropdown-menu a:hover {
+        background-color: #4e88c2;
+        /* Adjust hover color as needed */
+    }
+
+    .register-btn {
+        float: right;
+        margin-bottom: 15px;
+        margin-right: 15px;
+        margin-top: 20px;
+
+    }
+</style>
 
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light my-nav  fixed-top">
         <a class="navbar-brand" href="./home.html">Washing Hub</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -221,58 +94,66 @@
             </div>
         </div>
     </nav>
+    <div class="container-fluid">
+        <h2 class="mt-4">Manage Your Appointments</h2>
 
-    <!-- Page Content -->
-    <div id="page-content-wrapper">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-            <button class="btn btn-primary" id="menu-toggle">
-                <img src="../media/menu-bar.png" alt="toggle button" width="20px">
-            </button>
-        </nav>
+        <!-- Register New Appointment Button -->
+        <a href="./booking.html" class="btn btn-success register-btn">Register New Appointment</a>
 
-        <!-- Main Content -->
-        <div class="container-fluid main-content">
-            <h2>Book Appointment</h2>
-            <div class="row">
-                <!-- Available Services -->
-                <div class="col-md-6 mb-4">
-                    <h4>Select Services</h4>
-                    <ul class="list-group" id="serviceList">
-                        <!-- Services will be populated dynamically from API -->
-                    </ul>
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Appointment ID</th>
+                    <th>Service Name</th>
+                    <th>Total Cost</th>
+                    <th>Appointment Time</th>
+                    <th>Status</th>
+                    <th>Create On</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="appointment-table">
+                <!-- Data will be populated dynamically with JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Edit Appointment Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Appointment</h5>
+                    <button type="button" class="close close-btn" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span> <!-- Red cross button -->
+                    </button>
                 </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="appointmentId">
 
-                <!-- Selected Services and Appointment Details -->
-                <div class="col-md-6 mb-4">
-                    <h4>Selected Services</h4>
-                    <ul class="list-group mb-3" id="selectedServices">
-                        <!-- Selected services will appear here -->
-                    </ul>
-                    <div class="mb-3">
-                        <strong>Total Cost: </strong> ₹<span id="totalCost">0.00</span>
-                    </div>
-                    <div class="mb-3">
-                        <label for="appointmentDate">Select Date:</label>
-                        <input type="date" class="form-control" id="appointmentDate" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="appointmentTime">Select Time:</label>
-                        <div class="input-group">
-                            <input type="time" class="form-control" id="appointmentTime" required>
-                            <div class="input-group-append">
-                                <select class="custom-select" id="appointmentAMPM">
-                                    <option value="AM">AM</option>
-                                    <option value="PM">PM</option>
-                                </select>
-                            </div>
+                        <!-- Status dropdown -->
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-control" id="status" required>
+                                <option value="Unscheduled">Unscheduled</option>
+                                <option value="Declined">Declined</option>
+                            </select>
                         </div>
-                    </div>
-                    <button class="btn btn-primary btn-block" id="bookAppointment">Book Appointment</button>
+
+                        <!-- 24-hour Date-Time Picker -->
+                        <div class="mb-3">
+                            <label for="time" class="form-label">Appointment Time</label>
+                            <input type="datetime-local" class="form-control" id="time" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-
     <!-- Update User Profile Modal -->
     <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel"
         aria-hidden="true">
@@ -302,7 +183,8 @@
                             <label for="updatePassword">Password</label>
                             <input type="password" class="form-control" id="updatePassword" name="password"
                                 placeholder="Enter new password">
-                            <small class="form-text text-muted">Leave this blank to keep the current password.</small>
+                            <small class="form-text text-muted">Leave this blank to keep the current
+                                password.</small>
                         </div>
 
                         <div class="form-group">
@@ -361,7 +243,8 @@
                 <!-- Footer Logo and Description -->
                 <div class="col-md-4 mb-3">
                     <h5 class="text-uppercase">Car Service Center</h5>
-                    <p>Providing top-notch car servicing and washing services with a commitment to excellence.</p>
+                    <p>Providing top-notch car servicing and washing services with a commitment to excellence.
+                    </p>
                 </div>
                 <!-- Quick Links -->
                 <div class="col-md-4 mb-3">
@@ -428,228 +311,146 @@
                 return null;
             }
 
-            // Fetch services on page load
-            async function fetchServices() {
-                try {
-                    const response = await fetch('/service/get/all', {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${getToken()}`,
-                            'Content-Type': 'application/json'
+            // Fetch appointments by user ID
+            function fetchAppointments() {
+                fetch("http://localhost:8080/appointment/by_id")
+                    .then(response => response.json())
+                    .then(data => {
+                        let appointmentRows = '';
+                        if (data.length === 0) {
+                            appointmentRows = `<tr><td colspan="9" class="text-center">No appointments available</td></tr>`;
+                        } else {
+                            data.forEach((appointment, key) => {
+                                // Directly use service_names from API response
+                                let serviceNames = appointment.service_names.join(', ');
+
+                                // Append appointment row
+                                appointmentRows += `
+                        <tr data-id="${appointment.appointment_id}" data-status="${appointment.status}" data-date="${appointment.appointment_time}">
+                            <td>${key + 1}</td>
+                            <td>${appointment.appointment_id}</td>
+                            <td>${serviceNames}</td>
+                            <td>${appointment.total_cost}₹</td>
+                            <td>${appointment.appointment_time}</td>
+                            <td>${appointment.status}</td>
+                            <td>${appointment.created_on}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm edit-appointment">Edit</button>
+                            </td>
+                        </tr>
+                    `;
+                            });
                         }
+                        document.getElementById('appointment-table').innerHTML = appointmentRows;
+                    })
+                    .catch(error => {
+                        console.error("Error fetching appointments:", error);
+                        alert("Error fetching appointments: " + error.message);
                     });
-                    if (response.ok) {
-                        const services = await response.json();
-                        populateServiceList(services);
-                    } else {
-                        $('#serviceList').append('<li class="list-group-item">Failed to load services.</li>');
-                    }
-                } catch (error) {
-                    console.error('Error fetching services:', error);
-                    $('#serviceList').append('<li class="list-group-item">Error loading services.</li>');
-                }
             }
 
-            // Populate services into the list
-            function populateServiceList(services) {
-                const serviceList = $('#serviceList');
-                serviceList.empty(); // Clear existing items
 
-                services.forEach(service => {
-                    const serviceItem = `
-                        <li class="list-group-item-service list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <input type="checkbox" id="service-${service.service_id}" value='${JSON.stringify(service)}'>
-                                <label for="service-${service.service_id}">${service.name}</label>
-                            </div>
-                            <span class="badge badge-custom">₹${service.cost.toFixed(2)}</span>
-                        </li>
-                    `;
-                    serviceList.append(serviceItem);
-                });
+            // Call the fetchAppointments function when the page loads
+            window.onload = fetchAppointments;
+
+
+            // Function to format the date for 'datetime-local' input (YYYY-MM-DDTHH:MM)
+            function formatDateForInput(dateString) {
+                const date = new Date(dateString);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const day = String(date.getDate()).padStart(2, "0");
+                const hours = String(date.getHours()).padStart(2, "0");
+                const minutes = String(date.getMinutes()).padStart(2, "0");
+
+                return `${year}-${month}-${day}T${hours}:${minutes}`;
             }
 
-            // Initialize services list
-            fetchServices();
-
-            let totalCost = 0;
-
-            // Handle service selection
-            $('#serviceList').on('change', 'input[type="checkbox"]', function () {
-                const service = JSON.parse($(this).val());
-                const serviceId = service.service_id;
-                const serviceName = service.name;
-                const serviceCost = parseFloat(service.cost);
-
-                if ($(this).is(':checked')) {
-                    // Add selected services
-                    const selectedServiceItem = `
-                        <li class="selected-service-item list-group-item d-flex justify-content-between align-items-center" data-service-id="${serviceId}">
-                            <span>${serviceName}</span>
-                            <span class="badge badge-custom">₹${serviceCost.toFixed(2)}</span>
-                            <button class="btn btn-danger btn-sm remove-btn">Remove</button>
-                        </li>
-                    `;
-                    $('#selectedServices').append(selectedServiceItem);
-                    totalCost += serviceCost;
-                } else {
-                    // Remove from selected services
-                    $(`#selectedServices li[data-service-id="${serviceId}"]`).remove();
-                    totalCost -= serviceCost;
-                }
-
-                $('#totalCost').text(totalCost.toFixed(2));
-            });
-
-            // Handle service removal
-            $('#selectedServices').on('click', '.remove-btn', function () {
-                const parentLi = $(this).closest('li');
-                const serviceId = parentLi.data('service-id');
-
-                // Uncheck corresponding checkbox
-                $(`#service-${serviceId}`).prop('checked', false);
-                parentLi.remove();
-
-                // Recalculate total cost
-                const serviceCost = parseFloat(parentLi.find('.badge-custom').text().replace('₹', ''));
-                totalCost -= serviceCost;
-                $('#totalCost').text(totalCost.toFixed(2));
-
-                // Reset total cost if all services are removed
-                if ($('#selectedServices li').length === 0) {
-                    totalCost = 0;
-                    $('#totalCost').text(totalCost.toFixed(2));
-                }
-            });
-
-            // Book appointment
-            $('#bookAppointment').click(function () {
-                const selectedServices = [];
-                let totalCost = 0;
-
-                // Collect selected services
-                $('#selectedServices li').each(function () {
-                    const serviceId = $(this).data('service-id');
-                    const serviceName = $(this).find('span:first').text();
-                    const serviceCost = parseFloat($(this).find('.badge-custom').text().replace('₹', ''));
-
-                    selectedServices.push({
-                        service_id: serviceId,
-                        name: serviceName,
-                        cost: serviceCost
-                    });
-
-                    totalCost += serviceCost;
-                });
-
-                const appointmentDate = $('#appointmentDate').val();
-                const appointmentTime = $('#appointmentTime').val();
-                const appointmentAMPM = $('#appointmentAMPM').val();
-
-                // Validate date and time
-                if (!appointmentDate) {
-                    alert('Please select an appointment date.');
-                    return;
-                }
-                if (!appointmentTime || !appointmentAMPM) {
-                    alert('Please select both time and AM/PM.');
-                    return;
-                }
-
-                const selectedDate = new Date(appointmentDate);
-                const currentDate = new Date();
-                currentDate.setHours(0, 0, 0, 0);
-
-                if (selectedDate < currentDate) {
-                    alert('You cannot book an appointment in the past.');
-                    return;
-                }
-
-                if (selectedServices.length === 0) {
-                    alert('Please select at least one service.');
-                    return;
-                }
-
-                // Convert time based on AM/PM
-                let [hour, minute] = appointmentTime.split(':');
-                hour = parseInt(hour);
-                if (appointmentAMPM === 'PM' && hour < 12) hour += 12;
-                if (appointmentAMPM === 'AM' && hour === 12) hour = 0;
-
-                const formattedTime = `${hour}:${minute}`;
-                const userId = getUserId();
-                if (!userId) {
-                    alert('User not authenticated. Please log in.');
-                    return;
-                }
-
-                // Create appointment data
-                const appointmentData = {
-                    user_id: userId,
-                    services: selectedServices,
-                    date_time: formatAppointmentDateTime(appointmentDate, formattedTime, appointmentAMPM),
-                    total_cost: totalCost,
-                };
-
-                // Send appointment data to the server
-                $.ajax({
-                    url: '/appointment',
-                    type: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${getToken()}`,
-                        'Content-Type': 'application/json'
-                    },
-                    data: JSON.stringify(appointmentData),
-                    success: function () {
-                        alert('Appointment booked successfully!');
-                        // Reset form
-                        $('#selectedServices').empty();
-                        $('#serviceList input[type="checkbox"]').prop('checked', false);
-                        totalCost = 0;
-                        $('#totalCost').text(totalCost.toFixed(2));
-                        $('#appointmentDate').val('');
-                        $('#appointmentTime').val('');
-                        $('#appointmentAMPM').val('AM');
-                    },
-                    error: function (err) {
-                        console.error('Error:', err);
-                        alert('Failed to book appointment. Please try again.');
-                    }
-                });
-            });
-
-            function formatAppointmentDateTime(date, time, ampm) {
-                const appointmentDate = new Date(date);
-                const [hour, minute] = time.split(':');
-                appointmentDate.setHours(parseInt(hour) + (ampm === 'PM' && hour < 12 ? 12 : 0), minute);
-
-                // Format appointment date as "September 30, 2024 at 12:39 AM"
+            // Function to format the date and time in the custom format (e.g., October 1, 2024 at 01:36 PM)
+            function formatAppointmentDateTime(date) {
                 const options = {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
                 };
-                return appointmentDate.toLocaleString('en-US', options).replace(',', ',');
+                return date.toLocaleString("en-US", options);
             }
 
-            function getCookie(name) {
-                let cookieArr = document.cookie.split(";");
+            // When the edit button is clicked
+            $(document).on("click", ".edit-appointment", function () {
+                const row = $(this).closest("tr");
+                const appointmentId = row.data("id");
+                const status = row.data("status");
+                const date = row.data("date"); // This should be a valid date string
 
-                for (let i = 0; i < cookieArr.length; i++) {
-                    let cookiePair = cookieArr[i].split("=");
-                    if (name === cookiePair[0].trim()) {
-                        return decodeURIComponent(cookiePair[1]);
-                    }
+                // Pre-fill form fields
+                const formattedDateForInput = formatDateForInput(date); // Format the date for the datetime-local input
+                $("#appointmentId").val(appointmentId);
+                $("#status").val(status);
+                $("#time").val(formattedDateForInput);
+
+                // Show the modal
+                $("#editModal").modal("show");
+            });
+
+            // Submit edit form
+            $("#editForm").submit(function (e) {
+                e.preventDefault();
+
+                const appointmentId = $("#appointmentId").val();
+                const rawDateTime = $("#time").val(); // Get the datetime-local input value (YYYY-MM-DDTHH:MM)
+                const status = $("#status").val();
+
+                // Convert the raw input datetime to a Date object
+                const appointmentDate = new Date(rawDateTime);
+
+                // Validate if the date is correct
+                if (isNaN(appointmentDate.getTime())) {
+                    alert("Invalid appointment date. Please correct the date.");
+                    return;
                 }
-                return null;
-            }
+
+                // Format the date to your desired format for the backend (e.g., October 1, 2024 at 01:36 PM)
+                const formattedDate = formatAppointmentDateTime(appointmentDate);
+
+                const appointmentDetails = {
+                    status: status,
+                    date: formattedDate, // Send the formatted date back to backend
+                };
+
+                // Send the updated appointment details to the backend
+                $.ajax({
+                    url: `/admin/appointment/${appointmentId}`,
+                    type: "PATCH",
+                    contentType: "application/json",
+                    data: JSON.stringify(appointmentDetails),
+                    success: function (response) {
+                        // Handle success
+                        alert("Appointment updated successfully.");
+                        // Optionally, refresh the appointments table
+                        fetchAppointments();
+                        $("#editModal").modal("hide");
+                    },
+                    error: function (error) {
+                        // Handle error
+                        console.error("Error updating appointment:", error);
+                        alert("Error updating appointment.");
+                    },
+                });
+            });
+
+
+
+
+
+
 
             // Function to load profile picture
             function loadProfilePicture() {
-                const userId = getCookie("user_id"); // Fetch user ID from the cookie
+                const userId = getUserId(); // Fetch user ID from the cookie
 
                 if (userId) {
                     // Construct the URL to fetch the profile picture
@@ -706,7 +507,7 @@
             $('.dropdown-item[data-target="#updateModal"]').click(function (e) {
                 e.preventDefault(); // Prevent default link behavior
 
-                const userId = getCookie("user_id"); // Ensure 'user_id' cookie is set
+                const userId = getUserId(); // Ensure 'user_id' cookie is set
                 const authToken = getToken(); // Ensure authToken is fetched correctly
 
                 if (!userId) {
